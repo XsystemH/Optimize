@@ -6,5 +6,5 @@ int main() {
     int a = b = c = 1;
     int b = {{{},{}},{1,2,3},1,2,3};
     bool c = true;
-    string d = f"123\n\r$a+b$";
+    string d = f"123\n\r$$$a+b$$f"123$A+B$"$";
 }

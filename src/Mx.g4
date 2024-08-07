@@ -53,10 +53,10 @@ type
     | Identifier // for class
     ;
 
-FormatBegin : 'f"' (PrintableChar~'$' | EscapeSequence | '$$')* '$';
-FormatEmpty : 'f"' (PrintableChar~'$' | EscapeSequence | '$$')* '"';
-FormatMid : '$' (PrintableChar~'$' | EscapeSequence | '$$')* '$';
-FormatEnd : '$' (PrintableChar~'$' | EscapeSequence | '$$')* '"';
+FormatBegin : 'f"' (FormatChar | EscapeSequence | '$$')* '$';
+FormatEmpty : 'f"' (FormatChar | EscapeSequence | '$$')* '"';
+FormatEnd : '$' (FormatChar | EscapeSequence | '$$')* '"';
+FormatMid : '$' (FormatChar | EscapeSequence | '$$')* '$';
 
 // Constants
 Constant
@@ -152,10 +152,10 @@ Return : 'return';
 Identifier
     : [a-zA-Z] [a-zA-Z_0-9]*
     ;
-
-PrintableChar : [\u0020-\u007E];
-EscapeSequence : '\\' [n"\\];
 Whitespace
     :   [ \t\r\n] +
         -> skip
     ;
+PrintableChar : [\u0020\u0021-\u007E]; // no "
+FormatChar : [\u0020\u0021\u0023\u0025-\u007E]; // no " $
+EscapeSequence : '\\' [n"\\];
