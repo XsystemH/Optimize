@@ -156,6 +156,6 @@ Whitespace
     :   [ \t\r\n] +
         -> skip
     ;
-PrintableChar : [\u0020\u0021-\u007E]; // no "
+PrintableChar : [\u0020\u0023-\u007E]; // no "
 FormatChar : [\u0020\u0021\u0023\u0025-\u007E]; // no " $
 EscapeSequence : '\\' [n"\\];
