@@ -1,6 +1,6 @@
 grammar Mx;
 
-program: (classDef | funcDef)* mainFn;
+program: (classDef | funcDef | globalVardef)* mainFn;
 mainFn: 'int' 'main()' suite EOF;
 
 classDef : 'class' Identifier suite ';';
@@ -22,6 +22,7 @@ statement
     | expression ';' #expressionStatement
     | ';' #emptyStatement
     ;
+globalVardef : type Identifier ('=' expression)? ';';
 
 expression
     : primary #primaryExpression
