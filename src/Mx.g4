@@ -1,13 +1,14 @@
 grammar Mx;
 
 program: (classDef | funcDef | globalVardef)* mainFn;
-mainFn: 'int' 'main()' suite EOF;
+mainFn: 'int' 'main' '(' ')' suite EOF;
 
-classDef : 'class' Identifier suite ';';
+classDef : 'class' Identifier (suite|emptysuite) ';';
 
-funcDef : type Identifier '(' ')' suite; // todo funcParameter
+funcDef : (type | 'void') Identifier '(' ')' (suite|emptysuite); // todo funcParameter
 
 suite : '{' statement* '}';
+emptysuite : '{' '}';
 
 statement
     : suite #block
@@ -30,6 +31,8 @@ expression
     | expression op=('++' | '--') #rightM
     | expression op=('+' | '-' | '*' | '/') expression #binary
     | expression op=('==' | '!=' | '>' | '<' | '>=' | '<=') expression #boolExpr
+    | expression op=('&&' | '||') expression #logicExpr
+    | '!' expression #logicNot
     | expression '?' expression ':' expression #trinocular
     | <assoc=right> expression '=' expression #assignExpr
     | ( FormatEmpty
@@ -38,7 +41,7 @@ expression
 
 primary
     : '(' expression ')' #priority
-    | Constant  #constant
+    | constants  #constant
     | varName=Identifier #variable
     | This #this
     | funcName=Identifier '(' expression? (','expression)* ')' #funcCall
@@ -61,10 +64,10 @@ FormatEnd : '$' (FormatChar | EscapeSequence | '$$')* '"';
 FormatMid : '$' (FormatChar | EscapeSequence | '$$')* '$';
 
 // Constants
-Constant
+constants
     : DecInteger
     | StringCons
-    | Array_Cons
+    | array_Cons
     | True
     | False
     ;
@@ -75,8 +78,8 @@ DecInteger
 
 StringCons : '"' (PrintableChar | EscapeSequence | '$$')* '"';
 
-Array_Cons : '{' [ \t\r\n]* Array_Content? [ \t\r\n]* '}';
-Array_Content : Constant ([ \t\r\n]* ',' [ \t\r\n]* Constant)*;
+array_Cons : '{'  array_Content? '}';
+array_Content : constants (',' constants)*;
 
 // Character Set
 Add : '+';
@@ -150,6 +153,7 @@ While : 'while';
 Break : 'break';
 Continue : 'continue';
 Return : 'return';
+Main : 'main';
 
 Identifier
     : [a-zA-Z] [a-zA-Z_0-9]*
