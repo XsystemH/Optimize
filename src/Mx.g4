@@ -14,7 +14,7 @@ statement
     | type Identifier ('=' expression)? ';' #vardefStatement
     | If '(' expression ')' trueStmt=statement
             (Else falseStmt=statement)? #ifStmt
-    | For '(' expression ')' statement #forStatement
+    | For '(' (initialStmt=statement | ';') conditionExpr=expression? ';' stepExpr=expression? ')' statement #forStatement
     | While '(' expression ')' statement #whileStatement
     | Return expression? ';' #returnStatement
     | Break ';' #breakStatement
@@ -42,8 +42,8 @@ primary
     | This #this
     | funcName=Identifier '(' expression? (','expression)* ')' #funcCall
     | className=Identifier '.' memberName=Identifier #classMember
-    | arrayName=Identifier '[' index=expression ']' #arrayVisit
-    | New expression #newExpr
+    | arrayName=Identifier '[' index=expression ']' ('[' index=expression ']')* #arrayVisit
+    | New type ('[' expression? ']')* #newExpr
     ;
 
 type
@@ -51,6 +51,7 @@ type
     | Bool
     | String
     | Identifier // for class
+    | type '[]'
     ;
 
 FormatBegin : 'f"' (FormatChar | EscapeSequence | '$$')* '$';
