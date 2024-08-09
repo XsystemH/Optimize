@@ -3,12 +3,18 @@ grammar Mx;
 program: (classDef | funcDef | globalVardef)* mainFn;
 mainFn: 'int' 'main' '(' ')' suite EOF;
 
-classDef : 'class' Identifier (suite|emptysuite) ';';
+classDef : 'class' Identifier classsuite ';';
 
-funcDef : (type | 'void') Identifier '(' ')' (suite|emptysuite); // todo funcParameter
+funcDef : (type | 'void') Identifier '(' (type Identifier)* ')' suite;
 
 suite : '{' statement* '}';
-emptysuite : '{' '}';
+classsuite : '{' classMember* '}';
+
+classMember
+    : type Identifier ('=' expression)? ';' #varMember
+    | funcDef #funcMember
+    | Identifier '(' ')' suite #constructor
+    ;
 
 statement
     : suite #block
@@ -45,9 +51,11 @@ primary
     | varName=Identifier #variable
     | This #this
     | funcName=Identifier '(' expression? (','expression)* ')' #funcCall
-    | className=Identifier '.' memberName=Identifier #classMember
+    | className=primary '.' memberName=(Identifier|This) #classMem
+    | className=primary '.' funcName=Identifier '(' expression? (','expression)* ')' #classFunc
     | arrayName=Identifier '[' index=expression ']' ('[' index=expression ']')* #arrayVisit
     | New type ('[' expression? ']')* #newExpr
+    | Null #nullExpr
     ;
 
 type
