@@ -4,13 +4,16 @@ import AST.*;
 import AST.Stmt.MainNode;
 import AST.Stmt.StmtNode;
 import AST.Stmt.blockStmtNode;
+import AST.Stmt.varDefStmtNode;
 import Parser.MxBaseVisitor;
 import Parser.MxParser;
 import org.antlr.v4.runtime.tree.ParseTree;
 import util.globalScope;
 import util.position;
+import util.error.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     private globalScope gScope;
@@ -45,7 +48,21 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
     @Override
-    public ASTNode visitClassDef(MxParser.ClassDefContext ctx) {}
+    public ASTNode visitClassDef(MxParser.ClassDefContext ctx) {
+        ClassNode c = new ClassNode(new position(ctx));
+        for (MxParser.VarDefContext var : ctx.classsuite().varDef()) {
+            c.vars.add((varDefStmtNode) visit(var));
+        }
+        for (MxParser.FuncDefContext func : ctx.classsuite().funcDef()) {
+            c.functions.add((FuncNode) visit(func));
+        }
+        if (ctx.classsuite().constructor().size() > 1) {
+            throw new syntaxError("More than one Constructor", new position(ctx));
+        } else if (ctx.classsuite().constructor().size() == 1) {
+            c.constructor = (blockStmtNode) visit(ctx.classsuite().constructor(0).suite());
+        }
+        return c;
+    }
 
     @Override
     public ASTNode visitFuncDef(MxParser.FuncDefContext ctx) {}

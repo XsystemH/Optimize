@@ -8,13 +8,10 @@ classDef : 'class' Identifier classsuite ';';
 funcDef : (type | 'void') Identifier '(' (type Identifier)* ')' suite;
 
 suite : '{' statement* '}';
-classsuite : '{' classMember* '}';
+classsuite : '{' (varDef | funcDef | constructor)* '}';
 
-classMember
-    : type Identifier ('=' expression)? ';' #varMember
-    | funcDef #funcMember
-    | Identifier '(' ')' suite #constructor
-    ;
+varDef : type Identifier ('=' expression)? ';';
+constructor : Identifier '(' ')' suite;
 
 statement
     : suite #blockStatement

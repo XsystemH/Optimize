@@ -89,25 +89,13 @@ public class MxBaseListener implements MxListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterVarMember(MxParser.VarMemberContext ctx) { }
+	@Override public void enterVarDef(MxParser.VarDefContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitVarMember(MxParser.VarMemberContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterFuncMember(MxParser.FuncMemberContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitFuncMember(MxParser.FuncMemberContext ctx) { }
+	@Override public void exitVarDef(MxParser.VarDefContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

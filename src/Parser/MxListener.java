@@ -68,38 +68,22 @@ public interface MxListener extends ParseTreeListener {
 	 */
 	void exitClasssuite(MxParser.ClasssuiteContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code varMember}
-	 * labeled alternative in {@link MxParser#classMember}.
+	 * Enter a parse tree produced by {@link MxParser#varDef}.
 	 * @param ctx the parse tree
 	 */
-	void enterVarMember(MxParser.VarMemberContext ctx);
+	void enterVarDef(MxParser.VarDefContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code varMember}
-	 * labeled alternative in {@link MxParser#classMember}.
+	 * Exit a parse tree produced by {@link MxParser#varDef}.
 	 * @param ctx the parse tree
 	 */
-	void exitVarMember(MxParser.VarMemberContext ctx);
+	void exitVarDef(MxParser.VarDefContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code funcMember}
-	 * labeled alternative in {@link MxParser#classMember}.
-	 * @param ctx the parse tree
-	 */
-	void enterFuncMember(MxParser.FuncMemberContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code funcMember}
-	 * labeled alternative in {@link MxParser#classMember}.
-	 * @param ctx the parse tree
-	 */
-	void exitFuncMember(MxParser.FuncMemberContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code constructor}
-	 * labeled alternative in {@link MxParser#classMember}.
+	 * Enter a parse tree produced by {@link MxParser#constructor}.
 	 * @param ctx the parse tree
 	 */
 	void enterConstructor(MxParser.ConstructorContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code constructor}
-	 * labeled alternative in {@link MxParser#classMember}.
+	 * Exit a parse tree produced by {@link MxParser#constructor}.
 	 * @param ctx the parse tree
 	 */
 	void exitConstructor(MxParser.ConstructorContext ctx);

@@ -47,22 +47,13 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitClasssuite(MxParser.ClasssuiteContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code varMember}
-	 * labeled alternative in {@link MxParser#classMember}.
+	 * Visit a parse tree produced by {@link MxParser#varDef}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitVarMember(MxParser.VarMemberContext ctx);
+	T visitVarDef(MxParser.VarDefContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code funcMember}
-	 * labeled alternative in {@link MxParser#classMember}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFuncMember(MxParser.FuncMemberContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code constructor}
-	 * labeled alternative in {@link MxParser#classMember}.
+	 * Visit a parse tree produced by {@link MxParser#constructor}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
