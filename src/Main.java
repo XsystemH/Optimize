@@ -1,8 +1,7 @@
-package src;
-import src.Parser.MxLexer;
-import src.Parser.MxParser;
-import src.Parser.MxVisitor;
-import src.Parser.MxListener;
+import Parser.MxLexer;
+import Parser.MxParser;
+import Parser.MxVisitor;
+import Parser.MxListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -22,6 +21,6 @@ public class Main {
 
         MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
         lexer.removeErrorListeners();
-        lexer.addErrorListener(new MxErrorListener());
+//        lexer.addErrorListener(new MxErrorListener());
     }
 }

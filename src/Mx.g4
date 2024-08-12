@@ -32,38 +32,38 @@ statement
 globalVardef : type Identifier ('=' expression)? ';';
 
 expression
-    : primary #primaryExpression
-    | op=('++' | '--' | '|' | '~' | '-') expression #leftM
-    | expression op=('++' | '--') #rightM
-    | expression op=('+' | '-' | '*' | '/') expression #binary
+    : '(' expression ')' #priorityExpr
+    | constants  #constantExpr
+    | varName=Identifier #variableExpr
+    | This #thisExpr
+    | funcName=Identifier '(' expression? (','expression)* ')' #funcCallExpr
+    | className=expression '.' memberName=Identifier #classMemExpr
+    | className=expression '.' funcName=Identifier '(' expression? (','expression)* ')' #classFuncExpr
+    | arrayName=expression '[' index=expression ']' ('[' index=expression ']')* #arrayVisitExpr
+    | New BasicType ('[' expression? ']')* #newExpr
+    | Null #nullExpr
+    | op=('++' | '--' | '!' | '~' | '-') expression #leftExpr
+    | expression op=('++' | '--') #rightExpr
+    | expression op=('+' | '-' | '*' | '/' | '%' | '<<' | '>>') expression #binaryExpr
     | expression op=('==' | '!=' | '>' | '<' | '>=' | '<=') expression #boolExpr
     | expression op=('&&' | '||') expression #logicExpr
-    | '!' expression #logicNot
-    | expression '?' expression ':' expression #trinocular
+    | '!' expression #notExpr
+    | expression '?' expression ':' expression #ternaryExpr
     | <assoc=right> expression '=' expression #assignExpr
     | ( FormatEmpty
       | (FormatBegin expression (FormatMid expression)* FormatEnd)) #formatString
     ;
 
-primary
-    : '(' expression ')' #priority
-    | constants  #constant
-    | varName=Identifier #variable
-    | This #this
-    | funcName=Identifier '(' expression? (','expression)* ')' #funcCall
-    | className=primary '.' memberName=(Identifier|This) #classMem
-    | className=primary '.' funcName=Identifier '(' expression? (','expression)* ')' #classFunc
-    | arrayName=Identifier '[' index=expression ']' ('[' index=expression ']')* #arrayVisit
-    | New type ('[' expression? ']')* #newExpr
-    | Null #nullExpr
+type
+    : BasicType
+    | type '[]'
     ;
 
-type
+BasicType
     : Int
     | Bool
     | String
-    | Identifier // for class
-    | type '[]'
+    | Identifier
     ;
 
 FormatBegin : 'f"' (FormatChar | EscapeSequence | '$$')* '$';
@@ -73,11 +73,10 @@ FormatMid : '$' (FormatChar | EscapeSequence | '$$')* '$';
 
 // Constants
 constants
-    : DecInteger
-    | StringCons
-    | array_Cons
-    | True
-    | False
+    : DecInteger #intCons
+    | StringCons #strCons
+    | array_Cons #arrCons
+    | (True | False) #boolCons
     ;
 DecInteger
     : [1-9] [0-9]*
