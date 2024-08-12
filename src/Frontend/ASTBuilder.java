@@ -1,6 +1,7 @@
 package Frontend;
 
 import AST.*;
+import AST.Stmt.MainNode;
 import AST.Stmt.StmtNode;
 import AST.Stmt.blockStmtNode;
 import Parser.MxBaseVisitor;
@@ -34,7 +35,14 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
     @Override
-    public ASTNode visitMainFn(MxParser.MainFnContext ctx) {}
+    public ASTNode visitMainFn(MxParser.MainFnContext ctx) {
+        MainNode main = new MainNode(new position(ctx));
+        // ignore suite
+        for (MxParser.StatementContext stmt : ctx.suite().statement()) {
+            main.statements.add((StmtNode) visit(stmt));
+        }
+        return main;
+    }
 
     @Override
     public ASTNode visitClassDef(MxParser.ClassDefContext ctx) {}
