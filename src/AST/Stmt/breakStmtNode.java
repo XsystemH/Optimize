@@ -1,10 +1,10 @@
-package AST.Expr;
+package AST.Stmt;
 
 import AST.ASTVisitor;
 import util.position;
 
-public class thisExprNode extends ExprNode{
-    public thisExprNode(position pos) {
+public class breakStmtNode extends StmtNode{
+    public breakStmtNode(position pos) {
         super(pos);
     }
 

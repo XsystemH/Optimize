@@ -17,10 +17,10 @@ classMember
     ;
 
 statement
-    : suite #block
+    : suite #blockStatement
     | type Identifier ('=' expression)? ';' #vardefStatement
     | If '(' expression ')' trueStmt=statement
-            (Else falseStmt=statement)? #ifStmt
+            (Else falseStmt=statement)? #ifStatement
     | For '(' (initialStmt=statement | ';') conditionExpr=expression? ';' stepExpr=expression? ')' statement #forStatement
     | While '(' expression ')' statement #whileStatement
     | Return expression? ';' #returnStatement

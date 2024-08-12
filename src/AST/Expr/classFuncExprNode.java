@@ -19,6 +19,6 @@ public class classFuncExprNode extends ExprNode{
 
     @Override
     public void accept(ASTVisitor visitor) {
-
+        visitor.visit(this);
     }
 }

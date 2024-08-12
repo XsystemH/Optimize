@@ -14,6 +14,6 @@ public class boolConsNode extends ConsNode{
 
     @Override
     public void accept(ASTVisitor visitor) {
-
+        visitor.visit(this);
     }
 }

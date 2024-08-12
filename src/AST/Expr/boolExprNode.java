@@ -22,6 +22,6 @@ public class boolExprNode extends ExprNode{
 
     @Override
     public void accept(ASTVisitor visitor) {
-
+        visitor.visit(this);
     }
 }

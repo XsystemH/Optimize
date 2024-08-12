@@ -1,12 +1,13 @@
-package AST.Expr;
+package AST.Stmt;
 
 import AST.ASTVisitor;
+import AST.Expr.ExprNode;
 import util.position;
 
-public class notExprNode extends ExprNode{
+public class returnStmtNode extends StmtNode{
     public ExprNode expr;
 
-    public notExprNode(ExprNode expr, position pos) {
+    public returnStmtNode(ExprNode expr, position pos) {
         super(pos);
         this.expr = expr;
     }

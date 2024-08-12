@@ -22,6 +22,6 @@ public class logicExprNode extends ExprNode{
 
     @Override
     public void accept(ASTVisitor visitor) {
-
+        visitor.visit(this);
     }
 }

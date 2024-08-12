@@ -21,6 +21,6 @@ public class leftExprNode extends ExprNode{
 
     @Override
     public void accept(ASTVisitor visitor) {
-
+        visitor.visit(this);
     }
 }

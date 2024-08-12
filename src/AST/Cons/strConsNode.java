@@ -14,6 +14,6 @@ public class strConsNode extends ConsNode{
 
     @Override
     public void accept(ASTVisitor visitor) {
-
+        visitor.visit(this);
     }
 }

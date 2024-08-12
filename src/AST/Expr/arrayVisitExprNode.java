@@ -17,6 +17,6 @@ public class arrayVisitExprNode extends ExprNode{
 
     @Override
     public void accept(ASTVisitor visitor) {
-
+        visitor.visit(this);
     }
 }
