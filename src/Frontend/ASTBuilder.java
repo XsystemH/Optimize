@@ -1,6 +1,6 @@
 package Frontend;
 
-import AST.ASTNode;
+import AST.*;
 import AST.Stmt.StmtNode;
 import AST.Stmt.blockStmtNode;
 import Parser.MxBaseVisitor;
@@ -19,7 +19,18 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitProgram(MxParser.ProgramContext ctx) {
-
+        ProgramNode p = new ProgramNode(new position(ctx));
+        for (MxParser.ClassDefContext cla : ctx.classDef()) {
+            p.Classes.add((ClassNode) visit(cla));
+        }
+        for (MxParser.FuncDefContext func : ctx.funcDef()) {
+            p.functions.add((FuncNode) visit(func));
+        }
+        for (MxParser.GlobalVardefContext var : ctx.globalVardef()) {
+            p.globalVars.add((GlobalVarNode) visit(var));
+        }
+        p.mainFn = (FuncNode) visit(ctx.mainFn());
+        return p;
     }
 
     @Override

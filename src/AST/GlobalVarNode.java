@@ -2,8 +2,8 @@ package AST;
 
 import util.position;
 
-public class RootNode extends ASTNode {
-    public RootNode(position pos) {
+public class GlobalVarNode extends ASTNode{
+    public GlobalVarNode(position pos) {
         super(pos);
     }
 
