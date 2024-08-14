@@ -8,12 +8,13 @@ import AST.Stmt.varDefStmtNode;
 import Parser.MxBaseVisitor;
 import Parser.MxParser;
 import org.antlr.v4.runtime.tree.ParseTree;
+import util.Type.ReturnType;
+import util.Type.Type;
 import util.globalScope;
 import util.position;
 import util.error.*;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     private globalScope gScope;
@@ -65,7 +66,18 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
     @Override
-    public ASTNode visitFuncDef(MxParser.FuncDefContext ctx) {}
+    public ASTNode visitFuncDef(MxParser.FuncDefContext ctx) {
+        FuncNode f = new FuncNode(new position(ctx));
+        f.returnType = new ReturnType(ctx.returnType());
+        for(MxParser.ParamContext param : ctx.param()) {
+            f.paramType.add(new Type(param.type()));
+            f.paramName.add(param.name.toString());
+        }
+        for(MxParser.StatementContext stmt : ctx.suite().statement()) {
+            f.body.add((StmtNode) visit(stmt));
+        }
+        return f;
+    }
 
     @Override
     public ASTNode visitSuite(MxParser.SuiteContext ctx) {
@@ -82,13 +94,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
     @Override
-    public ASTNode visitClasssuite(MxParser.ClasssuiteContext ctx) {}
-
-    @Override
-    public ASTNode visitVarMember(MxParser.VarMemberContext ctx) {}
-
-    @Override
-    public ASTNode visitFuncMember(MxParser.FuncMemberContext ctx) {}
+    public ASTNode visitVarDef(MxParser.VarDefContext ctx) {}
 
     @Override
     public ASTNode visitConstructor(MxParser.ConstructorContext ctx) {}

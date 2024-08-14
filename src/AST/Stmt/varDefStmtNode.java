@@ -2,7 +2,7 @@ package AST.Stmt;
 
 import AST.ASTVisitor;
 import AST.Expr.ExprNode;
-import util.Type;
+import util.Type.Type;
 import util.position;
 
 public class varDefStmtNode extends StmtNode{

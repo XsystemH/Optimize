@@ -5,7 +5,9 @@ mainFn: 'int' 'main' '(' ')' suite EOF;
 
 classDef : 'class' Identifier classsuite ';';
 
-funcDef : (type | 'void') Identifier '(' (type Identifier)* ')' suite;
+funcDef : returnType funcName=Identifier '(' param* ')' suite;
+returnType : type | Void;
+param : type name = Identifier;
 
 suite : '{' statement* '}';
 classsuite : '{' (varDef | funcDef | constructor)* '}';
@@ -51,10 +53,7 @@ expression
       | (FormatBegin expression (FormatMid expression)* FormatEnd)) #formatString
     ;
 
-type
-    : BasicType
-    | type '[]'
-    ;
+type : BasicType (Left_Bracket RightBracket)*;
 
 BasicType
     : Int

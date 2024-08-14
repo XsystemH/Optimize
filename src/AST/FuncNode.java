@@ -1,8 +1,18 @@
 package AST;
 
+import AST.Stmt.StmtNode;
+import util.Type.ReturnType;
+import util.Type.Type;
 import util.position;
 
+import java.util.ArrayList;
+
 public class FuncNode extends ASTNode {
+    public ReturnType returnType;
+    public ArrayList<Type> paramType;
+    public ArrayList<String> paramName;
+    public ArrayList<StmtNode> body;
+
     public FuncNode(position pos) {
         super(pos);
     }

@@ -1,7 +1,7 @@
 package AST.Expr;
 
 import AST.ASTVisitor;
-import util.Type;
+import util.Type.Type;
 import util.position;
 
 public class binaryExprNode extends ExprNode{
