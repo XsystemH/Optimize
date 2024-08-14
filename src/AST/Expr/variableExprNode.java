@@ -6,9 +6,8 @@ import util.position;
 public class variableExprNode extends ExprNode{
     public String name;
 
-    public variableExprNode(String name, position pos) {
+    public variableExprNode(position pos) {
         super(pos);
-        this.name = name;
     }
 
     @Override

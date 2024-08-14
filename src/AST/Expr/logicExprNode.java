@@ -12,12 +12,8 @@ public class logicExprNode extends ExprNode{
     }
     public logicOpType opCode;
 
-    public logicExprNode(ExprNode lhs, ExprNode rhs, logicOpType opCode, Type type_, position pos) {
+    public logicExprNode(position pos) {
         super(pos);
-        this.lhs = lhs;
-        this.rhs = rhs;
-        this.opCode = opCode;
-        type = type_;
     }
 
     @Override

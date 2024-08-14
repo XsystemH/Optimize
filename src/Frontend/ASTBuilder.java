@@ -1,11 +1,13 @@
 package Frontend;
 
 import AST.*;
-import AST.Expr.ExprNode;
+import AST.Cons.*;
+import AST.Expr.*;
 import AST.Stmt.*;
 import Parser.MxBaseVisitor;
 import Parser.MxParser;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import util.Type.ReturnType;
 import util.Type.Type;
 import util.globalScope;
@@ -13,9 +15,11 @@ import util.position;
 import util.error.*;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     private globalScope gScope;
+
     public ASTBuilder(globalScope gScope) {
         this.gScope = gScope;
     }
@@ -67,11 +71,11 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     public ASTNode visitFuncDef(MxParser.FuncDefContext ctx) {
         FuncNode f = new FuncNode(new position(ctx));
         f.returnType = new ReturnType(ctx.returnType());
-        for(MxParser.ParamContext param : ctx.param()) {
+        for (MxParser.ParamContext param : ctx.param()) {
             f.paramType.add(new Type(param.type()));
-            f.paramName.add(param.name.toString());
+            f.paramName.add(param.name.getText());
         }
-        for(MxParser.StatementContext stmt : ctx.suite().statement()) {
+        for (MxParser.StatementContext stmt : ctx.suite().statement()) {
             f.body.add((StmtNode) visit(stmt));
         }
         return f;
@@ -171,81 +175,225 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitNewExpr(MxParser.NewExprContext ctx) {
-
+        newExprNode n = new newExprNode(new position(ctx));
+        n.newType = new Type(ctx.type());
+        for (MxParser.ExpressionContext expr : ctx.expression()) {
+            n.expr.add((ExprNode) visit(expr));
+        }
+        return n;
     }
 
     @Override
-    public ASTNode visitFormatString(MxParser.FormatStringContext ctx) {}
+    public ASTNode visitFormatString(MxParser.FormatStringContext ctx) {
+        formatStringNode f = new formatStringNode(new position(ctx));
+        if (ctx.children.size() == 1) {
+            f.begin = ctx.FormatEmpty().getText();
+        } else {
+            f.begin = ctx.FormatBegin().getText();
+            f.end = ctx.FormatEnd().getText();
+            for (TerminalNode fMid : ctx.FormatMid()) {
+                f.midList.add(fMid.getText());
+            }
+            for (MxParser.ExpressionContext expr : ctx.expression()) {
+                f.exprList.add((ExprNode) visit(expr));
+            }
+        }
+        return f;
+    }
 
     @Override
-    public ASTNode visitThisExpr(MxParser.ThisExprContext ctx) {}
+    public ASTNode visitThisExpr(MxParser.ThisExprContext ctx) {
+        return new thisExprNode(new position(ctx));
+    }
 
     @Override
-    public ASTNode visitRightExpr(MxParser.RightExprContext ctx) {}
+    public ASTNode visitRightExpr(MxParser.RightExprContext ctx) {
+        rightExprNode r = new rightExprNode(new position(ctx));
+        r.expr = (ExprNode) visit(ctx.expression());
+        if (Objects.equals(ctx.op.getText(), "++")) {
+            r.opCode = rightExprNode.rightOpType.add;
+        } else if (Objects.equals(ctx.op.getText(), "--")) {
+            r.opCode = rightExprNode.rightOpType.add;
+        }
+        return r;
+    }
 
     @Override
-    public ASTNode visitNullExpr(MxParser.NullExprContext ctx) {}
+    public ASTNode visitNullExpr(MxParser.NullExprContext ctx) {
+        return new nullExprNode(new position(ctx));
+    }
 
     @Override
-    public ASTNode visitClassFuncExpr(MxParser.ClassFuncExprContext ctx) {}
+    public ASTNode visitClassFuncExpr(MxParser.ClassFuncExprContext ctx) {
+        classFuncExprNode c = new classFuncExprNode(new position(ctx));
+        c.className = (ExprNode) visit(ctx.expression(0));
+        c.funcName = ctx.funcName.getText();
+        for (int i = 1; i < ctx.expression().size(); i++) {
+            c.parameters.add((ExprNode) visit(ctx.expression(i)));
+        }
+        return c;
+    }
 
     @Override
-    public ASTNode visitBinaryExpr(MxParser.BinaryExprContext ctx) {}
+    public ASTNode visitBinaryExpr(MxParser.BinaryExprContext ctx) {
+        binaryExprNode b = new binaryExprNode(new position(ctx));
+        b.lhs = (ExprNode) visit(ctx.expression(0));
+        b.rhs = (ExprNode) visit(ctx.expression(1));
+        switch (ctx.op.getText()) {
+            case "+" -> b.opCode = binaryExprNode.binaryOpType.add;
+            case "-" -> b.opCode = binaryExprNode.binaryOpType.sub;
+            case "*" -> b.opCode = binaryExprNode.binaryOpType.mul;
+            case "/" -> b.opCode = binaryExprNode.binaryOpType.div;
+            case "%" -> b.opCode = binaryExprNode.binaryOpType.mod;
+            case "<<" -> b.opCode = binaryExprNode.binaryOpType.leftShift;
+            case ">>" -> b.opCode = binaryExprNode.binaryOpType.rightShift;
+        }
+        return b;
+    }
 
     @Override
-    public ASTNode visitFuncCallExpr(MxParser.FuncCallExprContext ctx) {}
+    public ASTNode visitFuncCallExpr(MxParser.FuncCallExprContext ctx) {
+        funcCallExprNode f = new funcCallExprNode(new position(ctx));
+        f.funcName = ctx.funcName.getText();
+        for (MxParser.ExpressionContext expr : ctx.expression()) {
+            f.parameters.add((ExprNode) visit(expr));
+        }
+        return f;
+    }
 
     @Override
-    public ASTNode visitVariableExpr(MxParser.VariableExprContext ctx) {}
+    public ASTNode visitVariableExpr(MxParser.VariableExprContext ctx) {
+        variableExprNode v = new variableExprNode(new position(ctx));
+        v.name = ctx.varName.getText();
+        return v;
+    }
 
     @Override
-    public ASTNode visitNotExpr(MxParser.NotExprContext ctx) {}
+    public ASTNode visitNotExpr(MxParser.NotExprContext ctx) {
+        notExprNode n = new notExprNode(new position(ctx));
+        n.expr = (ExprNode) visit(ctx.expression());
+        return n;
+    }
 
     @Override
-    public ASTNode visitClassMemExpr(MxParser.ClassMemExprContext ctx) {}
+    public ASTNode visitClassMemExpr(MxParser.ClassMemExprContext ctx) {
+        classMemExprNode c = new classMemExprNode(new position(ctx));
+        c.className = (ExprNode) visit(ctx.expression());
+        c.memName = ctx.memberName.getText();
+        return c;
+        // todo 数值成员访问
+    }
 
     @Override
-    public ASTNode visitTernaryExpr(MxParser.TernaryExprContext ctx) {}
+    public ASTNode visitTernaryExpr(MxParser.TernaryExprContext ctx) {
+        ternaryExprNode t = new ternaryExprNode(new position(ctx));
+        t.condition = (ExprNode) visit(ctx.expression(0));
+        t.case0 = (ExprNode) visit(ctx.expression(1));
+        t.case1 = (ExprNode) visit(ctx.expression(2));
+        return t;
+    }
 
     @Override
-    public ASTNode visitPriorityExpr(MxParser.PriorityExprContext ctx) {}
+    public ASTNode visitPriorityExpr(MxParser.PriorityExprContext ctx) {
+        priorityExprNode p = new priorityExprNode(new position(ctx));
+        p.expr = (ExprNode) visit(ctx.expression());
+        return p;
+    }
 
     @Override
-    public ASTNode visitArrayVisitExpr(MxParser.ArrayVisitExprContext ctx) {}
+    public ASTNode visitArrayVisitExpr(MxParser.ArrayVisitExprContext ctx) {
+        arrayVisitExprNode a = new arrayVisitExprNode(new position(ctx));
+        a.arrayName = (ExprNode) visit(ctx.expression(0));
+        for (int i = 1; i < ctx.expression().size(); i++) {
+            a.indexes.add((ExprNode) visit(ctx.expression(i)));
+        }
+        return a;
+    }
 
     @Override
-    public ASTNode visitLogicExpr(MxParser.LogicExprContext ctx) {}
+    public ASTNode visitLogicExpr(MxParser.LogicExprContext ctx) {
+        logicExprNode l = new logicExprNode(new position(ctx));
+        l.lhs = (ExprNode) visit(ctx.expression(0));
+        l.rhs = (ExprNode) visit(ctx.expression(1));
+        switch (ctx.op.getText()) {
+            case "&&" -> l.opCode = logicExprNode.logicOpType.land;
+            case "||" -> l.opCode = logicExprNode.logicOpType.lor;
+        }
+        return l;
+    }
 
     @Override
-    public ASTNode visitLeftExpr(MxParser.LeftExprContext ctx) {}
+    public ASTNode visitLeftExpr(MxParser.LeftExprContext ctx) {
+        leftExprNode l = new leftExprNode(new position(ctx));
+        l.expr = (ExprNode) visit(ctx.expression());
+        switch (ctx.op.getText()) {
+            case "++" -> l.opCode = leftExprNode.leftOpType.add;
+            case "--" -> l.opCode = leftExprNode.leftOpType.sub;
+            case "!" -> l.opCode = leftExprNode.leftOpType.not;
+            case "~" -> l.opCode = leftExprNode.leftOpType.negation;
+            case "-" -> l.opCode = leftExprNode.leftOpType.negative;
+        }
+        return l;
+    }
 
     @Override
-    public ASTNode visitBoolExpr(MxParser.BoolExprContext ctx) {}
+    public ASTNode visitBoolExpr(MxParser.BoolExprContext ctx) {
+        boolExprNode b = new boolExprNode(new position(ctx));
+        b.lhs = (ExprNode) visit(ctx.expression(0));
+        b.rhs = (ExprNode) visit(ctx.expression(1));
+        switch (ctx.op.getText()) {
+            case "==" -> b.opCode = boolExprNode.boolOpType.equal;
+            case "!=" -> b.opCode = boolExprNode.boolOpType.notEqual;
+            case "<" -> b.opCode = boolExprNode.boolOpType.less;
+            case ">" -> b.opCode = boolExprNode.boolOpType.greater;
+            case "<=" -> b.opCode = boolExprNode.boolOpType.lessOrEqual;
+            case ">=" -> b.opCode = boolExprNode.boolOpType.greaterOrEqual;
+        }
+        return b;
+    }
 
     @Override
-    public ASTNode visitAssignExpr(MxParser.AssignExprContext ctx) {}
+    public ASTNode visitAssignExpr(MxParser.AssignExprContext ctx) {
+        assignExprNode a = new assignExprNode(new position(ctx));
+        a.lhs = (ExprNode) visit(ctx.expression(0));
+        a.rhs = (ExprNode) visit(ctx.expression(1));
+        return a;
+    }
 
     @Override
-    public ASTNode visitConstantExpr(MxParser.ConstantExprContext ctx) {}
+    public ASTNode visitConstantExpr(MxParser.ConstantExprContext ctx) {
+        constantExprNode c = new constantExprNode(new position(ctx));
+        c.constant = (ConsNode) visit(ctx.constants());
+        return c;
+    }
 
     @Override
-    public ASTNode visitType(MxParser.TypeContext ctx) {}
+    public ASTNode visitIntCons(MxParser.IntConsContext ctx) {
+        intConsNode c = new intConsNode(new position(ctx));
+        c.value = ctx.getAltNumber();
+        return c;
+    }
 
     @Override
-    public ASTNode visitIntCons(MxParser.IntConsContext ctx) {}
+    public ASTNode visitStrCons(MxParser.StrConsContext ctx) {
+        strConsNode c = new strConsNode(new position(ctx));
+        c.value = ctx.getText();
+        return c;
+    }
 
     @Override
-    public ASTNode visitStrCons(MxParser.StrConsContext ctx) {}
+    public ASTNode visitArrCons(MxParser.ArrConsContext ctx) {
+        arrConsNode c = new arrConsNode(new position(ctx));
+        for (MxParser.ConstantsContext content : ctx.array_Cons().array_Content().constants()) {
+            c.content.add((ConsNode) visit(content));
+        }
+        return c;
+    }
 
     @Override
-    public ASTNode visitArrCons(MxParser.ArrConsContext ctx) {}
-
-    @Override
-    public ASTNode visitBoolCons(MxParser.BoolConsContext ctx) {}
-
-    @Override
-    public ASTNode visitArray_Cons(MxParser.Array_ConsContext ctx) {}
-
-    @Override
-    public ASTNode visitArray_Content(MxParser.Array_ContentContext ctx) {}
+    public ASTNode visitBoolCons(MxParser.BoolConsContext ctx) {
+        boolConsNode c = new boolConsNode(new position(ctx));
+        c.value = Objects.equals(ctx.getText(), "true");
+        return c;
+    }
 }

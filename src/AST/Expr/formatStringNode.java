@@ -7,8 +7,8 @@ import java.util.ArrayList;
 
 public class formatStringNode extends ExprNode{
     public String begin, end;
-    public ArrayList<ExprNode> exprList;
     public ArrayList<String> midList;
+    public ArrayList<ExprNode> exprList;
 
     public formatStringNode(position pos) {
         super(pos);

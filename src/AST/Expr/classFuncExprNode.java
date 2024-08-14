@@ -10,11 +10,8 @@ public class classFuncExprNode extends ExprNode{
     public String funcName;
     public ArrayList<ExprNode> parameters;
 
-    public classFuncExprNode(ExprNode className, String funcName, ArrayList<ExprNode> parameters, position pos) {
+    public classFuncExprNode(position pos) {
         super(pos);
-        this.className = className;
-        this.funcName = funcName;
-        this.parameters = parameters;
     }
 
     @Override

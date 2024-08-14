@@ -12,12 +12,8 @@ public class boolExprNode extends ExprNode{
     }
     public boolOpType opCode;
 
-    public boolExprNode(ExprNode lhs, ExprNode rhs, boolOpType opCode, Type type_, position pos) {
+    public boolExprNode(position pos) {
         super(pos);
-        this.lhs = lhs;
-        this.rhs = rhs;
-        this.opCode = opCode;
-        type = type_;
     }
 
     @Override

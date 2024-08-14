@@ -38,7 +38,7 @@ expression
     | className=expression '.' memberName=Identifier #classMemExpr
     | className=expression '.' funcName=Identifier '(' expression? (','expression)* ')' #classFuncExpr
     | arrayName=expression '[' index=expression ']' ('[' index=expression ']')* #arrayVisitExpr
-    | New BasicType ('[' expression? ']')* #newExpr
+    | New type ('[' expression ']')* #newExpr
     | Null #nullExpr
     | op=('++' | '--' | '!' | '~' | '-') expression #leftExpr
     | expression op=('++' | '--') #rightExpr

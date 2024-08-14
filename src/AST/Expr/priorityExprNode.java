@@ -6,9 +6,8 @@ import util.position;
 public class priorityExprNode extends ExprNode{
     public ExprNode expr;
 
-    public priorityExprNode(ExprNode expr, position pos) {
+    public priorityExprNode(position pos) {
         super(pos);
-        this.expr = expr;
     }
 
     @Override

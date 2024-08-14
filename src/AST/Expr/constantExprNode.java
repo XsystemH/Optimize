@@ -7,9 +7,8 @@ import util.position;
 public class constantExprNode extends ExprNode{
     public ConsNode constant;
 
-    public constantExprNode(ConsNode constant, position pos) {
+    public constantExprNode(position pos) {
         super(pos);
-        this.constant = constant;
     }
 
     @Override

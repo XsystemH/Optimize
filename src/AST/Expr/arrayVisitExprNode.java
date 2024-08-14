@@ -9,10 +9,8 @@ public class arrayVisitExprNode extends ExprNode{
     public ExprNode arrayName;
     public ArrayList<ExprNode> indexes;
 
-    public arrayVisitExprNode(ExprNode arrayName, ArrayList<ExprNode> indexes, position pos) {
+    public arrayVisitExprNode(position pos) {
         super(pos);
-        this.arrayName = arrayName;
-        this.indexes = indexes;
     }
 
     @Override

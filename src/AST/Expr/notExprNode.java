@@ -6,9 +6,8 @@ import util.position;
 public class notExprNode extends ExprNode{
     public ExprNode expr;
 
-    public notExprNode(ExprNode expr, position pos) {
+    public notExprNode(position pos) {
         super(pos);
-        this.expr = expr;
     }
 
     @Override

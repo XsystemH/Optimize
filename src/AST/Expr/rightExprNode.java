@@ -12,11 +12,8 @@ public class rightExprNode extends ExprNode{
     }
     public rightOpType opCode;
 
-    public rightExprNode(ExprNode expr, rightOpType opCode, Type type_, position pos) {
+    public rightExprNode(position pos) {
         super(pos);
-        this.expr = expr;
-        this.opCode = opCode;
-        type = type_;
     }
 
     @Override
