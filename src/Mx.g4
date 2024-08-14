@@ -1,6 +1,6 @@
 grammar Mx;
 
-program: (classDef | funcDef | globalVardef)* mainFn;
+program: (classDef | funcDef | varDef)* mainFn;
 mainFn: 'int' 'main' '(' ')' suite EOF;
 
 classDef : 'class' Identifier classsuite ';';
@@ -12,12 +12,12 @@ param : type name = Identifier;
 suite : '{' statement* '}';
 classsuite : '{' (varDef | funcDef | constructor)* '}';
 
-varDef : type Identifier ('=' expression)? ';';
+varDef : type name=Identifier ('=' expression)? ';';
 constructor : Identifier '(' ')' suite;
 
 statement
     : suite #blockStatement
-    | type Identifier ('=' expression)? ';' #vardefStatement
+    | type name=Identifier ('=' expression)? ';' #vardefStatement
     | If '(' expression ')' trueStmt=statement
             (Else falseStmt=statement)? #ifStatement
     | For '(' (initialStmt=statement | ';') conditionExpr=expression? ';' stepExpr=expression? ')' statement #forStatement
@@ -28,7 +28,6 @@ statement
     | expression ';' #expressionStatement
     | ';' #emptyStatement
     ;
-globalVardef : type Identifier ('=' expression)? ';';
 
 expression
     : '(' expression ')' #priorityExpr

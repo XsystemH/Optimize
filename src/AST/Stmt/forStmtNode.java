@@ -10,12 +10,8 @@ public class forStmtNode extends StmtNode{
     public ExprNode incrementExpr;
     public StmtNode bodyStmt;
 
-    public forStmtNode(StmtNode initial, ExprNode condition, ExprNode increment, StmtNode bodyStmt, position pos) {
+    public forStmtNode(position pos) {
         super(pos);
-        this.initialStmt = initial;
-        this.conditionExpr = condition;
-        this.incrementExpr = increment;
-        this.bodyStmt = bodyStmt;
     }
 
     @Override

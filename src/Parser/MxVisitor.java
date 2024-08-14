@@ -141,12 +141,6 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitEmptyStatement(MxParser.EmptyStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link MxParser#globalVardef}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitGlobalVardef(MxParser.GlobalVardefContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code newExpr}
 	 * labeled alternative in {@link MxParser#expression}.
 	 * @param ctx the parse tree

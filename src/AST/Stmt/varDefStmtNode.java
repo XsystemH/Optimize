@@ -10,11 +10,8 @@ public class varDefStmtNode extends StmtNode{
     public String name;
     public ExprNode expr;
 
-    public varDefStmtNode(Type type, String name, ExprNode expr, position pos) {
+    public varDefStmtNode(position pos) {
         super(pos);
-        this.type = type;
-        this.name = name;
-        this.expr = expr;
     }
 
     @Override

@@ -8,10 +8,8 @@ public class whileStmtNode extends StmtNode{
     public ExprNode condition;
     public StmtNode body;
 
-    public whileStmtNode(ExprNode condition, StmtNode body, position pos) {
+    public whileStmtNode(position pos) {
         super(pos);
-        this.condition = condition;
-        this.body = body;
     }
 
     @Override

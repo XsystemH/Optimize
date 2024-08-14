@@ -1,10 +1,8 @@
 package Frontend;
 
 import AST.*;
-import AST.Stmt.MainNode;
-import AST.Stmt.StmtNode;
-import AST.Stmt.blockStmtNode;
-import AST.Stmt.varDefStmtNode;
+import AST.Expr.ExprNode;
+import AST.Stmt.*;
 import Parser.MxBaseVisitor;
 import Parser.MxParser;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -31,7 +29,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         for (MxParser.FuncDefContext func : ctx.funcDef()) {
             p.functions.add((FuncNode) visit(func));
         }
-        for (MxParser.GlobalVardefContext var : ctx.globalVardef()) {
+        for (MxParser.VarDefContext var : ctx.varDef()) {
             p.globalVars.add((GlobalVarNode) visit(var));
         }
         p.mainFn = (FuncNode) visit(ctx.mainFn());
@@ -81,54 +79,90 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitSuite(MxParser.SuiteContext ctx) {
-        ArrayList<StmtNode> statements = new ArrayList<>();
-        if (ctx.statement() != null) {
-            for (ParseTree stmt : ctx.statement()) {
-                StmtNode tmp = (StmtNode)visit(stmt);
-                if (tmp != null) {
-                    statements.add(tmp);
-                }
-            }
+        blockStmtNode b = new blockStmtNode(new position(ctx));
+        for (MxParser.StatementContext stmt : ctx.statement()) {
+            b.statements.add((StmtNode) visit(stmt));
         }
-        return new blockStmtNode(statements, new position(ctx));
+        return b;
     }
 
     @Override
-    public ASTNode visitVarDef(MxParser.VarDefContext ctx) {}
+    public ASTNode visitVarDef(MxParser.VarDefContext ctx) {
+        varDefStmtNode v = new varDefStmtNode(new position(ctx));
+        v.type = new Type(ctx.type());
+        v.name = ctx.name.getText();
+        v.expr = (ExprNode) visit(ctx.expression());
+        return v;
+    }
 
     @Override
-    public ASTNode visitConstructor(MxParser.ConstructorContext ctx) {}
+    public ASTNode visitBlockStatement(MxParser.BlockStatementContext ctx) {
+        blockStmtNode b = new blockStmtNode(new position(ctx));
+        for (MxParser.StatementContext stmt : ctx.suite().statement()) {
+            b.statements.add((StmtNode) visit(stmt));
+        }
+        return b;
+    }
 
     @Override
-    public ASTNode visitBlockStatement(MxParser.BlockStatementContext ctx) {}
+    public ASTNode visitVardefStatement(MxParser.VardefStatementContext ctx) {
+        varDefStmtNode v = new varDefStmtNode(new position(ctx));
+        v.type = new Type(ctx.type());
+        v.name = ctx.name.getText();
+        v.expr = (ExprNode) visit(ctx.expression());
+        return v;
+    }
 
     @Override
-    public ASTNode visitVardefStatement(MxParser.VardefStatementContext ctx) {}
+    public ASTNode visitIfStatement(MxParser.IfStatementContext ctx) {
+        ifStmtNode i = new ifStmtNode(new position(ctx));
+        i.condition = (ExprNode) visit(ctx.expression());
+        i.thenBlock = (StmtNode) visit(ctx.trueStmt);
+        i.elseBlock = (StmtNode) visit(ctx.falseStmt);
+        return i;
+    }
 
     @Override
-    public ASTNode visitIfStatement(MxParser.IfStatementContext ctx) {}
+    public ASTNode visitForStatement(MxParser.ForStatementContext ctx) {
+        forStmtNode f = new forStmtNode(new position(ctx));
+        f.initialStmt = (StmtNode) visit(ctx.initialStmt);
+        f.conditionExpr = (ExprNode) visit(ctx.conditionExpr);
+        f.incrementExpr = (ExprNode) visit(ctx.stepExpr);
+        f.bodyStmt = (StmtNode) visit(ctx.statement(1));
+        return f;
+    }
 
     @Override
-    public ASTNode visitForStatement(MxParser.ForStatementContext ctx) {}
+    public ASTNode visitWhileStatement(MxParser.WhileStatementContext ctx) {
+        whileStmtNode w = new whileStmtNode(new position(ctx));
+        w.condition = (ExprNode) visit(ctx.expression());
+        w.body = (StmtNode) visit(ctx.statement());
+        return w;
+    }
 
     @Override
-    public ASTNode visitWhileStatement(MxParser.WhileStatementContext ctx) {}
-
-    @Override
-    public ASTNode visitReturnStatement(MxParser.ReturnStatementContext ctx) {}
+    public ASTNode visitReturnStatement(MxParser.ReturnStatementContext ctx) {
+        returnStmtNode r = new returnStmtNode(new position(ctx));
+        r.expr = (ExprNode) visit(ctx.expression());
+        return r;
+    }
 
     @Override
     public ASTNode visitBreakStatement(MxParser.BreakStatementContext ctx) {
-        return null;
+        return new breakStmtNode(new position(ctx));
     }
 
     @Override
     public ASTNode visitContinueStatement(MxParser.ContinueStatementContext ctx) {
-        return null;
+        return new continueStmtNode(new position(ctx));
     }
 
     @Override
-    public ASTNode visitExpressionStatement(MxParser.ExpressionStatementContext ctx) {}
+    public ASTNode visitExpressionStatement(MxParser.ExpressionStatementContext ctx) {
+        expressionStmtNode e = new expressionStmtNode(new position(ctx));
+        e.expression = (ExprNode) visit(ctx.expression());
+        return e;
+    }
 
     @Override
     public ASTNode visitEmptyStatement(MxParser.EmptyStatementContext ctx) {
@@ -136,10 +170,9 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
     @Override
-    public ASTNode visitGlobalVardef(MxParser.GlobalVardefContext ctx) {}
+    public ASTNode visitNewExpr(MxParser.NewExprContext ctx) {
 
-    @Override
-    public ASTNode visitNewExpr(MxParser.NewExprContext ctx) {}
+    }
 
     @Override
     public ASTNode visitFormatString(MxParser.FormatStringContext ctx) {}

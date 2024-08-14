@@ -228,16 +228,6 @@ public interface MxListener extends ParseTreeListener {
 	 */
 	void exitEmptyStatement(MxParser.EmptyStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link MxParser#globalVardef}.
-	 * @param ctx the parse tree
-	 */
-	void enterGlobalVardef(MxParser.GlobalVardefContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link MxParser#globalVardef}.
-	 * @param ctx the parse tree
-	 */
-	void exitGlobalVardef(MxParser.GlobalVardefContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code newExpr}
 	 * labeled alternative in {@link MxParser#expression}.
 	 * @param ctx the parse tree

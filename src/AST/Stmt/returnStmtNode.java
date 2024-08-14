@@ -7,9 +7,8 @@ import util.position;
 public class returnStmtNode extends StmtNode{
     public ExprNode expr;
 
-    public returnStmtNode(ExprNode expr, position pos) {
+    public returnStmtNode(position pos) {
         super(pos);
-        this.expr = expr;
     }
 
     @Override

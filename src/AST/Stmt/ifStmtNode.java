@@ -9,11 +9,8 @@ public class ifStmtNode extends StmtNode{
     public StmtNode thenBlock;
     public StmtNode elseBlock;
 
-    public ifStmtNode(ExprNode condition, StmtNode thenBlock, StmtNode elseBlock, position pos) {
+    public ifStmtNode(position pos) {
         super(pos);
-        this.condition = condition;
-        this.thenBlock = thenBlock;
-        this.elseBlock = elseBlock;
     }
 
     @Override
