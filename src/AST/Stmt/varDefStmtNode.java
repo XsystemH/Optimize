@@ -5,10 +5,12 @@ import AST.Expr.ExprNode;
 import util.Type.Type;
 import util.position;
 
+import java.util.ArrayList;
+
 public class varDefStmtNode extends StmtNode{
     public Type type;
-    public String name;
-    public ExprNode expr;
+    public ArrayList<String> name;
+    public ArrayList<ExprNode> expr;
 
     public varDefStmtNode(position pos) {
         super(pos);

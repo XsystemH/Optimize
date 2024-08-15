@@ -5,6 +5,11 @@ import AST.Expr.*;
 import AST.Cons.*;
 
 public interface ASTVisitor {
+    void visit(ProgramNode it);
+    void visit(ClassNode it);
+    void visit(FuncNode it);
+    void visit(MainNode it);
+
     void visit(blockStmtNode it);
     void visit(varDefStmtNode it);
     void visit(ifStmtNode it);

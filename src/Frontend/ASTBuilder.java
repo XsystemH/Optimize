@@ -94,8 +94,10 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     public ASTNode visitVarDef(MxParser.VarDefContext ctx) {
         varDefStmtNode v = new varDefStmtNode(new position(ctx));
         v.type = new Type(ctx.type());
-        v.name = ctx.name.getText();
-        v.expr = (ExprNode) visit(ctx.expression());
+        for (int i = 0; i < ctx.Identifier().size(); i++) {
+            v.name.add(ctx.Identifier(i).getText());
+            v.expr.add((ExprNode) visit(ctx.expression(i)));
+        }
         return v;
     }
 
@@ -111,9 +113,11 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitVardefStatement(MxParser.VardefStatementContext ctx) {
         varDefStmtNode v = new varDefStmtNode(new position(ctx));
-        v.type = new Type(ctx.type());
-        v.name = ctx.name.getText();
-        v.expr = (ExprNode) visit(ctx.expression());
+        v.type = new Type(ctx.varDef().type());
+        for (int i = 0; i < ctx.varDef().Identifier().size(); i++) {
+            v.name.add(ctx.varDef().Identifier(i).getText());
+            v.expr.add((ExprNode) visit(ctx.varDef().expression(i)));
+        }
         return v;
     }
 

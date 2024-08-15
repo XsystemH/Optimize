@@ -1,13 +1,12 @@
-package AST.Stmt;
+package AST;
 
-import AST.ASTNode;
-import AST.ASTVisitor;
+import AST.Stmt.StmtNode;
 import util.position;
 
 import java.util.ArrayList;
 
 public class MainNode extends ASTNode {
-    public ArrayList<ASTNode> statements;
+    public ArrayList<StmtNode> statements;
 
     public MainNode(position pos) {
         super(pos);

@@ -1,14 +1,43 @@
 package Frontend;
 
-import AST.ASTVisitor;
+import AST.*;
 import AST.Cons.arrConsNode;
 import AST.Cons.boolConsNode;
 import AST.Cons.intConsNode;
 import AST.Cons.strConsNode;
 import AST.Expr.*;
 import AST.Stmt.*;
+import util.Scope.globalScope;
 
 public class SymbolCollector implements ASTVisitor {
+    public globalScope gScope;
+
+    public SymbolCollector(globalScope gScope) {
+        this.gScope = gScope;
+    }
+
+    @Override
+    public void visit(ProgramNode it) {
+        for (GlobalVarNode var : it.globalVars) {
+            var.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(ClassNode it) {
+        gScope.defineClass(it);
+    }
+
+    @Override
+    public void visit(FuncNode it) {
+        gScope.defineFunction(it);
+    }
+
+    @Override
+    public void visit(MainNode it) {
+
+    }
+
     @Override
     public void visit(blockStmtNode it) {
 

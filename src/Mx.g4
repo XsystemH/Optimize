@@ -12,12 +12,12 @@ param : type name = Identifier;
 suite : '{' statement* '}';
 classsuite : '{' (varDef | funcDef | constructor)* '}';
 
-varDef : type name=Identifier ('=' expression)? ';';
+varDef : type name=Identifier ('=' expression)? (',' name=Identifier ('=' expression)?)* ';';
 constructor : Identifier '(' ')' suite;
 
 statement
     : suite #blockStatement
-    | type name=Identifier ('=' expression)? ';' #vardefStatement
+    | varDef #vardefStatement
     | If '(' expression ')' trueStmt=statement
             (Else falseStmt=statement)? #ifStatement
     | For '(' (initialStmt=statement | ';') conditionExpr=expression? ';' stepExpr=expression? ')' statement #forStatement
