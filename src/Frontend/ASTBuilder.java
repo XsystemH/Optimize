@@ -6,15 +6,13 @@ import AST.Expr.*;
 import AST.Stmt.*;
 import Parser.MxBaseVisitor;
 import Parser.MxParser;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import util.Type.ReturnType;
 import util.Type.Type;
-import util.globalScope;
+import util.Scope.globalScope;
 import util.position;
 import util.error.*;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 public class ASTBuilder extends MxBaseVisitor<ASTNode> {

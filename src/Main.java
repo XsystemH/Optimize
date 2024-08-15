@@ -1,12 +1,10 @@
-import Parser.MxLexer;
-import Parser.MxParser;
-import Parser.MxVisitor;
-import Parser.MxListener;
+import Parser.*;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import util.MxErrorListener;
+import util.error.error;
 
-import javax.xml.transform.ErrorListener;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -19,8 +17,20 @@ public class Main {
         String filename = "testcases/test";
         InputStream input = new FileInputStream(filename);
 
-        MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
-        lexer.removeErrorListeners();
-//        lexer.addErrorListener(new MxErrorListener());
+        try{
+            MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
+            lexer.removeErrorListeners();
+            lexer.addErrorListener(new MxErrorListener());
+            MxParser parser = new MxParser(new CommonTokenStream(lexer));
+            parser.removeErrorListeners();
+            parser.addErrorListener(new MxErrorListener());
+            ParseTree parseTreeRoot = parser.program();
+        }
+        catch (error e) {
+            System.err.println(e.getMessage());
+            return;
+        }
+        System.out.println("Successfully parsed!");
+        return;
     }
 }
