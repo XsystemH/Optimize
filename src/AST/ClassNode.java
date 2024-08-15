@@ -7,6 +7,7 @@ import util.position;
 import java.util.ArrayList;
 
 public class ClassNode extends ASTNode {
+    public String name;
     public ArrayList<varDefStmtNode> vars;
     public ArrayList<FuncNode> functions;
     public blockStmtNode constructor;

@@ -8,6 +8,7 @@ import util.position;
 import java.util.ArrayList;
 
 public class FuncNode extends ASTNode {
+    public String name;
     public ReturnType returnType;
     public ArrayList<Type> paramType;
     public ArrayList<String> paramName;

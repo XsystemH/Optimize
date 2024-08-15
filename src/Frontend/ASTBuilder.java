@@ -51,6 +51,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitClassDef(MxParser.ClassDefContext ctx) {
         ClassNode c = new ClassNode(new position(ctx));
+        c.name = ctx.Identifier().getText();
         for (MxParser.VarDefContext var : ctx.classsuite().varDef()) {
             c.vars.add((varDefStmtNode) visit(var));
         }
@@ -68,6 +69,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitFuncDef(MxParser.FuncDefContext ctx) {
         FuncNode f = new FuncNode(new position(ctx));
+        f.name = ctx.funcName.getText();
         f.returnType = new ReturnType(ctx.returnType());
         for (MxParser.ParamContext param : ctx.param()) {
             f.paramType.add(new Type(param.type()));
