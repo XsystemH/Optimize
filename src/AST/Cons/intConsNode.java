@@ -1,6 +1,7 @@
 package AST.Cons;
 
 import AST.ASTVisitor;
+import util.Type.Type;
 import util.position;
 
 public class intConsNode extends ConsNode{
@@ -8,7 +9,7 @@ public class intConsNode extends ConsNode{
 
     public intConsNode(position pos) {
         super(pos);
-        type = consType.intCons;
+        type = new Type("int");
     }
 
     @Override

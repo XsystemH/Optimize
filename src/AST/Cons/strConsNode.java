@@ -1,6 +1,7 @@
 package AST.Cons;
 
 import AST.ASTVisitor;
+import util.Type.Type;
 import util.position;
 
 public class strConsNode extends ConsNode{
@@ -8,7 +9,7 @@ public class strConsNode extends ConsNode{
 
     public strConsNode(position pos) {
         super(pos);
-        type = consType.strCons;
+        type = new Type("string");
     }
 
     @Override

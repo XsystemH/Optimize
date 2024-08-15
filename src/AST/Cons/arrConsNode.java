@@ -1,6 +1,7 @@
 package AST.Cons;
 
 import AST.ASTVisitor;
+import util.Type.Type;
 import util.position;
 
 import java.util.ArrayList;
@@ -10,7 +11,8 @@ public class arrConsNode extends ConsNode{
 
     public arrConsNode(position pos) {
         super(pos);
-        type = consType.ArrCons;
+        type = new Type();
+        type.isArray = true;
     }
 
     @Override

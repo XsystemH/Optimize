@@ -13,6 +13,7 @@ public class globalScope extends Scope{
 
     public globalScope(Scope parent) {
         super(parent);
+        scopeType = ScopeType.Global;
     }
 
     public void defineFunction(FuncNode node) {

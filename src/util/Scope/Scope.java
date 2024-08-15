@@ -1,5 +1,6 @@
 package util.Scope;
 
+import util.Type.ReturnType;
 import util.Type.Type;
 import util.error.semanticError;
 import util.position;
@@ -7,12 +8,19 @@ import util.position;
 import java.util.HashMap;
 
 public class Scope {
+    public enum ScopeType {
+        Basic, Global, Class, Func, Loop
+    }
+    public ScopeType scopeType = ScopeType.Basic;
+    public ReturnType returnType;
+
     private HashMap<String, Type> member;
-    private Scope parent;
+    public Scope parent;
 
     public Scope(Scope parent) {
         member = new HashMap<>();
         this.parent = parent;
+        returnType = null;
     }
 
     public boolean containsVariable(String name, boolean lookup) {

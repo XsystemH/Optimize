@@ -7,6 +7,8 @@ import java.util.HashMap;
 public class Type extends BasicType{
     public int dim = 0;
 
+    public Type() {}
+
     public Type(BasicType other) {
         super(other);
         if (other instanceof Type) dim = ((Type) other).dim;
