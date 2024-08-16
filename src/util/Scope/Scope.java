@@ -1,5 +1,6 @@
 package util.Scope;
 
+import util.Decl.FuncDecl;
 import util.Type.ReturnType;
 import util.Type.Type;
 import util.error.semanticError;
@@ -39,5 +40,15 @@ public class Scope {
         if (member.containsKey(name)) return member.get(name);
         if (parent != null && lookup) return parent.getType(name, true);
         return null;
+    }
+
+    public boolean isInFunction() {
+        if (scopeType == ScopeType.Func) {
+            return true;
+        }
+        else if (parent != null) {
+            return parent.isInFunction();
+        }
+        return false;
     }
 }

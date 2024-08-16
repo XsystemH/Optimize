@@ -28,7 +28,8 @@ public interface ASTVisitor {
     void visit(classMemExprNode it);
     void visit(classFuncExprNode it);
     void visit(arrayVisitExprNode it);
-    void visit(newExprNode it);
+    void visit(newArrExprNode it);
+    void visit(newVarExprNode newVarExprNode);
     void visit(nullExprNode it);
     void visit(leftExprNode it);
     void visit(rightExprNode it);
@@ -44,4 +45,5 @@ public interface ASTVisitor {
     void visit(boolConsNode it);
     void visit(intConsNode it);
     void visit(strConsNode it);
+
 }

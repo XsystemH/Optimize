@@ -34,20 +34,11 @@ public class SymbolCollector implements ASTVisitor {
     }
 
     @Override
-    public void visit(MainNode it) {
-
-    }
-
+    public void visit(MainNode it) {}
     @Override
-    public void visit(blockStmtNode it) {
-
-    }
-
+    public void visit(blockStmtNode it) {}
     @Override
-    public void visit(varDefStmtNode it) {
-
-    }
-
+    public void visit(varDefStmtNode it) {}
     @Override
     public void visit(ifStmtNode it) {}
     @Override
@@ -79,7 +70,9 @@ public class SymbolCollector implements ASTVisitor {
     @Override
     public void visit(arrayVisitExprNode it) {}
     @Override
-    public void visit(newExprNode it) {}
+    public void visit(newArrExprNode it) {}
+    @Override
+    public void visit(newVarExprNode newVarExprNode) {}
     @Override
     public void visit(nullExprNode it) {}
     @Override

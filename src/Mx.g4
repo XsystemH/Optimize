@@ -37,8 +37,9 @@ expression
     | funcName=Identifier '(' expression? (','expression)* ')' #funcCallExpr
     | className=expression '.' memberName=Identifier #classMemExpr
     | className=expression '.' funcName=Identifier '(' expression? (','expression)* ')' #classFuncExpr
-    | arrayName=expression '[' index=expression ']' ('[' index=expression ']')* #arrayVisitExpr
-    | New type ('[' expression ']')* #newExpr
+    | arrayName=expression '[' index=expression ']' #arrayVisitExpr
+    | New type ('[' expression ']')* #newArrExpr
+    | New basicType ('(' ')')? #newVarExpr
     | Null #nullExpr
     | op=('++' | '--' | '!' | '~' | '-') expression #leftExpr
     | expression op=('++' | '--') #rightExpr
@@ -52,9 +53,9 @@ expression
       | (FormatBegin expression (FormatMid expression)* FormatEnd)) #formatString
     ;
 
-type : BasicType (Left_Bracket RightBracket)*;
+type : basicType (Left_Bracket RightBracket)*;
 
-BasicType
+basicType
     : Int
     | Bool
     | String

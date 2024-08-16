@@ -7,6 +7,7 @@ import AST.Stmt.*;
 import Parser.MxBaseVisitor;
 import Parser.MxParser;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import util.Type.BasicType;
 import util.Type.ReturnType;
 import util.Type.Type;
 import util.Scope.globalScope;
@@ -178,12 +179,19 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
     @Override
-    public ASTNode visitNewExpr(MxParser.NewExprContext ctx) {
-        newExprNode n = new newExprNode(new position(ctx));
-        n.newType = new Type(ctx.type());
+    public ASTNode visitNewArrExpr(MxParser.NewArrExprContext ctx) {
+        newArrExprNode n = new newArrExprNode(new position(ctx));
+        n.type = new Type(ctx.type());
         for (MxParser.ExpressionContext expr : ctx.expression()) {
             n.expr.add((ExprNode) visit(expr));
         }
+        return n;
+    }
+
+    @Override
+    public ASTNode visitNewVarExpr(MxParser.NewVarExprContext ctx) {
+        newVarExprNode n = new newVarExprNode(new position(ctx));
+        n.type = new Type(ctx.basicType());
         return n;
     }
 
@@ -307,10 +315,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitArrayVisitExpr(MxParser.ArrayVisitExprContext ctx) {
         arrayVisitExprNode a = new arrayVisitExprNode(new position(ctx));
-        a.arrayName = (ExprNode) visit(ctx.expression(0));
-        for (int i = 1; i < ctx.expression().size(); i++) {
-            a.indexes.add((ExprNode) visit(ctx.expression(i)));
-        }
+        a.arrayName = (ExprNode) visit(ctx.arrayName);
+        a.index = (ExprNode) visit(ctx.index);
         return a;
     }
 

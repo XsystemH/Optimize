@@ -13,15 +13,23 @@ public class globalScope extends Scope{
 
     public globalScope(Scope parent) {
         super(parent);
+        classes = new HashMap<>();
+        functions = new HashMap<>();
         scopeType = ScopeType.Global;
     }
 
     public void defineFunction(FuncNode node) {
-
+        if (functions.get(node.name) != null) {
+            throw new RuntimeException("Duplicate function name: " + node.name);
+        }
+        functions.put(node.name, new FuncDecl(node));
     }
 
     public void defineClass(ClassNode node) {
-
+        if (classes.get(node.name) != null) {
+            throw new RuntimeException("Duplicate class name: " + node.name);
+        }
+        classes.put(node.name, new ClassDecl(node));
     }
 
     public Type getClassType(String name) {
@@ -29,6 +37,10 @@ public class globalScope extends Scope{
     }
 
     public FuncDecl getFunction(String name) {
-        return null;
+        return functions.get(name);
+    }
+
+    public ClassDecl getClass(String name) {
+        return classes.get(name);
     }
 }

@@ -1,15 +1,13 @@
 package AST.Expr;
 
 import AST.ASTVisitor;
-import util.Type.Type;
 import util.position;
 
 import java.util.ArrayList;
 
-public class newExprNode extends ExprNode{
-    public Type newType;
+public class newArrExprNode extends ExprNode{
     public ArrayList<ExprNode> expr;
-    public newExprNode(position pos) {
+    public newArrExprNode(position pos) {
         super(pos);
     }
 

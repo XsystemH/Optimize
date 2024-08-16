@@ -228,18 +228,6 @@ public interface MxListener extends ParseTreeListener {
 	 */
 	void exitEmptyStatement(MxParser.EmptyStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code newExpr}
-	 * labeled alternative in {@link MxParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterNewExpr(MxParser.NewExprContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code newExpr}
-	 * labeled alternative in {@link MxParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitNewExpr(MxParser.NewExprContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code formatString}
 	 * labeled alternative in {@link MxParser#expression}.
 	 * @param ctx the parse tree
@@ -263,6 +251,18 @@ public interface MxListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitThisExpr(MxParser.ThisExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code newVarExpr}
+	 * labeled alternative in {@link MxParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterNewVarExpr(MxParser.NewVarExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code newVarExpr}
+	 * labeled alternative in {@link MxParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitNewVarExpr(MxParser.NewVarExprContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code rightExpr}
 	 * labeled alternative in {@link MxParser#expression}.
@@ -299,6 +299,18 @@ public interface MxListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitClassFuncExpr(MxParser.ClassFuncExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code newArrExpr}
+	 * labeled alternative in {@link MxParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterNewArrExpr(MxParser.NewArrExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code newArrExpr}
+	 * labeled alternative in {@link MxParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitNewArrExpr(MxParser.NewArrExprContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code binaryExpr}
 	 * labeled alternative in {@link MxParser#expression}.
@@ -465,6 +477,16 @@ public interface MxListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitType(MxParser.TypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MxParser#basicType}.
+	 * @param ctx the parse tree
+	 */
+	void enterBasicType(MxParser.BasicTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MxParser#basicType}.
+	 * @param ctx the parse tree
+	 */
+	void exitBasicType(MxParser.BasicTypeContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code intCons}
 	 * labeled alternative in {@link MxParser#constants}.

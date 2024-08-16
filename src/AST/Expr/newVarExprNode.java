@@ -3,13 +3,9 @@ package AST.Expr;
 import AST.ASTVisitor;
 import util.position;
 
-import java.util.ArrayList;
+public class newVarExprNode extends ExprNode{
 
-public class arrayVisitExprNode extends ExprNode{
-    public ExprNode arrayName;
-    public ExprNode index;
-
-    public arrayVisitExprNode(position pos) {
+    public newVarExprNode(position pos) {
         super(pos);
     }
 

@@ -17,6 +17,8 @@ public class BasicType {
         isInt = other.isInt;
         isBool = other.isBool;
         isString = other.isString;
+        isNull = other.isNull;
+        isArray = other.isArray;
         typeName = other.typeName;
         members = other.members;
     }
@@ -26,11 +28,16 @@ public class BasicType {
             case "int" -> isInt = true;
             case "bool" -> isBool = true;
             case "string" -> isString = true;
+            case "null" -> isNull = true;
             default -> this.typeName = typeName;
         }
     }
 
     public BasicType(MxParser.TypeContext ctx) {
-        this(ctx.BasicType().toString());
+        this(ctx.basicType().getText());
+    }
+
+    public BasicType(MxParser.BasicTypeContext ctx) {
+        this(ctx.getText());
     }
 }

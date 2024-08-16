@@ -141,13 +141,6 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitEmptyStatement(MxParser.EmptyStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code newExpr}
-	 * labeled alternative in {@link MxParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNewExpr(MxParser.NewExprContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code formatString}
 	 * labeled alternative in {@link MxParser#expression}.
 	 * @param ctx the parse tree
@@ -161,6 +154,13 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitThisExpr(MxParser.ThisExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code newVarExpr}
+	 * labeled alternative in {@link MxParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNewVarExpr(MxParser.NewVarExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code rightExpr}
 	 * labeled alternative in {@link MxParser#expression}.
@@ -182,6 +182,13 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitClassFuncExpr(MxParser.ClassFuncExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code newArrExpr}
+	 * labeled alternative in {@link MxParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNewArrExpr(MxParser.NewArrExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code binaryExpr}
 	 * labeled alternative in {@link MxParser#expression}.
@@ -279,6 +286,12 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitType(MxParser.TypeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link MxParser#basicType}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBasicType(MxParser.BasicTypeContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code intCons}
 	 * labeled alternative in {@link MxParser#constants}.

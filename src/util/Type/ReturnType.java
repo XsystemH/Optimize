@@ -4,7 +4,7 @@ import Parser.MxParser;
 
 import java.util.Objects;
 
-public class ReturnType extends BasicType{
+public class ReturnType extends Type{
     public boolean isVoid = false;
 
     public ReturnType(BasicType other) {
