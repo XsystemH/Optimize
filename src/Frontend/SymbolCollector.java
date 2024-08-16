@@ -18,7 +18,7 @@ public class SymbolCollector implements ASTVisitor {
 
     @Override
     public void visit(ProgramNode it) {
-        for (GlobalVarNode var : it.globalVars) {
+        for (varDefStmtNode var : it.globalVars) {
             var.accept(this);
         }
     }

@@ -11,6 +11,7 @@ public class funcCallExprNode extends ExprNode{
 
     public funcCallExprNode(position pos) {
         super(pos);
+        parameters = new ArrayList<>();
     }
 
     @Override

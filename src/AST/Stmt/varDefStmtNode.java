@@ -14,6 +14,8 @@ public class varDefStmtNode extends StmtNode{
 
     public varDefStmtNode(position pos) {
         super(pos);
+        name = new ArrayList<>();
+        expr = new ArrayList<>();
     }
 
     @Override

@@ -1,6 +1,5 @@
 package util.Scope;
 
-import util.Decl.FuncDecl;
 import util.Type.ReturnType;
 import util.Type.Type;
 import util.error.semanticError;

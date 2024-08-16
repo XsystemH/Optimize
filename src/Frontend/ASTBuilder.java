@@ -33,7 +33,10 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             p.functions.add((FuncNode) visit(func));
         }
         for (MxParser.VarDefContext var : ctx.varDef()) {
-            p.globalVars.add((GlobalVarNode) visit(var));
+            p.globalVars.add((varDefStmtNode) visit(var));
+        }
+        if (ctx.mainFn() == null) {
+            throw new semanticError("No main function.", new position(ctx));
         }
         p.mainFn = (FuncNode) visit(ctx.mainFn());
         return p;
@@ -97,7 +100,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         v.type = new Type(ctx.type());
         for (int i = 0; i < ctx.Identifier().size(); i++) {
             v.name.add(ctx.Identifier(i).getText());
-            v.expr.add((ExprNode) visit(ctx.expression(i)));
+            if (ctx.expression(i) != null)
+                v.expr.add((ExprNode) visit(ctx.expression(i)));
         }
         return v;
     }
@@ -117,7 +121,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         v.type = new Type(ctx.varDef().type());
         for (int i = 0; i < ctx.varDef().Identifier().size(); i++) {
             v.name.add(ctx.varDef().Identifier(i).getText());
-            v.expr.add((ExprNode) visit(ctx.varDef().expression(i)));
+            if (ctx.varDef().expression(i) != null)
+                v.expr.add((ExprNode) visit(ctx.varDef().expression(i)));
         }
         return v;
     }

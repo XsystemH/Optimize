@@ -16,6 +16,9 @@ public class FuncNode extends ASTNode {
 
     public FuncNode(position pos) {
         super(pos);
+        paramType = new ArrayList<>();
+        paramName = new ArrayList<>();
+        body = new ArrayList<>();
     }
 
     @Override

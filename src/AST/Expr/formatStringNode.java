@@ -12,6 +12,8 @@ public class formatStringNode extends ExprNode{
 
     public formatStringNode(position pos) {
         super(pos);
+        midList = new ArrayList<>();
+        exprList = new ArrayList<>();
     }
 
     @Override

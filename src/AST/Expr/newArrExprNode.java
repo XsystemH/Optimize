@@ -9,6 +9,7 @@ public class newArrExprNode extends ExprNode{
     public ArrayList<ExprNode> expr;
     public newArrExprNode(position pos) {
         super(pos);
+        expr = new ArrayList<>();
     }
 
     @Override

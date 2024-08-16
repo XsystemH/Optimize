@@ -11,6 +11,7 @@ public class arrConsNode extends ConsNode{
 
     public arrConsNode(position pos) {
         super(pos);
+        content = new ArrayList<>();
         type = new Type();
         type.isArray = true;
     }

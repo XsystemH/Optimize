@@ -14,6 +14,8 @@ public class ClassNode extends ASTNode {
 
     public ClassNode(position pos) {
         super(pos);
+        vars = new ArrayList<>();
+        functions = new ArrayList<>();
     }
 
     @Override

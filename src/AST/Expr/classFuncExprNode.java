@@ -12,6 +12,7 @@ public class classFuncExprNode extends ExprNode{
 
     public classFuncExprNode(position pos) {
         super(pos);
+        parameters = new ArrayList<>();
     }
 
     @Override

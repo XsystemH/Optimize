@@ -10,6 +10,7 @@ public class blockStmtNode extends StmtNode{
 
     public blockStmtNode(position pos) {
         super(pos);
+        statements = new ArrayList<>();
     }
 
     @Override
