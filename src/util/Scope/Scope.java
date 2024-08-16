@@ -50,4 +50,24 @@ public class Scope {
         }
         return false;
     }
+
+    public boolean isInClass() {
+        if (scopeType == ScopeType.Class) {
+            return true;
+        }
+        else if (parent != null) {
+            return parent.isInClass();
+        }
+        return false;
+    }
+
+    public boolean isInLoop() {
+        if (scopeType == ScopeType.Loop) {
+            return true;
+        }
+        else if (parent != null) {
+            return parent.isInLoop();
+        }
+        return false;
+    }
 }

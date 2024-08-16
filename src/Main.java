@@ -18,10 +18,13 @@ import java.io.InputStream;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        System.out.println("Hello Compiler!");
+//        System.out.println("Hello Compiler!");
 
-        String filename = "testcases/test";
-        InputStream input = new FileInputStream(filename);
+//        String filename = "testcases/test";
+//        InputStream input = new FileInputStream(filename);
+
+        //input 设置为标准输入
+        InputStream input = System.in;
 
         try{
             MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
@@ -39,9 +42,9 @@ public class Main {
         }
         catch (semanticError e) {
             System.err.println(e.toString());
-            return;
+            System.exit(1);
         }
-        System.out.println("Successfully parsed!");
+//        System.out.println("Successfully parsed!");
         return;
     }
 }
