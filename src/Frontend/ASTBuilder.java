@@ -187,9 +187,12 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     public ASTNode visitNewArrExpr(MxParser.NewArrExprContext ctx) {
         newArrExprNode n = new newArrExprNode(new position(ctx));
         n.type = new Type(ctx.type());
+        n.type.dim = ctx.Left_Bracket().size();
         for (MxParser.ExpressionContext expr : ctx.expression()) {
             n.expr.add((ExprNode) visit(expr));
         }
+        if (ctx.array_Cons() != null)
+            n.arr = (arrConsNode) visit(ctx.array_Cons());
         return n;
     }
 

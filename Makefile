@@ -8,4 +8,4 @@ run:
 
 .PHONY: testall
 testall:
-	time bash ./testcases/sema/scripts/test_all.bash "cd bin && java -cp /ulib/antlr-4.13.2-complete.jar:. Main" ./testcases/sema
+	time -p ./testcases/sema/scripts/test_all.bash "java -cp /ulib/antlr-4.13.2-complete.jar:bin Main" ./testcases/sema/

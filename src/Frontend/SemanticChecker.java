@@ -253,6 +253,7 @@ public class SemanticChecker implements ASTVisitor {
         if (!it.index.type.isEqual(new Type("int"))) {
             throw new semanticError("Semantic Error: type not match.", it.pos);
         }
+        it.arrayName.accept(this);
         it.type = it.arrayName.type;
         it.type.dim -= 1;
         it.isLeft = true;
@@ -266,10 +267,12 @@ public class SemanticChecker implements ASTVisitor {
                 throw new semanticError("Semantic Error: type not match.", it.pos);
             }
         }
-        if (!it.type.isEqual(curScope.getType(it.type.typeName, true))) {
-            throw new semanticError("Semantic Error: type not match.", it.pos);
+        if (it.arr != null) {
+            it.arr.accept(this);
+            if (!it.arr.type.isEqual(it.type)) {
+                throw new semanticError("Semantic Error: type not match.", it.pos);
+            }
         }
-        it.type.dim += it.expr.size();
         it.isLeft = false;
     }
 
@@ -384,7 +387,7 @@ public class SemanticChecker implements ASTVisitor {
         if (it.lhs.type == null) {
             throw new semanticError("Semantic Error: type not match(null).", it.pos);
         }
-        if (!it.lhs.type.isEqual(it.rhs.type)) {
+        if (!it.lhs.type.isEqual(it.rhs.type) && !it.rhs.type.isNull) {
             throw new semanticError("Semantic Error: type not match.", it.pos);
         }
         it.type = new Type("null");

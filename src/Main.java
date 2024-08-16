@@ -20,7 +20,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
 //        System.out.println("Hello Compiler!");
 
-        String filename = "testcases/sema/basic-package/basic-2.mx";
+        String filename = "testcases/sema/basic-package/basic-3.mx";
         InputStream input = new FileInputStream(filename);
 //        InputStream input = System.in;
         //input 设置为标准输入
