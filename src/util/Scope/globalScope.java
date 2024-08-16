@@ -18,6 +18,11 @@ public class globalScope extends Scope{
         scopeType = ScopeType.Global;
     }
 
+    public boolean containsType(Type t){
+        if (t.isInt || t.isBool || t.isString) return true;
+        return classes.containsKey(t.typeName);
+    }
+
     public void defineFunction(FuncNode node) {
         if (functions.get(node.name) != null) {
             throw new RuntimeException("Duplicate function name: " + node.name);

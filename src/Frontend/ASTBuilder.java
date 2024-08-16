@@ -197,6 +197,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     public ASTNode visitNewVarExpr(MxParser.NewVarExprContext ctx) {
         newVarExprNode n = new newVarExprNode(new position(ctx));
         n.type = new Type(ctx.basicType());
+        n.calling = (ctx.Left_Paren()!=null);
         return n;
     }
 

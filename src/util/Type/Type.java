@@ -44,6 +44,7 @@ public class Type extends BasicType{
     }
 
     public boolean isEqual(Type t) {
+        if (t == null) return false;
         if (dim != t.dim) return false;
         if (isInt != t.isInt) return false;
         if (isBool != t.isBool) return false;

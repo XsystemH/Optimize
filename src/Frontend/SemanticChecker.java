@@ -6,6 +6,7 @@ import AST.Expr.*;
 import AST.Stmt.*;
 import util.Decl.ClassDecl;
 import util.Scope.*;
+import util.Type.ReturnType;
 import util.Type.Type;
 import util.error.semanticError;
 
@@ -39,7 +40,8 @@ public class SemanticChecker implements ASTVisitor {
         for (FuncNode f : it.functions) {
             f.accept(this);
         }
-        it.constructor.accept(this);
+        if (it.constructor != null)
+            it.constructor.accept(this);
         curClass = null;
         curScope = curScope.parent;
     }
@@ -55,7 +57,8 @@ public class SemanticChecker implements ASTVisitor {
 
     @Override
     public void visit(MainNode it) {
-        curScope = new Scope(curScope);
+        curScope = new funcScope(curScope);
+        curScope.returnType = new ReturnType("int");
         for (StmtNode s : it.statements) {
             s.accept(this);
         }
@@ -78,6 +81,10 @@ public class SemanticChecker implements ASTVisitor {
 
     @Override
     public void visit(varDefStmtNode it) {
+        if (!gScope.containsType(it.type)) {
+            throw new semanticError("No such Type", it.pos);
+        }
+
         if (curClass != null) {
             assert (curClass.members != null); // didn't initialized
             for (int i = 0; i < it.name.size(); i++) {
@@ -97,7 +104,7 @@ public class SemanticChecker implements ASTVisitor {
                 throw new semanticError("SemanticError: type not match.", it.pos);
         }
         for (String name : it.name) {
-            curScope.defineVariable(name, gScope.getType(it.type.typeName, true), it.pos, true);
+            curScope.defineVariable(name, it.type, it.pos, true);
         }
     }
 
@@ -268,7 +275,6 @@ public class SemanticChecker implements ASTVisitor {
 
     @Override
     public void visit(newVarExprNode it) {
-
         it.isLeft = false;
     }
 
@@ -375,6 +381,9 @@ public class SemanticChecker implements ASTVisitor {
     public void visit(assignExprNode it) {
         it.lhs.accept(this);
         it.rhs.accept(this);
+        if (it.lhs.type == null) {
+            throw new semanticError("Semantic Error: type not match(null).", it.pos);
+        }
         if (!it.lhs.type.isEqual(it.rhs.type)) {
             throw new semanticError("Semantic Error: type not match.", it.pos);
         }

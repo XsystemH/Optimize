@@ -22,9 +22,19 @@ public class ReturnType extends Type{
     }
 
     public ReturnType(MxParser.ReturnTypeContext ctx) {
-        super(ctx.type());
-        if (Objects.equals(ctx.toString(), "void")) {
+        if (ctx.getText().equals("void")) {
             isVoid = true;
+        }
+        else {
+            isVoid = false;
+            switch (typeName) {
+                case "int" -> isInt = true;
+                case "bool" -> isBool = true;
+                case "string" -> isString = true;
+                case "null" -> isNull = true;
+                default -> this.typeName = typeName;
+            }
+            dim = ctx.type().Left_Bracket().size();
         }
     }
 }
