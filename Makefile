@@ -4,8 +4,8 @@ build:
 
 .PHONY: run
 run:
-	java -cp ./src:/ulib/antlr-4.13.2-complete.jar Main
+	cd bin && java -cp /ulib/antlr-4.13.2-complete.jar:. Main
 
 .PHONY: testall
 testall:
-	time bash ./testcases/sema/scripts/test_all.bash "java -cp ./src:/ulib/antlr-4.13.2-complete.jar Main" ./testcases/sema
+	time bash ./testcases/sema/scripts/test_all.bash "cd bin && java -cp /ulib/antlr-4.13.2-complete.jar:. Main" ./testcases/sema
