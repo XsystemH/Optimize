@@ -20,4 +20,30 @@ public class FuncDecl {
         paramType.addAll(func.paramType);
         paramName.addAll(func.paramName);
     }
+
+    public FuncDecl(String name) {
+        this.name = name;
+        paramType = new ArrayList<>();
+        paramName = new ArrayList<>();
+        switch (name) {
+            case "print", "println" -> {
+                retType = new ReturnType("void");
+                paramType.add(new Type("string"));
+            }
+            case "printInt", "printlnInt" -> {
+                retType = new ReturnType("void");
+                paramType.add(new Type("int"));
+            }
+            case "getString" -> {
+                retType = new ReturnType("string");
+            }
+            case "getInt" -> {
+                retType = new ReturnType("int");
+            }
+            case "toString" -> {
+                retType = new ReturnType("string");
+                paramType.add(new Type("int"));
+            }
+        }
+    }
 }

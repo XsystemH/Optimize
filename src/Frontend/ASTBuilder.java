@@ -132,7 +132,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         ifStmtNode i = new ifStmtNode(new position(ctx));
         i.condition = (ExprNode) visit(ctx.expression());
         i.thenBlock = (StmtNode) visit(ctx.trueStmt);
-        i.elseBlock = (StmtNode) visit(ctx.falseStmt);
+        if (ctx.falseStmt != null)
+            i.elseBlock = (StmtNode) visit(ctx.falseStmt);
         return i;
     }
 
@@ -186,10 +187,13 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitNewArrExpr(MxParser.NewArrExprContext ctx) {
         newArrExprNode n = new newArrExprNode(new position(ctx));
-        n.type = new Type(ctx.type());
+        n.type = new Type(ctx.basicType());
         n.type.dim = ctx.Left_Bracket().size();
-        for (MxParser.ExpressionContext expr : ctx.expression()) {
-            n.expr.add((ExprNode) visit(expr));
+        int bracketNum = 0, exprNum = 0;
+        for (int i = 0; i < ctx.expression().size(); i++) {
+            n.expr.add((ExprNode) visit(ctx.expression(i)));
+            if (ctx.expression(i).getStart().getTokenIndex() > ctx.RightBracket(i).getSymbol().getTokenIndex())
+                throw new syntaxError("Array not from left to right.", new position(ctx));
         }
         if (ctx.array_Cons() != null)
             n.arr = (arrConsNode) visit(ctx.array_Cons());
@@ -326,6 +330,9 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         arrayVisitExprNode a = new arrayVisitExprNode(new position(ctx));
         a.arrayName = (ExprNode) visit(ctx.arrayName);
         a.index = (ExprNode) visit(ctx.index);
+        if (a.index == null) {
+            System.out.println(new position(ctx.index));
+        }
         return a;
     }
 

@@ -16,6 +16,14 @@ public class globalScope extends Scope{
         classes = new HashMap<>();
         functions = new HashMap<>();
         scopeType = ScopeType.Global;
+
+        functions.put("print", new FuncDecl("print"));
+        functions.put("println", new FuncDecl("println"));
+        functions.put("printInt", new FuncDecl("printInt"));
+        functions.put("printlnInt", new FuncDecl("printlnInt"));
+        functions.put("getString", new FuncDecl("getString"));
+        functions.put("getInt", new FuncDecl("getInt"));
+        functions.put("toString", new FuncDecl("toString"));
     }
 
     public boolean containsType(Type t){

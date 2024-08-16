@@ -27,6 +27,9 @@ public class SemanticChecker implements ASTVisitor {
         for (FuncNode f : it.functions) {
             f.accept(this);
         }
+        for (varDefStmtNode v : it.globalVars) {
+            v.accept(this);
+        }
         it.mainFn.accept(this);
     }
 
@@ -185,6 +188,7 @@ public class SemanticChecker implements ASTVisitor {
     @Override
     public void visit(priorityExprNode it) {
         it.expr.accept(this);
+        it.type = it.expr.type;
         it.isLeft = it.expr.isLeft;
     }
 
@@ -254,7 +258,7 @@ public class SemanticChecker implements ASTVisitor {
             throw new semanticError("Semantic Error: type not match.", it.pos);
         }
         it.arrayName.accept(this);
-        it.type = it.arrayName.type;
+        it.type = new Type(it.arrayName.type);
         it.type.dim -= 1;
         it.isLeft = true;
     }
@@ -303,7 +307,7 @@ public class SemanticChecker implements ASTVisitor {
     @Override
     public void visit(rightExprNode it) {
         it.expr.accept(this);
-        if (!it.type.isInt) throw new semanticError("Semantic Error: type not match.", it.pos);
+        if (!it.expr.type.isInt) throw new semanticError("Semantic Error: type not match.", it.pos);
         it.type = it.expr.type;
         it.isLeft = false;
     }
@@ -323,7 +327,7 @@ public class SemanticChecker implements ASTVisitor {
                 throw new semanticError("Semantic Error: type not match.", it.pos);
             }
         }
-        else if (!it.type.isInt) {
+        else if (!it.lhs.type.isInt) {
             throw new semanticError("Semantic Error: type not match.", it.pos);
         }
         it.type = it.lhs.type;
@@ -348,7 +352,7 @@ public class SemanticChecker implements ASTVisitor {
     public void visit(logicExprNode it) {
         it.lhs.accept(this);
         it.rhs.accept(this);
-        if (!it.lhs.type.isEqual(it.rhs.type) || !it.type.isBool) {
+        if (!it.lhs.type.isEqual(it.rhs.type) || !it.lhs.type.isBool) {
             throw new semanticError("Semantic Error: type not match.", it.pos);
         }
         it.type = new Type("bool");
