@@ -8,8 +8,8 @@ import util.Type.Type;
 import java.util.HashMap;
 
 public class globalScope extends Scope{
-    private HashMap<String, ClassDecl> classes;
-    private HashMap<String, FuncDecl> functions;
+    public HashMap<String, ClassDecl> classes;
+    public HashMap<String, FuncDecl> functions;
 
     public globalScope(Scope parent) {
         super(parent);

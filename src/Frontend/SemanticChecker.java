@@ -32,6 +32,8 @@ public class SemanticChecker implements ASTVisitor {
             c.accept(this);
         }
         for (FuncNode f : it.functions) {
+            if (gScope.classes.containsKey(f.name))
+                throw new semanticError("Duplicate name for function name and class name", f.pos);
             f.accept(this);
         }
         for (varDefStmtNode v : noPre) {
