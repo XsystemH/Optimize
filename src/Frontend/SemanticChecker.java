@@ -330,10 +330,7 @@ public class SemanticChecker implements ASTVisitor {
     @Override
     public void visit(leftExprNode it) {
         it.expr.accept(this);
-        if (it.opCode == leftExprNode.leftOpType.not) {
-            if (!it.expr.type.isBool) throw new semanticError("Semantic Error: type not match.", it.pos);
-        }
-        else if (it.expr.type.isBool) {
+        if (it.expr.type.isBool) {
             throw new semanticError("Semantic Error: type not match.", it.pos);
         }
         it.type = it.expr.type;
@@ -375,10 +372,13 @@ public class SemanticChecker implements ASTVisitor {
         it.lhs.accept(this);
         it.rhs.accept(this);
         if (!it.lhs.type.isEqual(it.rhs.type)) {
-            throw new semanticError("Semantic Error: type not match.", it.pos);
+            if (it.lhs.type.dim == 0 || !it.rhs.type.isNull)
+                throw new semanticError("Semantic Error: type not match.", it.pos);
         }
         if (it.opCode != boolExprNode.boolOpType.equal && it.opCode != boolExprNode.boolOpType.notEqual) {
-            if (!it.lhs.type.isInt) throw new semanticError("Semantic Error: type not match.", it.pos);
+            if (it.lhs.type.dim > 0 || it.lhs.type.isBool) {
+                throw new semanticError("Semantic Error: type not match.", it.pos);
+            }
         }
         it.type = new Type("bool");
         it.isLeft = false;

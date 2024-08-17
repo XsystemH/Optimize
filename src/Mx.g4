@@ -41,9 +41,9 @@ expression
     | New basicType ('[' expression? ']')* array_Cons? #newArrExpr
     | New basicType ('(' ')')? #newVarExpr
     | Null #nullExpr
-    | op=('++' | '--' | '!' | '~' | '-') expression #leftExpr
+    | op=('++' | '--' | '~' | '-') expression #leftExpr
     | expression op=('++' | '--') #rightExpr
-    | expression op=('+' | '-' | '*' | '/' | '%' | '<<' | '>>') expression #binaryExpr
+    | expression op=('+' | '-' | '*' | '/' | '%' | '^' | '<<' | '>>') expression #binaryExpr
     | expression op=('==' | '!=' | '>' | '<' | '>=' | '<=') expression #boolExpr
     | expression op=('&&' | '||') expression #logicExpr
     | '!' expression #notExpr

@@ -274,6 +274,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             case "*" -> b.opCode = binaryExprNode.binaryOpType.mul;
             case "/" -> b.opCode = binaryExprNode.binaryOpType.div;
             case "%" -> b.opCode = binaryExprNode.binaryOpType.mod;
+            case "^" -> b.opCode = binaryExprNode.binaryOpType.caret;
             case "<<" -> b.opCode = binaryExprNode.binaryOpType.leftShift;
             case ">>" -> b.opCode = binaryExprNode.binaryOpType.rightShift;
         }
@@ -310,7 +311,6 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         c.className = (ExprNode) visit(ctx.expression());
         c.memName = ctx.memberName.getText();
         return c;
-        // todo 数值成员访问
     }
 
     @Override
@@ -359,7 +359,6 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         switch (ctx.op.getText()) {
             case "++" -> l.opCode = leftExprNode.leftOpType.add;
             case "--" -> l.opCode = leftExprNode.leftOpType.sub;
-            case "!" -> l.opCode = leftExprNode.leftOpType.not;
             case "~" -> l.opCode = leftExprNode.leftOpType.negation;
             case "-" -> l.opCode = leftExprNode.leftOpType.negative;
         }

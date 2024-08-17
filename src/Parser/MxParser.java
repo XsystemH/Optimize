@@ -1532,6 +1532,7 @@ public class MxParser extends Parser {
 		public TerminalNode Sub() { return getToken(MxParser.Sub, 0); }
 		public TerminalNode Mul() { return getToken(MxParser.Mul, 0); }
 		public TerminalNode Div() { return getToken(MxParser.Div, 0); }
+		public TerminalNode Xor() { return getToken(MxParser.Xor, 0); }
 		public TerminalNode Left_Shift() { return getToken(MxParser.Left_Shift, 0); }
 		public TerminalNode RightShift() { return getToken(MxParser.RightShift, 0); }
 		public BinaryExprContext(ExpressionContext ctx) { copyFrom(ctx); }
@@ -1752,7 +1753,6 @@ public class MxParser extends Parser {
 		}
 		public TerminalNode SelfAdd() { return getToken(MxParser.SelfAdd, 0); }
 		public TerminalNode SelfSub() { return getToken(MxParser.SelfSub, 0); }
-		public TerminalNode LogicNot() { return getToken(MxParser.LogicNot, 0); }
 		public TerminalNode Not() { return getToken(MxParser.Not, 0); }
 		public TerminalNode Sub() { return getToken(MxParser.Sub, 0); }
 		public LeftExprContext(ExpressionContext ctx) { copyFrom(ctx); }
@@ -2033,7 +2033,7 @@ public class MxParser extends Parser {
 				setState(214);
 				((LeftExprContext)_localctx).op = _input.LT(1);
 				_la = _input.LA(1);
-				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 873464320L) != 0)) ) {
+				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 872415744L) != 0)) ) {
 					((LeftExprContext)_localctx).op = (Token)_errHandler.recoverInline(this);
 				}
 				else {
@@ -2125,7 +2125,7 @@ public class MxParser extends Parser {
 						setState(235);
 						((BinaryExprContext)_localctx).op = _input.LT(1);
 						_la = _input.LA(1);
-						if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 6295298L) != 0)) ) {
+						if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 39849730L) != 0)) ) {
 							((BinaryExprContext)_localctx).op = (Token)_errHandler.recoverInline(this);
 						}
 						else {
@@ -2802,8 +2802,8 @@ public class MxParser extends Parser {
 		"\u000f\u012d\b\u000f\u0001\u000f\u0001\u000f\u0001\u0010\u0001\u0010\u0001"+
 		"\u0010\u0005\u0010\u0134\b\u0010\n\u0010\f\u0010\u0137\t\u0010\u0001\u0010"+
 		"\u0000\u0001\u0016\u0011\u0000\u0002\u0004\u0006\b\n\f\u000e\u0010\u0012"+
-		"\u0014\u0016\u0018\u001a\u001c\u001e \u0000\u0007\u0004\u0000\t\t\u0014"+
-		"\u0014\u001a\u001a\u001c\u001d\u0003\u0000\u0001\u0001\b\u000b\u0015\u0016"+
+		"\u0014\u0016\u0018\u001a\u001c\u001e \u0000\u0007\u0003\u0000\t\t\u001a"+
+		"\u001a\u001c\u001d\u0004\u0000\u0001\u0001\b\u000b\u0015\u0016\u0019\u0019"+
 		"\u0001\u0000\f\u0011\u0001\u0000\u0012\u0013\u0001\u0000\u001c\u001d\u0002"+
 		"\u0000-/>>\u0001\u000034\u0166\u0000\'\u0001\u0000\u0000\u0000\u00022"+
 		"\u0001\u0000\u0000\u0000\u00048\u0001\u0000\u0000\u0000\u0006=\u0001\u0000"+

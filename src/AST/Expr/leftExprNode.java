@@ -8,7 +8,7 @@ public class leftExprNode extends ExprNode{
     public ExprNode expr;
 
     public enum leftOpType {
-        add, sub, not, negation, negative;
+        add, sub, negation, negative;
     }
     public leftOpType opCode;
 
