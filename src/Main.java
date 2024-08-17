@@ -39,10 +39,10 @@ public class Main {
             new SemanticChecker(gScope).visit(ast);
         }
         catch (error e) {
-            System.out.println(e.getMessage());
+            System.out.println(e.message);
             System.exit(1);
         }
-//        System.out.println("Successfully parsed!");
+        System.out.println("Successfully parsed!");
         return;
     }
 }
