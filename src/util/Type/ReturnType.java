@@ -32,6 +32,7 @@ public class ReturnType extends Type{
             isString = t.isString;
             isBool = t.isBool;
             isNull = t.isNull;
+            typeName = t.typeName;
             dim = t.dim;
         }
     }
