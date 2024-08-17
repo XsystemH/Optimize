@@ -29,7 +29,7 @@ public class SemanticChecker implements ASTVisitor {
         for (ASTNode child : it.members) {
             child.accept(this);
         }
-        it.mainFn.accept(this);
+//        it.mainFn.accept(this);
     }
 
     @Override

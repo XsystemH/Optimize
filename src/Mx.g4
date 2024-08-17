@@ -1,6 +1,6 @@
 grammar Mx;
 
-program: (classDef | funcDef | varDef)* mainFn (classDef | funcDef)*;
+program: (classDef | funcDef | varDef)* mainFn (classDef | funcDef | varDef)*;
 mainFn: 'int' 'main' '(' ')' suite;
 
 classDef : 'class' Identifier classsuite ';';

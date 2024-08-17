@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 public class ProgramNode extends ASTNode {
     public ArrayList<ASTNode> members;
-    public FuncNode mainFn;
 
     public ProgramNode(position pos) {
         super(pos);
