@@ -321,11 +321,11 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBoolCons(MxParser.BoolConsContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link MxParser#array_Cons}.
+	 * Visit a parse tree produced by {@link MxParser#array_Constant}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitArray_Cons(MxParser.Array_ConsContext ctx);
+	T visitArray_Constant(MxParser.Array_ConstantContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link MxParser#array_Content}.
 	 * @param ctx the parse tree

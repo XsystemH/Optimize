@@ -38,7 +38,7 @@ expression
     | className=expression '.' memberName=Identifier #classMemExpr
     | className=expression '.' funcName=Identifier '(' expression? (','expression)* ')' #classFuncExpr
     | arrayName=expression '[' index=expression ']' #arrayVisitExpr
-    | New basicType ('[' expression? ']')* array_Cons? #newArrExpr
+    | New basicType ('[' expression? ']')* array_Constant? #newArrExpr
     | New basicType ('(' ')')? #newVarExpr
     | Null #nullExpr
     | expression op=('++' | '--') #rightExpr
@@ -71,7 +71,7 @@ FormatMid : '$' (FormatChar | EscapeSequence | '$$')* '$';
 constants
     : DecInteger #intCons
     | StringCons #strCons
-    | array_Cons #arrCons
+    | array_Constant #arrCons
     | (True | False) #boolCons
     ;
 DecInteger
@@ -81,7 +81,7 @@ DecInteger
 
 StringCons : '"' (PrintableChar | EscapeSequence | '$$')* '"';
 
-array_Cons : '{'  array_Content? '}';
+array_Constant : '{'  array_Content? '}';
 array_Content : constants (',' constants)*;
 
 // Character Set

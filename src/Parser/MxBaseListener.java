@@ -569,13 +569,13 @@ public class MxBaseListener implements MxListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArray_Cons(MxParser.Array_ConsContext ctx) { }
+	@Override public void enterArray_Constant(MxParser.Array_ConstantContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitArray_Cons(MxParser.Array_ConsContext ctx) { }
+	@Override public void exitArray_Constant(MxParser.Array_ConstantContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

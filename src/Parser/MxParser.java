@@ -32,13 +32,13 @@ public class MxParser extends Parser {
 		RULE_program = 0, RULE_mainFn = 1, RULE_classDef = 2, RULE_funcDef = 3, 
 		RULE_returnType = 4, RULE_param = 5, RULE_suite = 6, RULE_classsuite = 7, 
 		RULE_varDef = 8, RULE_constructor = 9, RULE_statement = 10, RULE_expression = 11, 
-		RULE_type = 12, RULE_basicType = 13, RULE_constants = 14, RULE_array_Cons = 15, 
+		RULE_type = 12, RULE_basicType = 13, RULE_constants = 14, RULE_array_Constant = 15, 
 		RULE_array_Content = 16;
 	private static String[] makeRuleNames() {
 		return new String[] {
 			"program", "mainFn", "classDef", "funcDef", "returnType", "param", "suite", 
 			"classsuite", "varDef", "constructor", "statement", "expression", "type", 
-			"basicType", "constants", "array_Cons", "array_Content"
+			"basicType", "constants", "array_Constant", "array_Content"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
@@ -1511,8 +1511,8 @@ public class MxParser extends Parser {
 		public TerminalNode RightBracket(int i) {
 			return getToken(MxParser.RightBracket, i);
 		}
-		public Array_ConsContext array_Cons() {
-			return getRuleContext(Array_ConsContext.class,0);
+		public Array_ConstantContext array_Constant() {
+			return getRuleContext(Array_ConstantContext.class,0);
 		}
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
@@ -2005,7 +2005,7 @@ public class MxParser extends Parser {
 				case 1:
 					{
 					setState(208);
-					array_Cons();
+					array_Constant();
 					}
 					break;
 				}
@@ -2510,8 +2510,8 @@ public class MxParser extends Parser {
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class ArrConsContext extends ConstantsContext {
-		public Array_ConsContext array_Cons() {
-			return getRuleContext(Array_ConsContext.class,0);
+		public Array_ConstantContext array_Constant() {
+			return getRuleContext(Array_ConstantContext.class,0);
 		}
 		public ArrConsContext(ConstantsContext ctx) { copyFrom(ctx); }
 		@Override
@@ -2577,7 +2577,7 @@ public class MxParser extends Parser {
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(298);
-				array_Cons();
+				array_Constant();
 				}
 				break;
 			case True:
@@ -2613,34 +2613,34 @@ public class MxParser extends Parser {
 	}
 
 	@SuppressWarnings("CheckReturnValue")
-	public static class Array_ConsContext extends ParserRuleContext {
+	public static class Array_ConstantContext extends ParserRuleContext {
 		public TerminalNode Left_Brace() { return getToken(MxParser.Left_Brace, 0); }
 		public TerminalNode RightBrace() { return getToken(MxParser.RightBrace, 0); }
 		public Array_ContentContext array_Content() {
 			return getRuleContext(Array_ContentContext.class,0);
 		}
-		public Array_ConsContext(ParserRuleContext parent, int invokingState) {
+		public Array_ConstantContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_array_Cons; }
+		@Override public int getRuleIndex() { return RULE_array_Constant; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof MxListener ) ((MxListener)listener).enterArray_Cons(this);
+			if ( listener instanceof MxListener ) ((MxListener)listener).enterArray_Constant(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof MxListener ) ((MxListener)listener).exitArray_Cons(this);
+			if ( listener instanceof MxListener ) ((MxListener)listener).exitArray_Constant(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof MxVisitor ) return ((MxVisitor<? extends T>)visitor).visitArray_Cons(this);
+			if ( visitor instanceof MxVisitor ) return ((MxVisitor<? extends T>)visitor).visitArray_Constant(this);
 			else return visitor.visitChildren(this);
 		}
 	}
 
-	public final Array_ConsContext array_Cons() throws RecognitionException {
-		Array_ConsContext _localctx = new Array_ConsContext(_ctx, getState());
-		enterRule(_localctx, 30, RULE_array_Cons);
+	public final Array_ConstantContext array_Constant() throws RecognitionException {
+		Array_ConstantContext _localctx = new Array_ConstantContext(_ctx, getState());
+		enterRule(_localctx, 30, RULE_array_Constant);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);

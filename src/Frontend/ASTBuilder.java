@@ -205,8 +205,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             if (ctx.expression(i).getStart().getTokenIndex() > ctx.RightBracket(i).getSymbol().getTokenIndex())
                 throw new syntaxError("Invalid Identifier", new position(ctx));
         }
-        if (ctx.array_Cons() != null)
-            n.arr = (arrConsNode) visit(ctx.array_Cons());
+        if (ctx.array_Constant() != null)
+            n.arr = (arrConsNode) visit(ctx.array_Constant());
         return n;
     }
 
@@ -421,7 +421,16 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitArrCons(MxParser.ArrConsContext ctx) {
         arrConsNode c = new arrConsNode(new position(ctx));
-        for (MxParser.ConstantsContext content : ctx.array_Cons().array_Content().constants()) {
+        for (MxParser.ConstantsContext content : ctx.array_Constant().array_Content().constants()) {
+            c.content.add((ConsNode) visit(content));
+        }
+        return c;
+    }
+
+    @Override
+    public ASTNode visitArray_Constant(MxParser.Array_ConstantContext ctx) {
+        arrConsNode c = new arrConsNode(new position(ctx));
+        for (MxParser.ConstantsContext content : ctx.array_Content().constants()) {
             c.content.add((ConsNode) visit(content));
         }
         return c;

@@ -536,15 +536,15 @@ public interface MxListener extends ParseTreeListener {
 	 */
 	void exitBoolCons(MxParser.BoolConsContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link MxParser#array_Cons}.
+	 * Enter a parse tree produced by {@link MxParser#array_Constant}.
 	 * @param ctx the parse tree
 	 */
-	void enterArray_Cons(MxParser.Array_ConsContext ctx);
+	void enterArray_Constant(MxParser.Array_ConstantContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link MxParser#array_Cons}.
+	 * Exit a parse tree produced by {@link MxParser#array_Constant}.
 	 * @param ctx the parse tree
 	 */
-	void exitArray_Cons(MxParser.Array_ConsContext ctx);
+	void exitArray_Constant(MxParser.Array_ConstantContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link MxParser#array_Content}.
 	 * @param ctx the parse tree
