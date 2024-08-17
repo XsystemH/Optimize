@@ -12,6 +12,6 @@ public abstract class error extends RuntimeException{
     }
 
     public String toString() {
-        return message + ": " + pos.toString();
+        return message;
     }
 }

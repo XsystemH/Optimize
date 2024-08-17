@@ -39,7 +39,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             }
         }
         if (ctx.mainFn() == null) {
-            throw new semanticError("No main function.", new position(ctx));
+            throw new semanticError("Invalid Identifier", new position(ctx));
         }
         p.mainFn = (FuncNode) visit(ctx.mainFn());
         return p;
@@ -66,10 +66,10 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             c.functions.add((FuncNode) visit(func));
         }
         if (ctx.classsuite().constructor().size() > 1) {
-            throw new syntaxError("More than one Constructor", new position(ctx));
+            throw new syntaxError("Multiple Definitions", new position(ctx));
         } else if (ctx.classsuite().constructor().size() == 1) {
             if (!ctx.classsuite().constructor().get(0).Identifier().getText().equals(c.name)) {
-                throw new syntaxError("Wrong Constructor", new position(ctx));
+                throw new syntaxError("Invalid Identifier", new position(ctx));
             }
             c.constructor = (blockStmtNode) visit(ctx.classsuite().constructor(0).suite());
         }
@@ -203,7 +203,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         for (int i = 0; i < ctx.expression().size(); i++) {
             n.expr.add((ExprNode) visit(ctx.expression(i)));
             if (ctx.expression(i).getStart().getTokenIndex() > ctx.RightBracket(i).getSymbol().getTokenIndex())
-                throw new syntaxError("Array not from left to right.", new position(ctx));
+                throw new syntaxError("Invalid Identifier", new position(ctx));
         }
         if (ctx.array_Cons() != null)
             n.arr = (arrConsNode) visit(ctx.array_Cons());
