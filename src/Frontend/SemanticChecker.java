@@ -85,12 +85,7 @@ public class SemanticChecker implements ASTVisitor {
 
     @Override
     public void visit(blockStmtNode it) {
-        switch (curScope.scopeType) {
-            case Basic, Global -> curScope = new Scope(curScope);
-            case Class -> curScope = new classScope(curScope);
-            case Func -> curScope = new funcScope(curScope);
-            case Loop -> curScope = new loopScope(curScope);
-        }
+        curScope = new Scope(curScope);
         for (StmtNode s : it.statements) {
             s.accept(this);
         }
@@ -169,7 +164,7 @@ public class SemanticChecker implements ASTVisitor {
 
     @Override
     public void visit(returnStmtNode it) {
-        if (curScope.scopeType != Scope.ScopeType.Func) {
+        if (!curScope.isInFunction()) {
             throw new semanticError("Return outside Function.", it.pos);
         }
         if (it.expr != null) {
@@ -177,8 +172,8 @@ public class SemanticChecker implements ASTVisitor {
             if (!it.expr.type.isEqual(curScope.returnType)) {
                 throw new semanticError("Semantic Error: type not match.", it.pos);
             }
-            curScope.getReturn();
         }
+        curScope.getReturn();
     }
 
     @Override
