@@ -2042,7 +2042,7 @@ public class MxParser extends Parser {
 					consume();
 				}
 				setState(215);
-				expression(9);
+				expression(8);
 				}
 				break;
 			case 10:
@@ -2283,7 +2283,7 @@ public class MxParser extends Parser {
 						_localctx = new RightExprContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(275);
-						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
+						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
 						setState(276);
 						((RightExprContext)_localctx).op = _input.LT(1);
 						_la = _input.LA(1);
@@ -2749,7 +2749,7 @@ public class MxParser extends Parser {
 		case 7:
 			return precpred(_ctx, 13);
 		case 8:
-			return precpred(_ctx, 8);
+			return precpred(_ctx, 9);
 		}
 		return true;
 	}
@@ -2902,7 +2902,7 @@ public class MxParser extends Parser {
 		"\"\u0000\u0000\u00d3\u00d1\u0001\u0000\u0000\u0000\u00d3\u00d4\u0001\u0000"+
 		"\u0000\u0000\u00d4\u00e9\u0001\u0000\u0000\u0000\u00d5\u00e9\u00052\u0000"+
 		"\u0000\u00d6\u00d7\u0007\u0000\u0000\u0000\u00d7\u00e9\u0003\u0016\u000b"+
-		"\t\u00d8\u00d9\u0005\u0014\u0000\u0000\u00d9\u00e9\u0003\u0016\u000b\u0004"+
+		"\b\u00d8\u00d9\u0005\u0014\u0000\u0000\u00d9\u00e9\u0003\u0016\u000b\u0004"+
 		"\u00da\u00e7\u0005\u0003\u0000\u0000\u00db\u00dc\u0005\u0002\u0000\u0000"+
 		"\u00dc\u00e1\u0003\u0016\u000b\u0000\u00dd\u00de\u0005\u0005\u0000\u0000"+
 		"\u00de\u00e0\u0003\u0016\u000b\u0000\u00df\u00dd\u0001\u0000\u0000\u0000"+
@@ -2937,7 +2937,7 @@ public class MxParser extends Parser {
 		"\u010c\u010a\u0001\u0000\u0000\u0000\u010d\u0116\u0005\"\u0000\u0000\u010e"+
 		"\u010f\n\r\u0000\u0000\u010f\u0110\u0005\u001f\u0000\u0000\u0110\u0111"+
 		"\u0003\u0016\u000b\u0000\u0111\u0112\u0005 \u0000\u0000\u0112\u0116\u0001"+
-		"\u0000\u0000\u0000\u0113\u0114\n\b\u0000\u0000\u0114\u0116\u0007\u0004"+
+		"\u0000\u0000\u0000\u0113\u0114\n\t\u0000\u0000\u0114\u0116\u0007\u0004"+
 		"\u0000\u0000\u0115\u00ea\u0001\u0000\u0000\u0000\u0115\u00ed\u0001\u0000"+
 		"\u0000\u0000\u0115\u00f0\u0001\u0000\u0000\u0000\u0115\u00f3\u0001\u0000"+
 		"\u0000\u0000\u0115\u00f9\u0001\u0000\u0000\u0000\u0115\u00fc\u0001\u0000"+
