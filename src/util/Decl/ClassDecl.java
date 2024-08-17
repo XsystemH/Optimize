@@ -24,6 +24,7 @@ public class ClassDecl {
         this.name = cla.name;
         this.vars = new HashMap<>();
         this.functions = new HashMap<>();
+        this.hasConstructor = false;
 
         for (varDefStmtNode var : cla.vars) {
             for (String name : var.name) {

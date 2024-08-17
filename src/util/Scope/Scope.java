@@ -13,6 +13,8 @@ public class Scope {
     }
     public ScopeType scopeType = ScopeType.Basic;
     public ReturnType returnType;
+    public boolean hasReturn = false;
+    public String className;
 
     private HashMap<String, Type> member;
     public Scope parent;
@@ -20,7 +22,9 @@ public class Scope {
     public Scope(Scope parent) {
         member = new HashMap<>();
         this.parent = parent;
-        returnType = null;
+        if (parent != null) {
+            returnType = parent.returnType;
+        }
     }
 
     public boolean containsVariable(String name, boolean lookup) {
@@ -51,14 +55,18 @@ public class Scope {
         return false;
     }
 
-    public boolean isInClass() {
+    public void getReturn() {
+        if (parent != null) parent.getReturn();
+    }
+
+    public String isInClass() {
         if (scopeType == ScopeType.Class) {
-            return true;
+            return className;
         }
         else if (parent != null) {
             return parent.isInClass();
         }
-        return false;
+        return null;
     }
 
     public boolean isInLoop() {

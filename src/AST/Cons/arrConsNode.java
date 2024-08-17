@@ -13,7 +13,6 @@ public class arrConsNode extends ConsNode{
         super(pos);
         content = new ArrayList<>();
         type = new Type();
-        type.isArray = true;
     }
 
     @Override

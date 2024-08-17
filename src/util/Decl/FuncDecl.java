@@ -37,11 +37,20 @@ public class FuncDecl {
             case "getString" -> {
                 retType = new ReturnType("string");
             }
-            case "getInt" -> {
+            case "getInt", "parseInt", "ord", "size" -> {
                 retType = new ReturnType("int");
             }
             case "toString" -> {
                 retType = new ReturnType("string");
+                paramType.add(new Type("int"));
+            }
+            case "length" -> {
+                retType = new ReturnType("int");
+                paramType.add(new Type("sting"));
+            }
+            case "substring" -> {
+                retType = new ReturnType("string");
+                paramType.add(new Type("int"));
                 paramType.add(new Type("int"));
             }
         }

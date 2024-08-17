@@ -24,6 +24,16 @@ public class globalScope extends Scope{
         functions.put("getString", new FuncDecl("getString"));
         functions.put("getInt", new FuncDecl("getInt"));
         functions.put("toString", new FuncDecl("toString"));
+
+        ClassDecl array = new ClassDecl("array");
+        array.functions.put("size", new FuncDecl("size"));
+        ClassDecl string = new ClassDecl("string");
+        string.functions.put("length", new FuncDecl("length"));
+        string.functions.put("substring", new FuncDecl("substring"));
+        string.functions.put("parseInt", new FuncDecl("parseInt"));
+        string.functions.put("ord", new FuncDecl("ord"));
+        classes.put("array", array);
+        classes.put("string", string);
     }
 
     public boolean containsType(Type t){
@@ -46,7 +56,10 @@ public class globalScope extends Scope{
     }
 
     public Type getClassType(String name) {
-        return null;
+        ClassDecl c = classes.get(name);
+        Type type = new Type(c.name);
+        type.members = c.vars;
+        return type;
     }
 
     public FuncDecl getFunction(String name) {

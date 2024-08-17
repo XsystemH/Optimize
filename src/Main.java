@@ -20,29 +20,29 @@ public class Main {
     public static void main(String[] args) throws IOException {
 //        System.out.println("Hello Compiler!");
 
-//        String filename = "testcases/sema/array-package/array-11.mx";
+//        String filename = "testcases/sema/basic-package/basic-53.mx";
 //        InputStream input = new FileInputStream(filename);
         InputStream input = System.in;
         //input 设置为标准输入
-
-        try{
-            MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
-            lexer.removeErrorListeners();
-            lexer.addErrorListener(new MxErrorListener());
-            MxParser parser = new MxParser(new CommonTokenStream(lexer));
-            parser.removeErrorListeners();
-            parser.addErrorListener(new MxErrorListener());
-            ParseTree parseTreeRoot = parser.program();
-            globalScope gScope = new globalScope(null);
-            ASTBuilder astBuilder = new ASTBuilder(gScope);
-            ProgramNode ast = (ProgramNode) astBuilder.visit(parseTreeRoot);
-            new SymbolCollector(gScope).visit(ast);
-            new SemanticChecker(gScope).visit(ast);
-        }
-        catch (semanticError e) {
-            System.err.println(e.toString());
-            System.exit(1);
-        }
+        MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(new MxErrorListener());
+        MxParser parser = new MxParser(new CommonTokenStream(lexer));
+        parser.removeErrorListeners();
+        parser.addErrorListener(new MxErrorListener());
+        ParseTree parseTreeRoot = parser.program();
+        globalScope gScope = new globalScope(null);
+        ASTBuilder astBuilder = new ASTBuilder(gScope);
+        ProgramNode ast = (ProgramNode) astBuilder.visit(parseTreeRoot);
+        new SymbolCollector(gScope).visit(ast);
+        new SemanticChecker(gScope).visit(ast);
+//        try{
+//
+//        }
+//        catch (semanticError e) {
+//            System.err.println(e.toString());
+//            System.exit(1);
+//        }
 //        System.out.println("Successfully parsed!");
         return;
     }

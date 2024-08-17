@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 public class BasicType {
     public String typeName;
-    public boolean isInt = false, isBool = false, isString = false, isNull = false, isArray = false;
+    public boolean isInt = false, isBool = false, isString = false, isNull = false;
     public HashMap<String, Type> members;
 
     public BasicType() {
@@ -18,7 +18,6 @@ public class BasicType {
         isBool = other.isBool;
         isString = other.isString;
         isNull = other.isNull;
-        isArray = other.isArray;
         typeName = other.typeName;
         members = other.members;
     }

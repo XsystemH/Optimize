@@ -19,7 +19,6 @@ public class Type extends BasicType{
         dim = ret.dim;
         isInt = ret.isInt;
         isString = ret.isString;
-        isArray = ret.isArray;
         isBool = ret.isBool;
         typeName = ret.typeName;
     }
@@ -49,7 +48,6 @@ public class Type extends BasicType{
         if (isInt != t.isInt) return false;
         if (isBool != t.isBool) return false;
         if (isNull != t.isNull) return false;
-        if (isArray != t.isArray) return false;
         return Objects.equals(typeName, t.typeName);
     }
 }

@@ -158,7 +158,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitReturnStatement(MxParser.ReturnStatementContext ctx) {
         returnStmtNode r = new returnStmtNode(new position(ctx));
-        r.expr = (ExprNode) visit(ctx.expression());
+        if (ctx.expression() != null)
+            r.expr = (ExprNode) visit(ctx.expression());
         return r;
     }
 

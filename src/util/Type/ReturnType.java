@@ -27,14 +27,12 @@ public class ReturnType extends Type{
         }
         else {
             isVoid = false;
-            switch (typeName) {
-                case "int" -> isInt = true;
-                case "bool" -> isBool = true;
-                case "string" -> isString = true;
-                case "null" -> isNull = true;
-                default -> this.typeName = typeName;
-            }
-            dim = ctx.type().Left_Bracket().size();
+            Type t = new Type(ctx.type());
+            isInt = t.isInt;
+            isString = t.isString;
+            isBool = t.isBool;
+            isNull = t.isNull;
+            dim = t.dim;
         }
     }
 }

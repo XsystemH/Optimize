@@ -1,7 +1,7 @@
 grammar Mx;
 
-program: (classDef | funcDef | varDef)* mainFn;
-mainFn: 'int' 'main' '(' ')' suite EOF;
+program: (classDef | funcDef | varDef)* mainFn (classDef | funcDef)*;
+mainFn: 'int' 'main' '(' ')' suite;
 
 classDef : 'class' Identifier classsuite ';';
 
@@ -165,6 +165,6 @@ Whitespace
     :   [ \t\r\n] +
         -> skip
     ;
-PrintableChar : [\u0020\u0023-\u007E]; // no "
+PrintableChar : [\u0020\u0021\u0023-\u007E]; // no "
 FormatChar : [\u0020\u0021\u0023\u0025-\u007E]; // no " $
 EscapeSequence : '\\' [n"\\];

@@ -5,4 +5,7 @@ public class classScope extends Scope{
         super(parent);
         scopeType = ScopeType.Class;
     }
+    public String isInClass() {
+        return className;
+    }
 }
