@@ -10,6 +10,8 @@ import util.Type.ReturnType;
 import util.Type.Type;
 import util.error.semanticError;
 
+import java.util.ArrayList;
+
 public class SemanticChecker implements ASTVisitor {
     private globalScope gScope;
     private Scope curScope;
@@ -20,13 +22,19 @@ public class SemanticChecker implements ASTVisitor {
 
     @Override
     public void visit(ProgramNode it) {
+        ArrayList<varDefStmtNode> noPre = new ArrayList<>();
+        for (varDefStmtNode v : it.globalVars) {
+            if (gScope.containsType(v.type))
+                v.accept(this);
+            else noPre.add(v);
+        }
         for (ClassNode c : it.Classes) {
             c.accept(this);
         }
         for (FuncNode f : it.functions) {
             f.accept(this);
         }
-        for (varDefStmtNode v : it.globalVars) {
+        for (varDefStmtNode v : noPre) {
             v.accept(this);
         }
         it.mainFn.accept(this);
