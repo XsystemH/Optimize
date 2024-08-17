@@ -24,25 +24,24 @@ public class Main {
 //        InputStream input = new FileInputStream(filename);
         InputStream input = System.in;
         //input 设置为标准输入
-        MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
-        lexer.removeErrorListeners();
-        lexer.addErrorListener(new MxErrorListener());
-        MxParser parser = new MxParser(new CommonTokenStream(lexer));
-        parser.removeErrorListeners();
-        parser.addErrorListener(new MxErrorListener());
-        ParseTree parseTreeRoot = parser.program();
-        globalScope gScope = new globalScope(null);
-        ASTBuilder astBuilder = new ASTBuilder(gScope);
-        ProgramNode ast = (ProgramNode) astBuilder.visit(parseTreeRoot);
-        new SymbolCollector(gScope).visit(ast);
-        new SemanticChecker(gScope).visit(ast);
-//        try{
-//
-//        }
-//        catch (semanticError e) {
-//            System.err.println(e.toString());
-//            System.exit(1);
-//        }
+        try{
+            MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
+            lexer.removeErrorListeners();
+            lexer.addErrorListener(new MxErrorListener());
+            MxParser parser = new MxParser(new CommonTokenStream(lexer));
+            parser.removeErrorListeners();
+            parser.addErrorListener(new MxErrorListener());
+            ParseTree parseTreeRoot = parser.program();
+            globalScope gScope = new globalScope(null);
+            ASTBuilder astBuilder = new ASTBuilder(gScope);
+            ProgramNode ast = (ProgramNode) astBuilder.visit(parseTreeRoot);
+            new SymbolCollector(gScope).visit(ast);
+            new SemanticChecker(gScope).visit(ast);
+        }
+        catch (error e) {
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
 //        System.out.println("Successfully parsed!");
         return;
     }
