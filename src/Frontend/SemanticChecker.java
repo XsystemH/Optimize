@@ -5,12 +5,14 @@ import AST.Cons.*;
 import AST.Expr.*;
 import AST.Stmt.*;
 import util.Decl.ClassDecl;
+import util.Decl.FuncDecl;
 import util.Scope.*;
 import util.Type.ReturnType;
 import util.Type.Type;
 import util.error.semanticError;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class SemanticChecker implements ASTVisitor {
     private globalScope gScope;
@@ -52,8 +54,12 @@ public class SemanticChecker implements ASTVisitor {
         for (FuncNode f : it.functions) {
             f.accept(this);
         }
-        if (it.constructor != null)
+        if (it.constructor != null) {
+            curScope = new funcScope(curScope);
+            curScope.returnType = new ReturnType("void");
             it.constructor.accept(this);
+            curScope = curScope.parent;
+        }
         curScope = curScope.parent;
     }
 
@@ -147,7 +153,8 @@ public class SemanticChecker implements ASTVisitor {
             it.incrementExpr.accept(this);
         }
         curScope = new loopScope(curScope);
-        it.bodyStmt.accept(this);
+        if (it.bodyStmt != null)
+            it.bodyStmt.accept(this);
         curScope = curScope.parent;
     }
 
@@ -178,14 +185,14 @@ public class SemanticChecker implements ASTVisitor {
 
     @Override
     public void visit(breakStmtNode it) {
-        if (curScope.scopeType != Scope.ScopeType.Loop) {
+        if (!curScope.isInLoop()) {
             throw new semanticError("Break outside Loop.", it.pos);
         }
     }
 
     @Override
     public void visit(continueStmtNode it) {
-        if (curScope.scopeType != Scope.ScopeType.Loop) {
+        if (!curScope.isInLoop()) {
             throw new semanticError("Continue outside Loop.", it.pos);
         }
     }
@@ -229,13 +236,36 @@ public class SemanticChecker implements ASTVisitor {
 
     @Override
     public void visit(funcCallExprNode it) {
-        if (gScope.getFunction(it.funcName) == null) {
-            throw new semanticError("Function " + it.funcName + " not found.", it.pos);
+        HashMap<String, FuncDecl> classFuncs = new HashMap<>();
+        if (curScope.isInClass() != null) {
+            classFuncs = gScope.classes.get(curScope.isInClass()).functions;
         }
+        FuncDecl func;
+        if (gScope.getFunction(it.funcName) == null) {
+            if (classFuncs.isEmpty())
+                throw new semanticError("Function " + it.funcName + " not found.", it.pos);
+            else if (!classFuncs.containsKey(it.funcName)) {
+                throw new semanticError("Function " + it.funcName + " not found.", it.pos);
+            }
+            else {
+                func = classFuncs.get(it.funcName);
+            }
+        }
+        else {
+            func = gScope.getFunction(it.funcName);
+        }
+        int t = 0;
         for (ExprNode expr : it.parameters) {
             expr.accept(this);
+            if (!expr.type.isEqual(func.paramType.get(t))) {
+                throw new semanticError("Semantic Error: type not match.", it.pos);
+            }
+            t++;
         }
-        it.type = gScope.getFunction(it.funcName).retType;
+        if (t != func.paramType.size()) {
+            throw new semanticError("Semantic Error: param num not match.", it.pos);
+        }
+        it.type = func.retType;
         it.isLeft = false;
     }
 

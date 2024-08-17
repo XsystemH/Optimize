@@ -65,6 +65,9 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         if (ctx.classsuite().constructor().size() > 1) {
             throw new syntaxError("More than one Constructor", new position(ctx));
         } else if (ctx.classsuite().constructor().size() == 1) {
+            if (!ctx.classsuite().constructor().get(0).Identifier().getText().equals(c.name)) {
+                throw new syntaxError("Wrong Constructor", new position(ctx));
+            }
             c.constructor = (blockStmtNode) visit(ctx.classsuite().constructor(0).suite());
         }
         return c;
@@ -274,7 +277,9 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             case "*" -> b.opCode = binaryExprNode.binaryOpType.mul;
             case "/" -> b.opCode = binaryExprNode.binaryOpType.div;
             case "%" -> b.opCode = binaryExprNode.binaryOpType.mod;
-            case "^" -> b.opCode = binaryExprNode.binaryOpType.caret;
+            case "&" -> b.opCode = binaryExprNode.binaryOpType.and;
+            case "|" -> b.opCode = binaryExprNode.binaryOpType.or_;
+            case "^" -> b.opCode = binaryExprNode.binaryOpType.xor;
             case "<<" -> b.opCode = binaryExprNode.binaryOpType.leftShift;
             case ">>" -> b.opCode = binaryExprNode.binaryOpType.rightShift;
         }

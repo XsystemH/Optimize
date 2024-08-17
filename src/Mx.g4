@@ -43,7 +43,7 @@ expression
     | Null #nullExpr
     | expression op=('++' | '--') #rightExpr
     | op=('++' | '--' | '~' | '-') expression #leftExpr
-    | expression op=('+' | '-' | '*' | '/' | '%' | '^' | '<<' | '>>') expression #binaryExpr
+    | expression op=('+' | '-' | '*' | '/' | '%' | '&' | '|' | '^' | '<<' | '>>') expression #binaryExpr
     | expression op=('==' | '!=' | '>' | '<' | '>=' | '<=') expression #boolExpr
     | expression op=('&&' | '||') expression #logicExpr
     | '!' expression #notExpr
