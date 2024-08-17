@@ -5,7 +5,7 @@ mainFn: 'int' 'main' '(' ')' suite;
 
 classDef : 'class' Identifier classsuite ';';
 
-funcDef : returnType funcName=Identifier '(' param* ')' suite;
+funcDef : returnType funcName=Identifier '(' param? (',' param)* ')' suite;
 returnType : type | Void;
 param : type name = Identifier;
 
@@ -47,7 +47,7 @@ expression
     | expression op=('==' | '!=' | '>' | '<' | '>=' | '<=') expression #boolExpr
     | expression op=('&&' | '||') expression #logicExpr
     | '!' expression #notExpr
-    | expression '?' expression ':' expression #ternaryExpr
+    | <assoc=right> expression '?' expression ':' expression #ternaryExpr
     | <assoc=right> expression '=' expression #assignExpr
     | ( FormatEmpty
       | (FormatBegin expression (FormatMid expression)* FormatEnd)) #formatString

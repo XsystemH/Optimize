@@ -20,9 +20,9 @@ public class Main {
     public static void main(String[] args) throws IOException {
 //        System.out.println("Hello Compiler!");
 
-//        String filename = "testcases/sema/misc-package/misc-37.mx";
-//        InputStream input = new FileInputStream(filename);
-        InputStream input = System.in;
+        String filename = "testcases/sema/ternary-package/ternary-expression-5.mx";
+        InputStream input = new FileInputStream(filename);
+//        InputStream input = System.in;
         //input 设置为标准输入
         MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
         lexer.removeErrorListeners();

@@ -75,7 +75,8 @@ public class SemanticChecker implements ASTVisitor {
             curScope.defineVariable(it.paramName.get(i), it.paramType.get(i), it.pos, false);
         }
         for (StmtNode s : it.body) {
-            s.accept(this);
+            if (s != null)
+                s.accept(this);
         }
         if (!curScope.hasReturn && !it.returnType.isVoid) {
             throw new semanticError("Need return.", it.pos);
@@ -141,7 +142,8 @@ public class SemanticChecker implements ASTVisitor {
             throw new semanticError("Semantic Error: type not match.", it.pos);
         }
         curScope = new Scope(curScope);
-        it.thenBlock.accept(this);
+        if (it.thenBlock != null)
+            it.thenBlock.accept(this);
         curScope = curScope.parent;
         if (it.elseBlock != null) {
             it.elseBlock.accept(this);
@@ -468,7 +470,17 @@ public class SemanticChecker implements ASTVisitor {
             throw new semanticError("Semantic Error: type not match.", it.pos);
         }
         if (!it.case0.type.isEqual(it.case1.type)) {
-            throw new semanticError("Semantic Error: type not match.", it.pos);
+            if (it.case0.type.isNull) {
+                if (it.case1.type.isBasic()) {
+                    throw new semanticError("Semantic Error: type not match.", it.pos);
+                }
+            }
+            else if (it.case1.type.isNull) {
+                if (it.case0.type.isBasic()) {
+                    throw new semanticError("Semantic Error: type not match.", it.pos);
+                }
+            }
+            else throw new semanticError("Semantic Error: type not match.", it.pos);
         }
         it.type = it.case0.type;
         it.isLeft = false;
