@@ -13,6 +13,7 @@ import util.error.semanticError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class SemanticChecker implements ASTVisitor {
     private globalScope gScope;
@@ -84,7 +85,8 @@ public class SemanticChecker implements ASTVisitor {
         curScope = new funcScope(curScope);
         curScope.returnType = new ReturnType("int");
         for (StmtNode s : it.statements) {
-            s.accept(this);
+            if (s != null) // skip empty
+                s.accept(this);
         }
         curScope = curScope.parent;
     }
@@ -93,7 +95,8 @@ public class SemanticChecker implements ASTVisitor {
     public void visit(blockStmtNode it) {
         curScope = new Scope(curScope);
         for (StmtNode s : it.statements) {
-            s.accept(this);
+            if (s != null) // skip empty
+                s.accept(this);
         }
         curScope = curScope.parent;
     }
@@ -303,9 +306,11 @@ public class SemanticChecker implements ASTVisitor {
             else throw new semanticError("Class " + it.className + " not found.", it.pos);
         }
         if (cla.functions.get(it.funcName) == null) {
-            throw new semanticError("Function " + it.funcName + " not found.", it.pos);
+            if (it.className.type.dim == 0 || !Objects.equals(it.funcName, "size"))
+                throw new semanticError("Function " + it.funcName + " not found.", it.pos);
+            else it.type = new ReturnType("int");
         }
-        it.type = cla.functions.get(it.funcName).retType;
+        else it.type = cla.functions.get(it.funcName).retType;
         it.isLeft = false;
     }
 
