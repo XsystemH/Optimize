@@ -6,8 +6,11 @@ import java.util.Objects;
 
 public class Type extends BasicType{
     public int dim;
+    public boolean isEmptyArray;
 
-    public Type() {}
+    public Type() {
+        isEmptyArray = true;
+    }
 
     public Type(BasicType other) {
         super(other);

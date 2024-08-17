@@ -43,14 +43,14 @@ public class globalScope extends Scope{
 
     public void defineFunction(FuncNode node) {
         if (functions.get(node.name) != null) {
-            throw new RuntimeException("Duplicate function name: " + node.name);
+            throw new RuntimeException("Multiple Definitions");
         }
         functions.put(node.name, new FuncDecl(node));
     }
 
     public void defineClass(ClassNode node) {
         if (classes.get(node.name) != null) {
-            throw new RuntimeException("Duplicate class name: " + node.name);
+            throw new RuntimeException("Multiple Definitions");
         }
         classes.put(node.name, new ClassDecl(node));
     }

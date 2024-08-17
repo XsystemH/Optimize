@@ -137,7 +137,7 @@ public class SemanticChecker implements ASTVisitor {
         if (it.conditionExpr != null) {
             it.conditionExpr.accept(this);
             if (!it.conditionExpr.type.isEqual(new Type("bool"))) {
-                throw new semanticError("Type Mismatch", it.pos);
+                throw new semanticError("Invalid Type", it.pos);
             }
         }
         if (it.incrementExpr != null) {
@@ -391,7 +391,7 @@ public class SemanticChecker implements ASTVisitor {
         }
         if (it.opCode == binaryExprNode.binaryOpType.add) {
             if (!it.lhs.type.isInt && !it.lhs.type.isString) {
-                throw new semanticError("Type Mismatch", it.pos);
+                throw new semanticError("Invalid Type", it.pos);
             }
         }
         else if (!it.lhs.type.isInt) {
@@ -504,9 +504,15 @@ public class SemanticChecker implements ASTVisitor {
             if (contentType == null) {
                 contentType = cons.type;
             }
-            if (!cons.type.isEqual(contentType)) {
+            if (contentType.isEmptyArray) {
+                contentType = cons.type;
+            }
+            if (!cons.type.isEqual(contentType) && !cons.type.isEmptyArray) {
                 throw new semanticError("Type Mismatch", it.pos);
             }
+        }
+        if (contentType == null) {
+            contentType = new Type();
         }
         it.type = contentType;
         it.type.dim += 1;

@@ -35,7 +35,7 @@ public class Scope {
 
     public void defineVariable(String name, Type type, position pos, boolean lookup) {
         if (containsVariable(name, lookup))
-            throw new semanticError("Semantic Error: variable redefine", pos);
+            throw new semanticError("Multiple Definitions", pos);
         member.put(name, type);
     }
 

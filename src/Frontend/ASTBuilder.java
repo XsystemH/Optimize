@@ -425,6 +425,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitArrCons(MxParser.ArrConsContext ctx) {
         arrConsNode c = new arrConsNode(new position(ctx));
+        if (ctx.array_Constant() == null) return c;
+        if (ctx.array_Constant().array_Content() == null) return c;
         for (MxParser.ConstantsContext content : ctx.array_Constant().array_Content().constants()) {
             c.content.add((ConsNode) visit(content));
         }
@@ -434,6 +436,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitArray_Constant(MxParser.Array_ConstantContext ctx) {
         arrConsNode c = new arrConsNode(new position(ctx));
+        if (ctx.array_Content() == null) return c;
         for (MxParser.ConstantsContext content : ctx.array_Content().constants()) {
             c.content.add((ConsNode) visit(content));
         }
