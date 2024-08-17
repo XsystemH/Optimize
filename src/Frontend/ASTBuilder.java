@@ -26,14 +26,17 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitProgram(MxParser.ProgramContext ctx) {
         ProgramNode p = new ProgramNode(new position(ctx));
-        for (MxParser.ClassDefContext cla : ctx.classDef()) {
-            p.Classes.add((ClassNode) visit(cla));
-        }
-        for (MxParser.FuncDefContext func : ctx.funcDef()) {
-            p.functions.add((FuncNode) visit(func));
-        }
-        for (MxParser.VarDefContext var : ctx.varDef()) {
-            p.globalVars.add((varDefStmtNode) visit(var));
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            if (ctx.getChild(i) instanceof MxParser.ClassDefContext) {
+                p.members.add((ClassNode) visit(ctx.getChild(i)));
+            }
+            if (ctx.getChild(i) instanceof MxParser.FuncDefContext) {
+                if (!(ctx.getChild(i) instanceof MxParser.MainFnContext))
+                    p.members.add((FuncNode) visit(ctx.getChild(i)));
+            }
+            if (ctx.getChild(i) instanceof MxParser.VarDefContext) {
+                p.members.add((varDefStmtNode) visit(ctx.getChild(i)));
+            }
         }
         if (ctx.mainFn() == null) {
             throw new semanticError("No main function.", new position(ctx));

@@ -18,11 +18,8 @@ public class SymbolCollector implements ASTVisitor {
 
     @Override
     public void visit(ProgramNode it) {
-        for (ClassNode cla : it.Classes) {
-            cla.accept(this);
-        }
-        for (FuncNode func : it.functions) {
-            func.accept(this);
+        for (ASTNode child : it.members) {
+            child.accept(this);
         }
     }
 

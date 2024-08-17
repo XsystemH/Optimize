@@ -50,4 +50,8 @@ public class Type extends BasicType{
         if (isNull != t.isNull) return false;
         return Objects.equals(typeName, t.typeName);
     }
+
+    public boolean isBasic() {
+        return dim == 0 && (isInt || isBool || isString);
+    }
 }

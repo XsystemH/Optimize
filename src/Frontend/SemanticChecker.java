@@ -26,22 +26,25 @@ public class SemanticChecker implements ASTVisitor {
     @Override
     public void visit(ProgramNode it) {
         ArrayList<varDefStmtNode> noPre = new ArrayList<>();
-        for (varDefStmtNode v : it.globalVars) {
-            if (gScope.containsType(v.type))
-                v.accept(this);
-            else noPre.add(v);
+        for (ASTNode child : it.members) {
+            child.accept(this);
         }
-        for (ClassNode c : it.Classes) {
-            c.accept(this);
-        }
-        for (FuncNode f : it.functions) {
-            if (gScope.classes.containsKey(f.name))
-                throw new semanticError("Duplicate name for function name and class name", f.pos);
-            f.accept(this);
-        }
-        for (varDefStmtNode v : noPre) {
-            v.accept(this);
-        }
+//        for (varDefStmtNode v : it.globalVars) {
+//            if (gScope.containsType(v.type))
+//                v.accept(this);
+//            else noPre.add(v);
+//        }
+//        for (ClassNode c : it.Classes) {
+//            c.accept(this);
+//        }
+//        for (FuncNode f : it.functions) {
+//            if (gScope.classes.containsKey(f.name))
+//                throw new semanticError("Duplicate name for function name and class name", f.pos);
+//            f.accept(this);
+//        }
+//        for (varDefStmtNode v : noPre) {
+//            v.accept(this);
+//        }
         it.mainFn.accept(this);
     }
 
@@ -124,7 +127,9 @@ public class SemanticChecker implements ASTVisitor {
             }
         }
         for (String name : it.name) {
-//            boolean flag = (curScope.isInFunction() || curScope.isInClass()!=null);
+            if (gScope.getFunction(name) != null) {
+                throw new semanticError("same name with function already exists.", it.pos);
+            }
             curScope.defineVariable(name, it.type, it.pos, false);
         }
     }
@@ -135,7 +140,9 @@ public class SemanticChecker implements ASTVisitor {
         if (!it.condition.type.isEqual(new Type("bool"))) {
             throw new semanticError("Semantic Error: type not match.", it.pos);
         }
+        curScope = new Scope(curScope);
         it.thenBlock.accept(this);
+        curScope = curScope.parent;
         if (it.elseBlock != null) {
             it.elseBlock.accept(this);
         }
@@ -143,6 +150,7 @@ public class SemanticChecker implements ASTVisitor {
 
     @Override
     public void visit(forStmtNode it) {
+        curScope = new loopScope(curScope);
         if (it.initialStmt != null) {
             it.initialStmt.accept(this);
         }
@@ -155,7 +163,6 @@ public class SemanticChecker implements ASTVisitor {
         if (it.incrementExpr != null) {
             it.incrementExpr.accept(this);
         }
-        curScope = new loopScope(curScope);
         if (it.bodyStmt != null)
             it.bodyStmt.accept(this);
         curScope = curScope.parent;
@@ -168,7 +175,8 @@ public class SemanticChecker implements ASTVisitor {
             throw new semanticError("Semantic Error: type not match.", it.pos);
         }
         curScope = new loopScope(curScope);
-        it.body.accept(this);
+        if (it.body != null)
+            it.body.accept(this);
         curScope = curScope.parent;
     }
 
@@ -180,7 +188,12 @@ public class SemanticChecker implements ASTVisitor {
         if (it.expr != null) {
             it.expr.accept(this);
             if (!it.expr.type.isEqual(curScope.returnType)) {
-                throw new semanticError("Semantic Error: type not match.", it.pos);
+                if (it.expr.type.isNull) {
+                    if (curScope.returnType.isBasic()) {
+                        throw new semanticError("Semantic Error: type not match.", it.pos);
+                    }
+                }
+                else throw new semanticError("Semantic Error: type not match.", it.pos);
             }
         }
         curScope.getReturn();
@@ -257,11 +270,16 @@ public class SemanticChecker implements ASTVisitor {
         else {
             func = gScope.getFunction(it.funcName);
         }
+        if (classFuncs.containsKey(it.funcName)) {
+            func = classFuncs.get(it.funcName); // in classFunc first
+        }
         int t = 0;
         for (ExprNode expr : it.parameters) {
             expr.accept(this);
             if (!expr.type.isEqual(func.paramType.get(t))) {
-                throw new semanticError("Semantic Error: type not match.", it.pos);
+                if (func.paramType.get(t).isBasic() || !expr.type.isNull) {
+                    throw new semanticError("Semantic Error: type not match.", it.pos);
+                }
             }
             t++;
         }
@@ -408,7 +426,7 @@ public class SemanticChecker implements ASTVisitor {
         it.lhs.accept(this);
         it.rhs.accept(this);
         if (!it.lhs.type.isEqual(it.rhs.type)) {
-            if (it.lhs.type.dim == 0 || !it.rhs.type.isNull)
+            if (it.lhs.type.isBasic() || !it.rhs.type.isNull)
                 throw new semanticError("Semantic Error: type not match.", it.pos);
         }
         if (it.opCode != boolExprNode.boolOpType.equal && it.opCode != boolExprNode.boolOpType.notEqual) {
