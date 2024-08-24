@@ -40,6 +40,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             }
             if (ctx.getChild(i) == ctx.mainFn()) {
                 p.members.add((FuncNode) visit(ctx.getChild(i)));
+                p.main = (MainNode) visit(ctx.getChild(i));
             }
         }
         if (ctx.mainFn() == null) {

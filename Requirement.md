@@ -916,7 +916,7 @@ path/to/test_llvm_ir_all.bash <your_compiler_and_args> <testcase_dir> [builtin]
 
 假设:
 1. 你使用 Java 编写程序，源代码位于 `src/` 目录下，
-2. 你的编译器在 `-emit-llvm` 参数下可以将标准输入流转化为 LLVM IR，
+2. 你的编译器在 `-emit-LLVM` 参数下可以将标准输入流转化为 LLVM IR，
 3. 测试样例位于 `testcase/` 目录下，
 4. 你的主类是 `Compiler`，（如不是，请将下文的 `Compiler` 替换为你的主类名）
 5. 你的编译器的 jar 包位于 `/usr/share/java/antlr-4.13.0-complete.jar`，（如不是，请替换为你的 jar 包路径）
@@ -931,13 +931,13 @@ find src -name '*.java' | xargs javac -d bin -cp /usr/share/java/antlr-4.13.0-co
 你可以使用以下命令测试程序 `testcases/codegen/t1.mx`：
 
 ```sh
-testcases/codegen/scripts/test.bash 'java -cp /usr/share/java/antlr-runtime-4.13.0.jar:bin Compiler -emit-llvm' testcases/codegen/t1.mx bin/builtin.ll
+testcases/codegen/scripts/test.bash 'java -cp /usr/share/java/antlr-runtime-4.13.0.jar:bin Compiler -emit-LLVM' testcases/codegen/t1.mx bin/builtin.ll
 ```
 
 你可以使用以下命令测试 `testcases/codegen/` 目录下的所有测试点：
 
 ```sh
-testcases/codegen/scripts/test_all.bash 'java -cp /usr/share/java/antlr-runtime-4.13.0.jar:bin Compiler -emit-llvm' testcases/codegen/ bin/builtin.ll
+testcases/codegen/scripts/test_all.bash 'java -cp /usr/share/java/antlr-runtime-4.13.0.jar:bin Compiler -emit-LLVM' testcases/codegen/ bin/builtin.ll
 ```
 
 #### 3.3 测试汇编
