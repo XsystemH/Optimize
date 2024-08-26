@@ -17,11 +17,7 @@ import util.error.*;
 import java.util.Objects;
 
 public class ASTBuilder extends MxBaseVisitor<ASTNode> {
-    private globalScope gScope;
-
-    public ASTBuilder(globalScope gScope) {
-        this.gScope = gScope;
-    }
+    public ASTBuilder() {}
 
     @Override
     public ASTNode visitProgram(MxParser.ProgramContext ctx) {
@@ -113,6 +109,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             v.name.add(ctx.Identifier(i).getText());
             if (ctx.expression(i) != null)
                 v.expr.add((ExprNode) visit(ctx.expression(i)));
+            else
+                v.expr.add(null);
         }
         return v;
     }

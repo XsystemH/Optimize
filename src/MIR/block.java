@@ -1,37 +1,19 @@
 package MIR;
 
-import util.error.internalError;
-import util.position;
+import MIR.Instruction.Instr;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
-public class block {
-    private LinkedList<statement> stmts = new LinkedList<>();
-    private terminalStmt tailStmt = null;
+public class block extends Instr {
+    public ArrayList<Instr> instrs = new ArrayList<>();
     public block() {}
-    public void push_back(statement s) {
-        stmts.add(s);
-        if (s instanceof terminalStmt) {
-            if (tailStmt != null) {
-                throw new internalError("multiple tails of a block",
-                        new position(0, 0));
-            }
-            tailStmt = (terminalStmt) s;
+
+    @Override
+    public String getString() {
+        StringBuilder ret = new StringBuilder();
+        for (Instr s : instrs) {
+            ret.append(s).append("\n");
         }
-    }
-    public ArrayList<statement> stmts() {
-        return new ArrayList<>(stmts);
-    }
-    public ArrayList<block> successors() {
-        ArrayList<block> ret = new ArrayList<>();
-        if (tailStmt instanceof branch) {
-            ret.add(((branch) tailStmt).trueBranch);
-            ret.add(((branch) tailStmt).falseBranch);
-        }
-        else if (tailStmt instanceof jump) {
-            ret.add(((jump) tailStmt).destination);
-        }
-        return ret;
+        return ret.toString();
     }
 }

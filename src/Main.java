@@ -33,7 +33,7 @@ public class Main {
             parser.addErrorListener(new MxErrorListener());
             ParseTree parseTreeRoot = parser.program();
             globalScope gScope = new globalScope(null);
-            ASTBuilder astBuilder = new ASTBuilder(gScope);
+            ASTBuilder astBuilder = new ASTBuilder();
             ProgramNode ast = (ProgramNode) astBuilder.visit(parseTreeRoot);
             new SymbolCollector(gScope).visit(ast);
             new SemanticChecker(gScope).visit(ast);

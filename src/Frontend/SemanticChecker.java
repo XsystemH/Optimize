@@ -96,6 +96,7 @@ public class SemanticChecker implements ASTVisitor {
         }
 
         for (ExprNode expr : it.expr) {
+            if (expr == null) continue;
             expr.accept(this);
             if (!expr.type.isEqual(it.type)) {
                 if (expr.type.isNull) {
@@ -123,9 +124,11 @@ public class SemanticChecker implements ASTVisitor {
         if (it.thenBlock != null)
             it.thenBlock.accept(this);
         curScope = curScope.parent;
+        curScope = new Scope(curScope);
         if (it.elseBlock != null) {
             it.elseBlock.accept(this);
         }
+        curScope = curScope.parent;
     }
 
     @Override

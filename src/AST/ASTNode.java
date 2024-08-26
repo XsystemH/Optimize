@@ -1,5 +1,6 @@
 package AST;
 
+import util.Scope.Scope;
 import util.position;
 
 abstract public class ASTNode {

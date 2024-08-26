@@ -1,13 +1,16 @@
 package MIR;
 
+import MIR.Instruction.Instr;
+
 import java.util.HashSet;
 import java.util.Set;
 
-public class mainFn {
-    public block rootBlock = new block();
-    public Set<block> blocks = new HashSet<>();
+public class mainFn extends block {
 
-    public mainFn() {
-        blocks.add(rootBlock);
+    public mainFn() {}
+
+    @Override
+    public String getString() {
+        return "";
     }
 }
