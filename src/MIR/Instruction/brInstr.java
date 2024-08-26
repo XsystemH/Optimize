@@ -11,10 +11,10 @@ public class brInstr extends Instr{
     @Override
     public String getString() {
         if (cond != null) {
-            return "br i1 " + cond.getString() + ", label " + trueLabel.getString() + ", label " + falseLabel.getString();
+            return "br i1 " + cond.getString() + ", label " + trueLabel.getLabel() + ", label " + falseLabel.getLabel();
         }
         else {
-            return "br label %label_" + destLabel;
+            return "br label %label_" + destLabel.getLabel();
         }
     }
 }

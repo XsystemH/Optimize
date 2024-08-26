@@ -12,7 +12,8 @@ param : type name = Identifier;
 suite : '{' statement* '}';
 classsuite : '{' (varDef | funcDef | constructor)* '}';
 
-varDef : type name=Identifier ('=' expression)? (',' name=Identifier ('=' expression)?)* ';';
+varDef : type varPair? (',' varPair?)* ';';
+varPair : name=Identifier ('=' expression)?;
 constructor : Identifier '(' ')' suite;
 
 statement

@@ -25,6 +25,7 @@ public class ClassDecl {
     public ClassDecl(ClassNode cla) {
         this.name = cla.name;
         this.vars = new HashMap<>();
+        this.idx = new HashMap<>();
         this.functions = new HashMap<>();
         this.hasConstructor = false;
 

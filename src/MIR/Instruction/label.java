@@ -9,6 +9,10 @@ public class label extends Instr{
 
     @Override
     public String getString() {
+        return "label_" + num + ":";
+    }
+
+    public String getLabel() {
         return "%label_" + num;
     }
 }
