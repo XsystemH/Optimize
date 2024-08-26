@@ -5,8 +5,9 @@ import MIR.Instruction.Instr;
 
 import java.util.ArrayList;
 
-public class func extends block {
+public class funcDef extends block {
     public IRType returnType;
+    public String className;
     public String name;
     public ArrayList<String> params = new ArrayList<>();
     public ArrayList<IRType> paramTypes = new ArrayList<>();

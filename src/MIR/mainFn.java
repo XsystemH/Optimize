@@ -6,11 +6,5 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class mainFn extends block {
-
     public mainFn() {}
-
-    @Override
-    public String getString() {
-        return "";
-    }
 }

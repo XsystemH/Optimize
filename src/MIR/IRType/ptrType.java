@@ -5,6 +5,6 @@ public class ptrType extends IRType{
 
     @Override
     public String getString() {
-        return "";
+        return "ptr";
     }
 }

@@ -26,9 +26,10 @@ public class Scope {
         this.parent = parent;
         if (parent != null) {
             returnType = parent.returnType;
-        }
-        if (parent != null) {
             depth = parent.depth + 1;
+        }
+        else {
+            depth = 0;
         }
     }
 

@@ -13,7 +13,7 @@ public class retInstr extends Instr{
             return "ret void";
         }
         else {
-            return "ret " + type.toString() + " " + value.toString();
+            return "ret " + type.getString() + " " + value.getString();
         }
     }
 }

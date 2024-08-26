@@ -9,6 +9,6 @@ public class allocaInstr extends Instr{
 
     @Override
     public String getString() {
-        return result.toString() + " = alloca " + type.toString();
+        return result.getString() + " = alloca " + type.getString();
     }
 }

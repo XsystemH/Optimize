@@ -11,12 +11,14 @@ import java.util.HashMap;
 public class ClassDecl {
     public String name;
     public HashMap<String, Type> vars;
+    public HashMap<String, Integer> idx;
     public HashMap<String, FuncDecl> functions;
     public boolean hasConstructor = false;
 
     public ClassDecl(String name) {
         this.name = name;
         this.vars = new HashMap<>();
+        this.idx = new HashMap<>();
         this.functions = new HashMap<>();
     }
 
@@ -27,8 +29,10 @@ public class ClassDecl {
         this.hasConstructor = false;
 
         for (varDefStmtNode var : cla.vars) {
+            int i = 0;
             for (String name : var.name) {
                 this.vars.put(name, var.type);
+                this.idx.put(name, i++);
             }
         }
         for (FuncNode func : cla.functions) {

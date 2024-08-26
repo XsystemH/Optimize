@@ -7,7 +7,7 @@ import MIR.IRType.IRType;
 public class getInstr extends Instr{
     public Reg result = null;
     public IRType type = null;
-    public Reg ptr = null;
+    public Expr ptr = null;
     public Expr idx;
 
     @Override

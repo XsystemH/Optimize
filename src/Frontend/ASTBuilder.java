@@ -410,7 +410,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitIntCons(MxParser.IntConsContext ctx) {
         intConsNode c = new intConsNode(new position(ctx));
-        c.value = ctx.getAltNumber();
+        c.value = Integer.parseInt(ctx.getText());
         return c;
     }
 

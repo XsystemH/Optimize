@@ -1,4 +1,5 @@
 import AST.ProgramNode;
+import Backend.IRBuilder;
 import Frontend.ASTBuilder;
 import Frontend.SemanticChecker;
 import Frontend.SymbolCollector;
@@ -20,11 +21,11 @@ public class Main {
     public static void main(String[] args) throws IOException {
 //        System.out.println("Hello Compiler!");
 
-//        String filename = "testcases/sema/const-array-package/const_array3.mx";
-//        InputStream input = new FileInputStream(filename);
-        InputStream input = System.in;
+        String filename = "testcases/test";
+        InputStream input = new FileInputStream(filename);
+//        InputStream input = System.in;
         //input 设置为标准输入
-        try{
+//        try{
             MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
             lexer.removeErrorListeners();
             lexer.addErrorListener(new MxErrorListener());
@@ -37,11 +38,14 @@ public class Main {
             ProgramNode ast = (ProgramNode) astBuilder.visit(parseTreeRoot);
             new SymbolCollector(gScope).visit(ast);
             new SemanticChecker(gScope).visit(ast);
-        }
-        catch (error e) {
-            System.out.println(e.message);
-            System.exit(1);
-        }
+            IRBuilder irBuilder = new IRBuilder(gScope);
+            irBuilder.visit(ast);
+            System.out.println(irBuilder.program.getString());
+//        }
+//        catch (error e) {
+//            System.out.println(e.message);
+//            System.exit(1);
+//        }
         System.out.println("Successfully parsed!");
         return;
     }

@@ -12,17 +12,14 @@ import MIR.Expression.Constant.boolCons;
 import MIR.Expression.Constant.intCons;
 import MIR.Expression.Constant.ptrCons;
 import MIR.Expression.Expr;
-import MIR.Expression.Register.Reg;
-import MIR.Expression.Register.resReg;
-import MIR.Expression.Register.varReg;
+import MIR.Expression.Register.*;
 import MIR.IRType.IRType;
 import MIR.IRType.IntType;
 import MIR.IRType.classType;
+import MIR.IRType.ptrType;
 import MIR.Instruction.*;
-import util.Scope.Scope;
-import util.Scope.funcScope;
-import util.Scope.globalScope;
-import util.Scope.loopScope;
+import util.Scope.*;
+import util.Type.ReturnType;
 import util.Type.Type;
 
 public class IRBuilder implements ASTVisitor{
@@ -31,7 +28,6 @@ public class IRBuilder implements ASTVisitor{
     private Scope currentScope;
     private globalScope gScope;
     private int store;
-    private int load;
     private int labelNum;
     private Expr lastExpr = null;
 
@@ -40,7 +36,7 @@ public class IRBuilder implements ASTVisitor{
         currentBlock = program;
         currentScope = gScope;
         this.gScope = gScope;
-        load = store = 0;
+        store = 0;
         labelNum = 0;
     }
 
@@ -62,7 +58,13 @@ public class IRBuilder implements ASTVisitor{
     @Override
     public void visit(ProgramNode it) {
         for(ASTNode element : it.members) {
+            if (element instanceof MainNode) {
+                currentScope = new globalScope(gScope);
+            }
             element.accept(this);
+            if (element instanceof MainNode) {
+                currentScope = currentScope.parent;
+            }
         }
     }
 
@@ -75,18 +77,23 @@ public class IRBuilder implements ASTVisitor{
         }
         currentBlock.instrs.add(c);
         if (it.constructor != null) {
+            currentScope = new classScope(gScope);
             it.constructor.accept(this);
+            currentScope = currentScope.parent;
         }
         for (FuncNode f : it.functions) {
+            currentScope = new classScope(gScope);
             f.accept(this);
+            currentScope = currentScope.parent;
         }
     }
 
     @Override
     public void visit(FuncNode it) {
         currentScope = new funcScope(currentScope);
-        func temp = (func) currentBlock;
+        funcDef temp = (funcDef) currentBlock;
         temp.returnType = type2IR(it.returnType);
+        temp.className = currentScope.isInClass();
         temp.name = it.name;
         temp.params.addAll(it.paramName);
         for (int i = 0; i < it.paramType.size(); i++) {
@@ -120,8 +127,27 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(varDefStmtNode it) {
-        if (currentScope instanceof globalScope) {
-            // todo init & @
+        if (currentScope.parent == null) { // global
+            for (int i = 0; i < it.name.size(); i++) {
+                allocaInstr instr = new allocaInstr();
+                instr.type = type2IR(it.type);
+                instr.result = new gloReg(it.name.get(i));
+                currentBlock.instrs.add(instr);
+
+                currentScope.defineVariable(it.name.get(i), it.type);
+
+                if (it.expr != null) {
+                    it.expr.get(i).accept(this);
+                    storeInstr instr2 = new storeInstr();
+                    instr2.type = type2IR(it.expr.get(i).type);
+                    instr2.ptr = instr.result;
+                    instr2.value = lastExpr;
+                    currentBlock.instrs.add(instr2);
+                }
+                else {
+                    // todo init_
+                }
+            }
         }
         else {
             for (int i = 0; i < it.name.size(); i++) {
@@ -137,7 +163,7 @@ public class IRBuilder implements ASTVisitor{
                     storeInstr instr2 = new storeInstr();
                     instr2.type = type2IR(it.expr.get(i).type);
                     instr2.ptr = instr.result;
-                    instr2.value = new resReg(load++);
+                    instr2.value = lastExpr;
                     currentBlock.instrs.add(instr2);
                 }
             }
@@ -146,30 +172,40 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(ifStmtNode it) {
-        it.condition.accept(this);
         branch b = new branch();
-        b.cond = new resReg(load++);
+        it.condition.accept(this);
+        b.cond = lastExpr;
         block temp = currentBlock;
-        currentBlock = new block();
+        currentBlock = b.trueBranch;
+        currentScope = new Scope(currentScope);
         it.thenBlock.accept(this);
-        temp.instrs.add(currentBlock);
-        currentBlock = new block();
+        currentScope = currentScope.parent;
+        currentBlock = b.falseBranch;
+        currentScope = new Scope(currentScope);
         it.elseBlock.accept(this);
-        temp.instrs.add(currentBlock);
+        currentScope = currentScope.parent;
+        temp.instrs.add(b);
         currentBlock = temp;
-        // todo scope
     }
 
     @Override
     public void visit(forStmtNode it) {
         currentScope = new loopScope(currentScope);
         it.initialStmt.accept(this);
-        // todo label ret
+        ((loopScope)currentScope).loopLabel = new label(labelNum++);
+        ((loopScope)currentScope).skipLabel = new label(labelNum++);
+        currentBlock.instrs.add(((loopScope)currentScope).loopLabel);
         it.conditionExpr.accept(this);
-        // todo br
+        brInstr br = new brInstr();
+        br.cond = lastExpr;
+        br.trueLabel = new label(labelNum++);
+        br.falseLabel = ((loopScope)currentScope).skipLabel;
+        currentBlock.instrs.add(br);
+        currentBlock.instrs.add(br.trueLabel);
         it.incrementExpr.accept(this);
         it.bodyStmt.accept(this);
-        // todo label skip
+        currentBlock.instrs.add(((loopScope)currentScope).skipLabel);
+        currentScope = currentScope.parent;
     }
 
     @Override
@@ -187,6 +223,7 @@ public class IRBuilder implements ASTVisitor{
         currentBlock.instrs.add(b.trueLabel);
         it.body.accept(this);
         currentBlock.instrs.add(b.falseLabel);
+        currentScope = currentScope.parent;
     }
 
     @Override
@@ -200,7 +237,7 @@ public class IRBuilder implements ASTVisitor{
         }
         r.type = type2IR(it.expr.type);
         it.expr.accept(this);
-        r.value = new resReg(load++);
+        r.value = lastExpr;
         currentBlock.instrs.add(r);
     }
 
@@ -240,22 +277,55 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(thisExprNode it) {
-
+        lastExpr = new thisReg();
     }
 
     @Override
     public void visit(funcCallExprNode it) {
-
+        callInstr c = new callInstr();
+        c.methodName = it.funcName;
+        for (int i = 0 ; i < it.parameters.size(); i++) {
+            c.paramTypes.add(type2IR(it.parameters.get(i).type));
+            it.parameters.get(i).accept(this);
+            c.paramExpr.add(lastExpr);
+        }
+        if (!((ReturnType)it.type).isVoid) {
+            c.returnType = type2IR(it.type);
+            c.result = new resReg(store++);
+            lastExpr = c.result;
+        }
+        currentBlock.instrs.add(c);
     }
 
     @Override
     public void visit(classMemExprNode it) {
-        // todo
+        getInstr g = new getInstr();
+        it.className.accept(this);
+        g.ptr = lastExpr;
+        g.idx = new intCons(gScope.classes.get(it.className).idx.get(it.memName));
+        g.type = type2IR(gScope.classes.get(it.className).vars.get(it.memName));
+        g.result = new resReg(store++);
+        lastExpr = g.result;
+        currentBlock.instrs.add(g);
     }
 
     @Override
     public void visit(classFuncExprNode it) {
-        // todo
+        callInstr c = new callInstr();
+        c.className = it.className.type.typeName;
+        c.methodName = it.funcName;
+        it.className.accept(this);
+        c.paramTypes.add(new ptrType());
+        c.paramExpr.add(lastExpr); // this
+        for (int i = 0 ; i < it.parameters.size(); i++) {
+            c.paramTypes.add(type2IR(it.parameters.get(i).type));
+            it.parameters.get(i).accept(this);
+            c.paramExpr.add(lastExpr);
+        }
+        if (!((ReturnType)it.type).isVoid) {
+            c.returnType = type2IR(it.type);
+        }
+        currentBlock.instrs.add(c);
     }
 
     @Override
@@ -266,6 +336,7 @@ public class IRBuilder implements ASTVisitor{
         it.index.accept(this);
         g.idx = lastExpr;
         g.result = new resReg(store++);
+        lastExpr = g.result;
         currentBlock.instrs.add(g);
     }
 
@@ -277,8 +348,9 @@ public class IRBuilder implements ASTVisitor{
     @Override
     public void visit(newVarExprNode it) {
         allocaInstr a = new allocaInstr();
-        a.result = new resReg(store++);
         a.type = type2IR(it.type);
+        a.result = new resReg(store++);
+        lastExpr = a.result;
         currentBlock.instrs.add(a);
     }
 
@@ -318,6 +390,7 @@ public class IRBuilder implements ASTVisitor{
             }
         }
         b.result = new resReg(store++);
+        lastExpr = b.result;
         currentBlock.instrs.add(b);
     }
 
@@ -333,6 +406,7 @@ public class IRBuilder implements ASTVisitor{
         b.operand1 = lastExpr;
         b.operand2 = new intCons(1);
         b.result = new resReg(store++);
+        lastExpr = b.result;
         currentBlock.instrs.add(b);
     }
 
@@ -357,6 +431,7 @@ public class IRBuilder implements ASTVisitor{
         it.rhs.accept(this);
         b.operand2 = lastExpr;
         b.result = new resReg(store++);
+        lastExpr = b.result;
         currentBlock.instrs.add(b);
     }
 
@@ -377,6 +452,7 @@ public class IRBuilder implements ASTVisitor{
         it.rhs.accept(this);
         i.op2 = lastExpr;
         i.result = new resReg(store++);
+        lastExpr = i.result;
         currentBlock.instrs.add(i);
     }
 
@@ -395,6 +471,7 @@ public class IRBuilder implements ASTVisitor{
         it.rhs.accept(this);
         b.operand2 = lastExpr;
         b.result = new resReg(store++);
+        lastExpr = b.result;
         currentBlock.instrs.add(b);
     }
 
@@ -407,6 +484,7 @@ public class IRBuilder implements ASTVisitor{
         b.operand1 = lastExpr;
         b.operand2 = new boolCons(true);
         b.result = new resReg(store++);
+        lastExpr = b.result;
         currentBlock.instrs.add(b);
     }
 
@@ -414,7 +492,7 @@ public class IRBuilder implements ASTVisitor{
     public void visit(ternaryExprNode it) {
         it.condition.accept(this);
         brInstr b = new brInstr();
-        b.cond = (Reg) lastExpr;
+        b.cond = lastExpr;
         b.trueLabel = new label(labelNum++);
         b.falseLabel = new label(labelNum++);
 
@@ -432,12 +510,12 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(assignExprNode it) {
-        it.lhs.accept(this);
         storeInstr instr = new storeInstr();
         instr.type = type2IR(it.lhs.type);
+        it.lhs.accept(this);
         instr.ptr = (Reg) lastExpr;
         it.rhs.accept(this);
-        instr.value = new resReg(load++);
+        instr.value = lastExpr;
         currentBlock.instrs.add(instr);
     }
 
@@ -453,30 +531,12 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(boolConsNode it) {
-        block b = new block();
-        allocaInstr a = new allocaInstr();
-        a.result = new resReg(store++);
-        a.type = new IntType(1);
-        b.instrs.add(a);
-        storeInstr s = new storeInstr();
-        s.type = new IntType(1);
-        s.value = new boolCons(it.value);
-        s.ptr = a.result;
-        b.instrs.add(s);
+        lastExpr = new boolCons(it.value);
     }
 
     @Override
     public void visit(intConsNode it) {
-        block i = new block();
-        allocaInstr a = new allocaInstr();
-        a.result = new resReg(store++);
-        a.type = new IntType(32);
-        i.instrs.add(a);
-        storeInstr s = new storeInstr();
-        s.type = new IntType(32);
-        s.value = new intCons(it.value);
-        s.ptr = a.result;
-        i.instrs.add(s);
+        lastExpr = new intCons(it.value);
     }
 
     @Override

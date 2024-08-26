@@ -12,7 +12,7 @@ public class block extends Instr {
     public String getString() {
         StringBuilder ret = new StringBuilder();
         for (Instr s : instrs) {
-            ret.append(s).append("\n");
+            ret.append(s.getString()).append("\n");
         }
         return ret.toString();
     }
