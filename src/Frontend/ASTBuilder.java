@@ -105,10 +105,10 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     public ASTNode visitVarDef(MxParser.VarDefContext ctx) {
         varDefStmtNode v = new varDefStmtNode(new position(ctx));
         v.type = new Type(ctx.type());
-        for (int i = 0; i < ctx.Identifier().size(); i++) {
-            v.name.add(ctx.Identifier(i).getText());
-            if (ctx.expression(i) != null)
-                v.expr.add((ExprNode) visit(ctx.expression(i)));
+        for (int i = 0; i < ctx.varPair().size(); i++) {
+            v.name.add(ctx.varPair(i).Identifier().getText());
+            if (ctx.varPair(i).expression() != null)
+                v.expr.add((ExprNode) visit(ctx.varPair(i).expression()));
             else
                 v.expr.add(null);
         }
@@ -128,10 +128,11 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     public ASTNode visitVardefStatement(MxParser.VardefStatementContext ctx) {
         varDefStmtNode v = new varDefStmtNode(new position(ctx));
         v.type = new Type(ctx.varDef().type());
-        for (int i = 0; i < ctx.varDef().Identifier().size(); i++) {
-            v.name.add(ctx.varDef().Identifier(i).getText());
-            if (ctx.varDef().expression(i) != null)
-                v.expr.add((ExprNode) visit(ctx.varDef().expression(i)));
+        for (int i = 0; i < ctx.varDef().varPair().size(); i++) {
+            v.name.add(ctx.varDef().varPair(i).Identifier().getText());
+            if (ctx.varDef().varPair(i).expression() != null)
+                v.expr.add((ExprNode) visit(ctx.varDef().varPair(i).expression()));
+            else v.expr.add(null);
         }
         return v;
     }

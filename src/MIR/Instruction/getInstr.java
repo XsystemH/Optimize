@@ -12,6 +12,6 @@ public class getInstr extends Instr{
 
     @Override
     public String getString() {
-        return result.toString() + " = getelementptr " + type.getString() + ", ptr " + ptr.getString() + ", i32" + idx.getString();
+        return result.getString() + " = getelementptr " + type.getString() + ", ptr " + ptr.getString() + ", i32 " + idx.getString();
     }
 }

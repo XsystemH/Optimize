@@ -35,8 +35,8 @@ public class Scope {
 
     public int getVarDepth(String name) {
         if (member.containsKey(name)) return depth;
-        assert parent != null;
-        return parent.getVarDepth(name);
+        if (parent != null) return parent.getVarDepth(name);
+        else return -1;
     }
 
     public boolean containsVariable(String name, boolean lookup) {

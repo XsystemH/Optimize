@@ -2,6 +2,7 @@ package MIR;
 
 import MIR.IRType.IRType;
 import MIR.Instruction.Instr;
+import MIR.Instruction.label;
 
 import java.util.ArrayList;
 
@@ -14,14 +15,21 @@ public class funcDef extends block {
 
     @Override
     public String getString() {
-        StringBuilder str = new StringBuilder("define" + returnType.getString() + " @" + name + "(");
+        StringBuilder str = new StringBuilder("define" + returnType.getString() + " @");
+        if (className != null) {
+            str.append(className).append("::");
+        }
+        str.append(name).append("() ( ");
         for (int i = 0; i < params.size(); i++) {
             if (i > 0) str.append(", ");
-            str.append(paramTypes.get(i).getString());
+            str.append(paramTypes.get(i).getString()).append(" %");
             str.append(params.get(i));
         }
-        str.append(") {\n");
+        str.append(" ) {\n");
         for (Instr instr : instrs) {
+            if (!(instr instanceof label)) {
+                str.append("  ");
+            }
             str.append(instr.getString()).append("\n");
         }
         str.append("}\n");

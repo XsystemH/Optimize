@@ -20,7 +20,7 @@ public class classDef extends Instr {
             }
             else s.append(members.get(i).getString());
         }
-        s.append(" }");
+        s.append(" }\n");
         return s.toString();
     }
 }

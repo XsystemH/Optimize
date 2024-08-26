@@ -78,11 +78,13 @@ public class IRBuilder implements ASTVisitor{
         currentBlock.instrs.add(c);
         if (it.constructor != null) {
             currentScope = new classScope(gScope);
+            currentScope.className = it.name;
             it.constructor.accept(this);
             currentScope = currentScope.parent;
         }
         for (FuncNode f : it.functions) {
             currentScope = new classScope(gScope);
+            currentScope.className = it.name;
             f.accept(this);
             currentScope = currentScope.parent;
         }
@@ -91,17 +93,26 @@ public class IRBuilder implements ASTVisitor{
     @Override
     public void visit(FuncNode it) {
         currentScope = new funcScope(currentScope);
-        funcDef temp = (funcDef) currentBlock;
+        funcDef temp = new funcDef();
         temp.returnType = type2IR(it.returnType);
         temp.className = currentScope.isInClass();
         temp.name = it.name;
+        if (temp.className != null) {
+            temp.params.add("this");
+            temp.paramTypes.add(new ptrType());
+        }
         temp.params.addAll(it.paramName);
         for (int i = 0; i < it.paramType.size(); i++) {
             temp.paramTypes.add(type2IR(it.paramType.get(i)));
+            currentScope.defineVariable(temp.params.get(i), it.paramType.get(i));
         }
+        block tempBlock = currentBlock;
+        currentBlock = temp;
         for (StmtNode s : it.body) {
             s.accept(this);
         }
+        currentBlock = tempBlock;
+        currentBlock.instrs.add(temp);
         currentScope = currentScope.parent;
     }
 
@@ -272,7 +283,19 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(variableExprNode it) {
-        lastExpr = new varReg(it.name, currentScope.getVarDepth(it.name));
+        int d = currentScope.getVarDepth(it.name);
+        if (d != -1) {
+            lastExpr = new varReg(it.name, d);
+        }
+        else {
+            getInstr g = new getInstr();
+            g.ptr = new thisReg();
+            g.type = type2IR(it.type);
+            g.idx = new intCons(gScope.getClass(currentScope.isInClass()).idx.get(it.name));
+            g.result = new resReg(store++);
+            lastExpr = g.result;
+            currentBlock.instrs.add(g);
+        }
     }
 
     @Override
@@ -302,8 +325,8 @@ public class IRBuilder implements ASTVisitor{
         getInstr g = new getInstr();
         it.className.accept(this);
         g.ptr = lastExpr;
-        g.idx = new intCons(gScope.classes.get(it.className).idx.get(it.memName));
-        g.type = type2IR(gScope.classes.get(it.className).vars.get(it.memName));
+        g.idx = new intCons(gScope.classes.get(it.className.type.typeName).idx.get(it.memName));
+        g.type = type2IR(gScope.classes.get(it.className.type.typeName).vars.get(it.memName));
         g.result = new resReg(store++);
         lastExpr = g.result;
         currentBlock.instrs.add(g);
