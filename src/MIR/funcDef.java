@@ -15,7 +15,13 @@ public class funcDef extends block {
 
     @Override
     public String getString() {
-        StringBuilder str = new StringBuilder("define" + returnType.getString() + " @");
+        StringBuilder str = new StringBuilder("define ");
+        if (returnType != null) {
+            str.append(returnType.getString()).append(" @");
+        }
+        else {
+            str.append("void @");
+        }
         if (className != null) {
             str.append(className).append("::");
         }

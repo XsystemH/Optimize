@@ -22,10 +22,8 @@ import util.Type.Type;
 
 import java.util.ArrayList;
 
-import static java.lang.Math.ceil;
-
 public class IRBuilder implements ASTVisitor{
-    public block program;
+    public Program program;
     public block strPreDef;
     private block currentBlock;
     private Scope currentScope;
@@ -35,7 +33,7 @@ public class IRBuilder implements ASTVisitor{
     private Expr lastExpr = null;
 
     public IRBuilder(globalScope gScope) {
-        program = new block();
+        program = new Program();
         strPreDef = new block();
         currentBlock = program;
         currentScope = gScope;
@@ -161,11 +159,16 @@ public class IRBuilder implements ASTVisitor{
                 instr.type = type2IR(it.type);
                 instr.result = new gloReg(it.name.get(i));
                 currentBlock.instrs.add(instr);
-
-                currentScope.defineVariable(it.name.get(i), it.type);
-
-                if (it.expr != null) {
-                    // todo init_
+//                currentScope.defineVariable(it.name.get(i), it.type); gScope already has
+                if (it.expr.get(i) != null) {
+                    currentBlock = program.init;
+                    it.expr.get(i).accept(this);
+                    storeInstr st = new storeInstr();
+                    st.type = type2IR(it.type);
+                    st.value = lastExpr;
+                    st.ptr = instr.result;
+                    currentBlock.instrs.add(st);
+                    currentBlock = program;
                 }
             }
         }
@@ -383,10 +386,10 @@ public class IRBuilder implements ASTVisitor{
             expr.accept(this);
             size_list.add(lastExpr);
         }
-        if (size_list.isEmpty()) {
-            lastExpr =
-            return;
-        }
+//        if (size_list.isEmpty()) {
+//            lastExpr =
+//            return;
+//        }
     }
 
     @Override

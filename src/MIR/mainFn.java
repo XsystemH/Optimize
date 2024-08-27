@@ -1,13 +1,15 @@
 package MIR;
 
 import MIR.Instruction.Instr;
+import MIR.Instruction.callInstr;
 import MIR.Instruction.label;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class mainFn extends block {
-    public mainFn() {}
+    public mainFn() {
+        callInstr c = new callInstr();
+        c.methodName = "_init";
+        instrs.add(c);
+    }
 
     @Override
     public String getString() {

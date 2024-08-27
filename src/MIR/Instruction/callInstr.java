@@ -26,7 +26,7 @@ public class callInstr extends Instr{
         if (className != null) {
             s.append(className).append("::");
         }
-        s.append(methodName).append(" (");
+        s.append(methodName).append("(");
         for (int i = 0; i < paramTypes.size(); i++) {
             if (i > 0) {
                 s.append(", ");
