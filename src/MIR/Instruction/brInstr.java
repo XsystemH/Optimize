@@ -14,7 +14,7 @@ public class brInstr extends Instr{
             return "br i1 " + cond.getString() + ", label " + trueLabel.getLabel() + ", label " + falseLabel.getLabel();
         }
         else {
-            return "br label %label_" + destLabel.getLabel();
+            return "br label " + destLabel.getLabel();
         }
     }
 }

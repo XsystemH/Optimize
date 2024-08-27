@@ -1,0 +1,30 @@
+        currentScope = new loopScope(currentScope);
+        it.initialStmt.accept(this);
+        ((loopScope)currentScope).loopLabel = new label(labelNum++);
+        ((loopScope)currentScope).skipLabel = new label(labelNum++);
+        brInstr b2 = new brInstr();
+        b2.destLabel = ((loopScope)currentScope).loopLabel;
+        currentBlock.instrs.add(b2);
+        currentBlock.instrs.add(((loopScope)currentScope).loopLabel);
+        it.conditionExpr.accept(this);
+        brInstr br = new brInstr();
+        br.cond = lastExpr;
+        br.trueLabel = new label(labelNum++);
+        br.falseLabel = ((loopScope)currentScope).skipLabel;
+        currentBlock.instrs.add(br);
+        currentBlock.instrs.add(br.trueLabel);
+        it.incrementExpr.accept(this);
+        it.bodyStmt.accept(this);
+        currentBlock.instrs.add(((loopScope)currentScope).skipLabel);
+        currentScope = currentScope.parent;
+
+        callInstr call = new callInstr();
+        call.returnType = new ptrType();
+        call.methodName = "_malloc_array";
+        call.paramTypes.add(new IntType(32));
+        Type t = it.type; t.dim--; // content Type
+        call.paramExpr.add(new intCons(t.getSize()));
+        call.paramTypes.add(new IntType(32));
+        call.paramExpr.add(new intCons(it.content.size()));
+        call.result = new resReg(store++);
+        currentBlock.instrs.add(call);

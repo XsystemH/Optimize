@@ -25,7 +25,7 @@ public class Main {
         InputStream input = new FileInputStream(filename);
 //        InputStream input = System.in;
         //input 设置为标准输入
-//        try{
+        try{
             MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
             lexer.removeErrorListeners();
             lexer.addErrorListener(new MxErrorListener());
@@ -42,12 +42,12 @@ public class Main {
             irBuilder.visit(ast);
             System.out.println(irBuilder.strPreDef.getString());
             System.out.println(irBuilder.program.getString());
-//        }
-//        catch (error e) {
-//            System.out.println(e.message);
-//            System.exit(1);
-//        }
-        System.out.println("Successfully parsed!");
+        }
+        catch (error e) {
+            System.out.println(e.message);
+            System.exit(1);
+        }
+//        System.out.println("Successfully parsed!");
         return;
     }
 }

@@ -9,6 +9,9 @@ public class icmpInstr extends Instr{
     public enum condType {
         eq, ne, ugt, uge, ult, ule, sgt, sge, slt, sle
     }
+    private String[] condName = {
+        "eq", "ne", "ugt", "uge", "ult", "ule", "sgt", "sge", "slt", "sle"
+    };
     public condType cond;
     public IRType type = null;
     public Expr op1 = null;
@@ -16,6 +19,6 @@ public class icmpInstr extends Instr{
 
     @Override
     public String getString() {
-        return result.getString() + " = icmp " + cond.toString() + " " + type.getString() + " " + op1.toString() + " " + op2.toString();
+        return result.getString() + " = icmp " + condName[cond.ordinal()] + " " + type.getString() + " " + op1.getString() + " " + op2.getString();
     }
 }

@@ -57,7 +57,7 @@ public class IRBuilder implements ASTVisitor{
             ir = new ptrType();
         }
         else {
-            ir = new classType(t.typeName);
+            ir = new ptrType();
         }
         return ir;
     }
@@ -195,20 +195,28 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(ifStmtNode it) {
-        branch b = new branch();
+        brInstr b = new brInstr();
         it.condition.accept(this);
         b.cond = lastExpr;
-        block temp = currentBlock;
-        currentBlock = b.trueBranch;
+        b.trueLabel = new label(labelNum++);
+        b.falseLabel = new label(labelNum++);
+        label skip = new label(labelNum++);
+        currentBlock.instrs.add(b);
+
+        currentBlock.instrs.add(b.trueLabel);
         currentScope = new Scope(currentScope);
         it.thenBlock.accept(this);
         currentScope = currentScope.parent;
-        currentBlock = b.falseBranch;
+        brInstr b2 = new brInstr();
+        b2.destLabel = skip;
+        currentBlock.instrs.add(b2);
+
+        currentBlock.instrs.add(b.falseLabel);
         currentScope = new Scope(currentScope);
         it.elseBlock.accept(this);
         currentScope = currentScope.parent;
-        temp.instrs.add(b);
-        currentBlock = temp;
+        currentBlock.instrs.add(b2);
+        currentBlock.instrs.add(skip);
     }
 
     @Override
@@ -217,6 +225,9 @@ public class IRBuilder implements ASTVisitor{
         it.initialStmt.accept(this);
         ((loopScope)currentScope).loopLabel = new label(labelNum++);
         ((loopScope)currentScope).skipLabel = new label(labelNum++);
+        brInstr b2 = new brInstr();
+        b2.destLabel = ((loopScope)currentScope).loopLabel;
+        currentBlock.instrs.add(b2);
         currentBlock.instrs.add(((loopScope)currentScope).loopLabel);
         it.conditionExpr.accept(this);
         brInstr br = new brInstr();
@@ -227,6 +238,9 @@ public class IRBuilder implements ASTVisitor{
         currentBlock.instrs.add(br.trueLabel);
         it.incrementExpr.accept(this);
         it.bodyStmt.accept(this);
+        brInstr b3 = new brInstr();
+        b3.destLabel = ((loopScope)currentScope).loopLabel;
+        currentBlock.instrs.add(b3);
         currentBlock.instrs.add(((loopScope)currentScope).skipLabel);
         currentScope = currentScope.parent;
     }
@@ -349,6 +363,21 @@ public class IRBuilder implements ASTVisitor{
         callInstr c = new callInstr();
         c.className = it.className.type.typeName;
         c.methodName = it.funcName;
+        if (it.className.type.dim > 0) {
+            if (c.methodName.equals("size"))
+                c.methodName = "_arr_size";
+            else throw (new RuntimeException("Array Method not supported"));
+            c.className = ""; // in case class[]
+        }
+        else if (it.className.type.isString) {
+            switch (c.methodName) {
+                case "length" -> c.methodName = "_str_length";
+                case "substring" -> c.methodName = "_str_substring";
+                case "parseInt" -> c.methodName = "_str_parseInt";
+                case "ord" -> c.methodName = "_str_ord";
+                default -> throw(new RuntimeException("Invalid String method name: " + c.methodName));
+            }
+        }
         it.className.accept(this);
         c.paramTypes.add(new ptrType());
         c.paramExpr.add(lastExpr); // this
@@ -359,6 +388,8 @@ public class IRBuilder implements ASTVisitor{
         }
         if (!((ReturnType)it.type).isVoid) {
             c.returnType = type2IR(it.type);
+            c.result = new resReg(store++);
+            lastExpr = c.result;
         }
         currentBlock.instrs.add(c);
     }
@@ -386,10 +417,80 @@ public class IRBuilder implements ASTVisitor{
             expr.accept(this);
             size_list.add(lastExpr);
         }
-//        if (size_list.isEmpty()) {
-//            lastExpr =
-//            return;
-//        }
+        if (size_list.isEmpty()) {
+            allocaInstr a = new allocaInstr();
+            a.result = new resReg(store++);
+            a.type = new ptrType();
+            lastExpr = a.result;
+            currentBlock.instrs.add(a);
+            return;
+        }
+        Type t = it.type;
+        Reg ptr = new resReg(store++);
+        Reg ret = ptr;
+        for (int i = 0; i < size_list.size(); i++) {
+            callInstr call = new callInstr();
+            call.returnType = new ptrType();
+            call.methodName = "_malloc_array";
+            call.paramTypes.add(new IntType(32));
+            t.dim--;
+            call.paramExpr.add(new intCons(t.getSize()));
+            call.paramTypes.add(new IntType(32));
+            call.paramExpr.add(size_list.get(i));
+            call.result = ptr;
+            currentBlock.instrs.add(call);
+            if (i == size_list.size() - 1) {
+                break;
+            }
+            currentScope = new loopScope(currentScope);
+            allocaInstr a = new allocaInstr();
+            a.type = new IntType(32);
+            a.result = new resReg(store++);
+            currentBlock.instrs.add(a); // int i
+            storeInstr st = new storeInstr();
+            st.type = new IntType(32);
+            st.value = new intCons(0);
+            st.ptr = a.result;
+            currentBlock.instrs.add(st); // i = 0
+            ((loopScope)currentScope).loopLabel = new label(labelNum++);
+            ((loopScope)currentScope).skipLabel = new label(labelNum++);
+            currentBlock.instrs.add(((loopScope)currentScope).loopLabel);
+            icmpInstr icmp = new icmpInstr();
+            icmp.type = new IntType(32);
+            icmp.cond = icmpInstr.condType.slt;
+            icmp.op1 = a.result;
+            icmp.op2 = size_list.get(i);
+            icmp.result = new resReg(store++);
+            currentBlock.instrs.add(icmp); // i < size()
+            brInstr br = new brInstr();
+            br.cond = icmp.result;
+            br.trueLabel = new label(labelNum++);
+            br.falseLabel = ((loopScope)currentScope).skipLabel;
+            currentBlock.instrs.add(br);
+            currentBlock.instrs.add(br.trueLabel);
+            binInstr bin = new binInstr();
+            bin.type = new IntType(32);
+            bin.op = binInstr.binaryOP.add;
+            bin.operand1 = a.result;
+            bin.operand2 = new intCons(1);
+            bin.result = a.result;
+            currentBlock.instrs.add(bin); // i++
+            getInstr get = new getInstr();
+            get.type = new ptrType();
+            get.ptr = ptr;
+            get.idx = a.result;
+            get.result = new resReg(store++);
+            currentBlock.instrs.add(get);
+            ptr = get.result; // ptr = array[i]
+        }
+        for (int i = 0; i < size_list.size() - 1; i++) {
+            brInstr br = new brInstr();
+            br.destLabel = ((loopScope)currentScope).loopLabel;
+            currentBlock.instrs.add(br);
+            currentBlock.instrs.add(((loopScope)currentScope).skipLabel);
+            currentScope = currentScope.parent;
+        }
+        lastExpr = ret;
     }
 
     @Override

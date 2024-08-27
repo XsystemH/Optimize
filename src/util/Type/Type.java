@@ -59,13 +59,8 @@ public class Type extends BasicType{
     }
 
     public int getSize() {
-//        if (dim > 0) return 4;
-//        if (isEmptyArray) return 4;
-//        if (isBool) return 4;
-//        if (isInt) return 4;
-//        if (isNull) return 4;
-//        if (isString) return 4;
-        // todo size of type
+        if (dim > 0) return 4;
+        if (isBool) return 1;
         return 4;
     }
 }
