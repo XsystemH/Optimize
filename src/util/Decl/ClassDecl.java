@@ -42,6 +42,10 @@ public class ClassDecl {
     }
 
     public int getSize() {
-        return vars.size() * 4; // todo ?
+        int ret = 0;
+        for (Type type : vars.values()) {
+            ret += type.getSize();
+        }
+        return ret;
     }
 }

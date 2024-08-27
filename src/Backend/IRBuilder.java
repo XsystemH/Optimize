@@ -1,10 +1,7 @@
 package Backend;
 
 import AST.*;
-import AST.Cons.arrConsNode;
-import AST.Cons.boolConsNode;
-import AST.Cons.intConsNode;
-import AST.Cons.strConsNode;
+import AST.Cons.*;
 import AST.Expr.*;
 import AST.Stmt.*;
 import MIR.*;
@@ -22,6 +19,8 @@ import util.Decl.ClassDecl;
 import util.Scope.*;
 import util.Type.ReturnType;
 import util.Type.Type;
+
+import java.util.ArrayList;
 
 import static java.lang.Math.ceil;
 
@@ -559,7 +558,37 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(arrConsNode it) {
-        // todo
+        ArrayList<Expr> elems = new ArrayList<>();
+        for (ConsNode c : it.content) {
+            c.accept(this);
+            elems.add(lastExpr);
+        }
+
+        callInstr call = new callInstr();
+        call.returnType = new ptrType();
+        call.methodName = "_malloc_array";
+        call.paramTypes.add(new IntType(32));
+        call.paramExpr.add(new intCons(it.type.getSize()));
+        call.paramTypes.add(new IntType(32));
+        call.paramExpr.add(new intCons(it.content.size()));
+        call.result = new resReg(store++);
+        currentBlock.instrs.add(call);
+
+        for (int i = 0; i < it.content.size(); ++i) {
+            getInstr g = new getInstr();
+            g.type = type2IR(it.content.get(i).type);
+            g.ptr = call.result;
+            g.idx = new intCons(i);
+            g.result = new resReg(store++);
+            currentBlock.instrs.add(g); // get ptr
+
+            storeInstr st = new storeInstr();
+            st.type = type2IR(it.content.get(i).type);
+            st.ptr = g.result;
+            st.value = elems.get(i);
+            currentBlock.instrs.add(st); // store content
+        }
+        lastExpr = call.result;
     }
 
     @Override
