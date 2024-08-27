@@ -226,7 +226,10 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     public ASTNode visitFormatString(MxParser.FormatStringContext ctx) {
         formatStringNode f = new formatStringNode(new position(ctx));
         if (ctx.children.size() == 1) {
-            f.begin = ctx.FormatEmpty().getText();
+            strConsNode s = new strConsNode(new position(ctx));
+            s.value = ctx.FormatEmpty().getText();
+            return s;
+//            f.begin = ctx.FormatEmpty().getText();
         } else {
             f.begin = ctx.FormatBegin().getText();
             f.end = ctx.FormatEnd().getText();

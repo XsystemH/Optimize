@@ -374,7 +374,19 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(newArrExprNode it) {
-        // todo
+        if (it.arr != null) {
+            it.arr.accept(this);
+            return;
+        }
+        ArrayList<Expr> size_list = new ArrayList<>();
+        for (ExprNode expr : it.expr) {
+            expr.accept(this);
+            size_list.add(lastExpr);
+        }
+        if (size_list.isEmpty()) {
+            lastExpr =
+            return;
+        }
     }
 
     @Override
@@ -553,7 +565,64 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(formatStringNode it) {
-        // todo
+        ArrayList<Reg> str_list = new ArrayList<>();
+        ArrayList<String> raw = new ArrayList<>();
+        raw.add(it.begin.substring(1));
+        raw.addAll(it.midList);raw.add(it.end);
+        for (String str : raw) {
+            preStrInstr s = new preStrInstr();
+            s.reg = new gloReg(".str.pre_" + strPreDef.instrs.size());
+            s.str = str.substring(1, str.length() - 1);
+            strPreDef.instrs.add(s);
+            str_list.add(s.reg);
+        }
+        ArrayList<Reg> exprStr_list = new ArrayList<>();
+        for (ExprNode expr : it.exprList) {
+            expr.accept(this);
+            if (expr.type.isInt) {
+                callInstr call = new callInstr();
+                call.returnType = new ptrType();
+                call.methodName = "toString";
+                call.paramTypes.add(new IntType(32));
+                call.paramExpr.add(lastExpr);
+                call.result = new resReg(store++);
+                exprStr_list.add(call.result);
+                currentBlock.instrs.add(call);
+            }
+            else if (expr.type.isBool) {
+                selectInstr s = new selectInstr();
+                s.cond = lastExpr;
+                s.ty1 = new ptrType();
+                s.ty2 = new ptrType();
+                s.val1 = new gloReg(".strPre_true");
+                s.val2 = new gloReg(".strPre_false");
+                s.result = new resReg(store++);
+                exprStr_list.add(s.result);
+                currentBlock.instrs.add(s);
+            }
+            else if (expr.type.isString) {
+                exprStr_list.add((Reg)lastExpr);
+            }
+        }
+        Reg temp = str_list.get(0);
+        for (int i = 1; i < str_list.size(); i++) {
+            binInstr addStr = new binInstr();
+            addStr.type = new ptrType();
+            addStr.op = binInstr.binaryOP.add;
+            addStr.operand1 = temp;
+            addStr.operand2 = str_list.get(i);
+            addStr.result = new resReg(store++);
+            currentBlock.instrs.add(addStr);
+            binInstr addExpr = new binInstr();
+            addExpr.type = new ptrType();
+            addExpr.op = binInstr.binaryOP.add;
+            addExpr.operand1 = addStr.result;
+            addExpr.operand2 = exprStr_list.get(i - 1);
+            addExpr.result = new resReg(store++);
+            temp = addExpr.result;
+            currentBlock.instrs.add(addExpr);
+        }
+        lastExpr = temp;
     }
 
     @Override
@@ -568,7 +637,8 @@ public class IRBuilder implements ASTVisitor{
         call.returnType = new ptrType();
         call.methodName = "_malloc_array";
         call.paramTypes.add(new IntType(32));
-        call.paramExpr.add(new intCons(it.type.getSize()));
+        Type t = it.type; t.dim--; // content Type
+        call.paramExpr.add(new intCons(t.getSize()));
         call.paramTypes.add(new IntType(32));
         call.paramExpr.add(new intCons(it.content.size()));
         call.result = new resReg(store++);
