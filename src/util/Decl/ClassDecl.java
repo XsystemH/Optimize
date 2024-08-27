@@ -40,4 +40,14 @@ public class ClassDecl {
             this.functions.put(func.name, new FuncDecl(func));
         }
     }
+
+    public int getSize() {
+        for (Type type : vars.values()) {
+            if (type.dim > 0) return 4;
+            if (type.isInt) return 4;
+            if (type.isBool) return 4;
+            if (type.isString) return 4;
+            if (type)
+        }
+    }
 }

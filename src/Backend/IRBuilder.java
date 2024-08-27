@@ -18,9 +18,12 @@ import MIR.IRType.IntType;
 import MIR.IRType.classType;
 import MIR.IRType.ptrType;
 import MIR.Instruction.*;
+import util.Decl.ClassDecl;
 import util.Scope.*;
 import util.Type.ReturnType;
 import util.Type.Type;
+
+import static java.lang.Math.ceil;
 
 public class IRBuilder implements ASTVisitor{
     public block program;
@@ -42,17 +45,30 @@ public class IRBuilder implements ASTVisitor{
 
     private IRType type2IR(Type t) {
         IRType ir;
-        if (t.isInt) {
+        if (t.dim > 0) {
+            ir = new ptrType();
+        }
+        else if (t.isInt) {
             ir = new IntType(32);
         }
         else if (t.isBool) {
             ir = new IntType(1);
         }
+        else if (t.isString) {
+            ir = new ptrType();
+        }
         else {
             ir = new classType(t.typeName);
         }
-        // todo array & string
         return ir;
+    }
+
+    private int getSize(IRType type) {
+        if (type instanceof IntType) return 4;
+        if (type instanceof ptrType) return 4;
+        ClassDecl c = gScope.getClass(((classType)type).name);
+        if (c != null) return c.getSize();
+        else throw new RuntimeException("IRBuilder: Wrong Type");
     }
 
     @Override
@@ -148,14 +164,6 @@ public class IRBuilder implements ASTVisitor{
                 currentScope.defineVariable(it.name.get(i), it.type);
 
                 if (it.expr != null) {
-                    it.expr.get(i).accept(this);
-                    storeInstr instr2 = new storeInstr();
-                    instr2.type = type2IR(it.expr.get(i).type);
-                    instr2.ptr = instr.result;
-                    instr2.value = lastExpr;
-                    currentBlock.instrs.add(instr2);
-                }
-                else {
                     // todo init_
                 }
             }
