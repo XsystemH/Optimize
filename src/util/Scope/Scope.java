@@ -1,6 +1,6 @@
 package util.Scope;
 
-import MIR.Instruction.label;
+import IR.Instruction.label;
 import util.Type.ReturnType;
 import util.Type.Type;
 import util.error.semanticError;

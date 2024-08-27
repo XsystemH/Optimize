@@ -1,6 +1,6 @@
 package util.Scope;
 
-import MIR.Instruction.label;
+import IR.Instruction.label;
 
 public class loopScope extends Scope{
     public label loopLabel;

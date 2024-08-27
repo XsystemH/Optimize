@@ -1,11 +1,19 @@
 .PHONY: build
 build:
-	javac -d bin -cp /ulib/antlr-4.13.2-complete.jar ./src/*.java ./src/AST/*.java ./src/AST/Cons/*.java ./src/AST/Expr/*.java ./src/AST/Stmt/*.java ./src/Frontend/*.java ./src/Parser/*.java ./src/util/*.java ./src/util/Decl/*.java ./src/util/error/*.java ./src/util/Scope/*.java ./src/util/Type/*.java
+	find src -name '*.java' | xargs javac -d bin -cp /ulib/antlr-4.13.2-complete.jar
 
 .PHONY: run
 run:
 	cd bin && java -cp /ulib/antlr-4.13.2-complete.jar:. Main
 
-.PHONY: testall
+.PHONY: testsema
 testall:
 	time -p ./testcases/sema/scripts/test_all.bash "java -cp /ulib/antlr-4.13.2-complete.jar:bin Main" ./testcases/sema/
+
+.PHONY: testIR
+testIR:
+	testcases/codegen/scripts/test_llvm_ir.bash 'make build' testcases/codegen/e1.mx ./src/Backend/builtin/builtin.ll
+
+.PHONY: testIRAll
+testIRAll:
+	testcases/codegen/scripts/test_llvm_ir_all.bash 'make build' testcases/codegen/ ./src/Backend/builtin/builtin.ll

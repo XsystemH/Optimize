@@ -4,17 +4,17 @@ import AST.*;
 import AST.Cons.*;
 import AST.Expr.*;
 import AST.Stmt.*;
-import MIR.*;
-import MIR.Expression.Constant.boolCons;
-import MIR.Expression.Constant.intCons;
-import MIR.Expression.Constant.ptrCons;
-import MIR.Expression.Expr;
-import MIR.Expression.Register.*;
-import MIR.IRType.IRType;
-import MIR.IRType.IntType;
-import MIR.IRType.classType;
-import MIR.IRType.ptrType;
-import MIR.Instruction.*;
+import IR.*;
+import IR.Expression.Constant.boolCons;
+import IR.Expression.Constant.intCons;
+import IR.Expression.Constant.ptrCons;
+import IR.Expression.Expr;
+import IR.Expression.Register.*;
+import IR.IRType.IRType;
+import IR.IRType.IntType;
+import IR.IRType.classType;
+import IR.IRType.ptrType;
+import IR.Instruction.*;
 import util.Decl.ClassDecl;
 import util.Scope.*;
 import util.Type.ReturnType;
@@ -155,7 +155,7 @@ public class IRBuilder implements ASTVisitor{
     public void visit(varDefStmtNode it) {
         if (currentScope.parent == null) { // global
             for (int i = 0; i < it.name.size(); i++) {
-                allocaInstr instr = new allocaInstr();
+                globalInstr instr = new globalInstr();
                 instr.type = type2IR(it.type);
                 instr.result = new gloReg(it.name.get(i));
                 currentBlock.instrs.add(instr);
@@ -213,7 +213,9 @@ public class IRBuilder implements ASTVisitor{
 
         currentBlock.instrs.add(b.falseLabel);
         currentScope = new Scope(currentScope);
-        it.elseBlock.accept(this);
+        if (it.elseBlock != null) {
+            it.elseBlock.accept(this);
+        }
         currentScope = currentScope.parent;
         currentBlock.instrs.add(b2);
         currentBlock.instrs.add(skip);
@@ -310,7 +312,15 @@ public class IRBuilder implements ASTVisitor{
     @Override
     public void visit(variableExprNode it) {
         int d = currentScope.getVarDepth(it.name);
-        if (d != -1) {
+        if (d == 0) {
+            loadInstr load = new loadInstr();
+            load.type = type2IR(gScope.getType(it.name, false));
+            load.pointer = new gloReg(it.name);
+            load.result = new resReg(store++);
+            lastExpr = load.result;
+            currentBlock.instrs.add(load);
+        }
+        else if (d != -1) {
             lastExpr = new varReg(it.name, d);
         }
         else {
