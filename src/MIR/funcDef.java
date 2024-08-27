@@ -25,7 +25,7 @@ public class funcDef extends block {
             str.append(paramTypes.get(i).getString()).append(" %");
             str.append(params.get(i));
         }
-        str.append(" ) {\n");
+        str.append(" ) {\nentry:\n");
         for (Instr instr : instrs) {
             if (!(instr instanceof label)) {
                 str.append("  ");

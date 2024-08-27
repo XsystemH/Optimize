@@ -40,6 +40,7 @@ public class Main {
             new SemanticChecker(gScope).visit(ast);
             IRBuilder irBuilder = new IRBuilder(gScope);
             irBuilder.visit(ast);
+            System.out.println(irBuilder.strPreDef.getString());
             System.out.println(irBuilder.program.getString());
 //        }
 //        catch (error e) {

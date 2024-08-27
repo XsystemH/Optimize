@@ -27,6 +27,7 @@ import static java.lang.Math.ceil;
 
 public class IRBuilder implements ASTVisitor{
     public block program;
+    public block strPreDef;
     private block currentBlock;
     private Scope currentScope;
     private globalScope gScope;
@@ -36,6 +37,7 @@ public class IRBuilder implements ASTVisitor{
 
     public IRBuilder(globalScope gScope) {
         program = new block();
+        strPreDef = new block();
         currentBlock = program;
         currentScope = gScope;
         this.gScope = gScope;
@@ -572,6 +574,16 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(strConsNode it) {
-        // todo
+        preStrInstr s = new preStrInstr();
+        s.reg = new gloReg(".str.pre_" + strPreDef.instrs.size());
+        s.str = it.value.substring(1, it.value.length() - 1);
+        strPreDef.instrs.add(s);
+        storeInstr st = new storeInstr();
+
+        st.type = new ptrType();
+        st.value = s.reg;
+        st.ptr = new resReg(store++);
+        lastExpr = st.ptr;
+        currentBlock.instrs.add(st);
     }
 }

@@ -11,7 +11,7 @@ public class mainFn extends block {
 
     @Override
     public String getString() {
-        StringBuilder s = new StringBuilder("define i32 @main() {\n");
+        StringBuilder s = new StringBuilder("define i32 @main() {\nentry:\n");
         for(Instr i : instrs) {
             if (!(i instanceof label)) {
                 s.append("  ");

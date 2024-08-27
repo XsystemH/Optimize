@@ -7,6 +7,6 @@ public class gloReg extends varReg{
 
     @Override
     public String getString() {
-        return "@" + name + "." + depth;
+        return "@" + name;
     }
 }
