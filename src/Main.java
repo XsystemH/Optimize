@@ -19,7 +19,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
 //        System.out.println("Hello Compiler!");
 
-//        String filename = "testcases/codegen/t10.mx";
+//        String filename = "testcases/codegen/t12.mx";
 //        InputStream input = new FileInputStream(filename);
 //        OutputStream output = new FileOutputStream("output.ll");
         InputStream input = System.in;
