@@ -2,7 +2,7 @@ package IR;
 
 import IR.Instruction.*;
 
-public class mainFn extends block {
+public class mainFn extends funcDef {
     public funcDef init;
 
     public mainFn() {
@@ -14,7 +14,10 @@ public class mainFn extends block {
     @Override
     public String getString() {
         StringBuilder s = new StringBuilder("define i32 @main() {\nentry:\n");
-        for(Instr i : instrs) {
+        for (Instr i : alloc) {
+            s.append("  ").append(i.getString()).append("\n");
+        }
+        for (Instr i : instrs) {
             if (!(i instanceof label)) {
                 s.append("  ");
             }

@@ -14,6 +14,7 @@ public class funcDef extends block {
     public String name;
     public ArrayList<String> params = new ArrayList<>();
     public ArrayList<IRType> paramTypes = new ArrayList<>();
+    public ArrayList<Instr> alloc = new ArrayList<>();
 
     @Override
     public String getString() {
@@ -34,6 +35,9 @@ public class funcDef extends block {
             str.append(params.get(i));
         }
         str.append(") {\nentry:\n");
+        for (Instr instr : alloc) {
+            str.append("  ").append(instr.getString()).append("\n");
+        }
         for (Instr instr : instrs) {
             if (!(instr instanceof label)) {
                 str.append("  ");

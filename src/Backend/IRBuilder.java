@@ -28,6 +28,7 @@ public class IRBuilder implements ASTVisitor{
     public funcDef init;
     private block currentBlock;
     private Scope currentScope;
+    private funcDef currentFunc;
     private globalScope gScope;
     private int store;
     private int labelNum;
@@ -113,6 +114,7 @@ public class IRBuilder implements ASTVisitor{
     public void visit(FuncNode it) {
         currentScope = new funcScope(currentScope);
         funcDef temp = new funcDef();
+        currentFunc = temp;
         temp.returnType = type2IR(it.returnType);
         temp.className = currentScope.isInClass();
         temp.name = it.name;
@@ -148,6 +150,7 @@ public class IRBuilder implements ASTVisitor{
     public void visit(MainNode it) {
         block temp = currentBlock;
         currentBlock = new mainFn();
+        currentFunc = (mainFn)currentBlock;
         init.instrs.add(new retInstr());
         ((mainFn)currentBlock).init = init;
         for (StmtNode s : it.statements) {
@@ -382,7 +385,10 @@ public class IRBuilder implements ASTVisitor{
         c.methodName = it.funcName;
         for (int i = 0 ; i < it.parameters.size(); i++) {
             c.paramTypes.add(type2IR(it.parameters.get(i).type));
+            boolean flag = isLeft;
+            isLeft = false;
             it.parameters.get(i).accept(this);
+            isLeft = flag;
             c.paramExpr.add(lastExpr);
         }
         if (!((ReturnType)it.type).isVoid) {
@@ -396,7 +402,10 @@ public class IRBuilder implements ASTVisitor{
     @Override
     public void visit(classMemExprNode it) {
         getInstr g = new getInstr();
+        boolean flag = isLeft;
+        isLeft = false;
         it.className.accept(this);
+        isLeft = false;
         g.ptr = lastExpr;
         g.idx.add(new intCons(gScope.classes.get(it.className.type.typeName).idx.get(it.memName)));
         g.type = type2IR(gScope.classes.get(it.className.type.typeName).vars.get(it.memName));
@@ -425,12 +434,18 @@ public class IRBuilder implements ASTVisitor{
                 default -> throw(new RuntimeException("Invalid String method name: " + c.methodName));
             }
         }
+        boolean flag = isLeft;
+        isLeft = false;
         it.className.accept(this);
+        isLeft = flag;
         c.paramTypes.add(new ptrType());
         c.paramExpr.add(lastExpr); // this
         for (int i = 0 ; i < it.parameters.size(); i++) {
             c.paramTypes.add(type2IR(it.parameters.get(i).type));
+            boolean flag2 = isLeft;
+            isLeft = false;
             it.parameters.get(i).accept(this);
+            isLeft = flag2;
             c.paramExpr.add(lastExpr);
         }
         if (!((ReturnType)it.type).isVoid) {
@@ -471,12 +486,18 @@ public class IRBuilder implements ASTVisitor{
     @Override
     public void visit(newArrExprNode it) {
         if (it.arr != null) {
+            boolean flag = isLeft;
+            isLeft = false;
             it.arr.accept(this);
+            isLeft = flag;
             return;
         }
         ArrayList<Expr> size_list = new ArrayList<>();
         for (ExprNode expr : it.expr) {
+            boolean flag = isLeft;
+            isLeft = false;
             expr.accept(this);
+            isLeft = flag;
             size_list.add(lastExpr);
         }
         if (size_list.isEmpty()) {
@@ -575,9 +596,10 @@ public class IRBuilder implements ASTVisitor{
         b.type = type2IR(it.type);
         switch (it.opCode) {
             case add,sub -> {
+                boolean flag = isLeft;
                 isLeft = true;
                 it.expr.accept(this);
-                isLeft = false; // pointer
+                isLeft = flag; // pointer
                 loadInstr load = new loadInstr();
                 load.type = type2IR(it.expr.type);
                 load.pointer = (Reg) lastExpr;
@@ -600,7 +622,10 @@ public class IRBuilder implements ASTVisitor{
             case negation -> {
                 b.op = binInstr.binaryOP.xor;
                 b.operand1 = new intCons(-1);
+                boolean flag = isLeft;
+                isLeft = false;
                 it.expr.accept(this);
+                isLeft = flag;
                 b.operand2 = lastExpr;
                 b.result = new resReg(store++);
                 lastExpr = b.result;
@@ -609,7 +634,10 @@ public class IRBuilder implements ASTVisitor{
             case negative -> {
                 b.op = binInstr.binaryOP.sub ;
                 b.operand1 = new intCons(0);
+                boolean flag = isLeft;
+                isLeft = false;
                 it.expr.accept(this);
+                isLeft = flag;
                 b.operand2 = lastExpr;
                 b.result = new resReg(store++);
                 lastExpr = b.result;
@@ -621,9 +649,10 @@ public class IRBuilder implements ASTVisitor{
     @Override
     public void visit(rightExprNode it) {
         loadInstr l = new loadInstr();
+        boolean flag = isLeft;
         isLeft = true;
         it.expr.accept(this);
-        isLeft = false;
+        isLeft = flag;
         l.type = type2IR(it.type);
         l.pointer = (Reg) lastExpr;
         l.result = new resReg(store++);
@@ -682,10 +711,13 @@ public class IRBuilder implements ASTVisitor{
             case leftShift -> b.op = binInstr.binaryOP.shl;
             case rightShift -> b.op = binInstr.binaryOP.ashr;
         }
+        boolean flag = isLeft;
+        isLeft = false;
         it.lhs.accept(this);
         b.operand1 = lastExpr;
         it.rhs.accept(this);
         b.operand2 = lastExpr;
+        isLeft = flag;
         b.result = new resReg(store++);
         lastExpr = b.result;
         currentBlock.instrs.add(b);
@@ -703,10 +735,13 @@ public class IRBuilder implements ASTVisitor{
             case lessOrEqual -> i.cond = icmpInstr.condType.sle;
             case greaterOrEqual -> i.cond = icmpInstr.condType.sge;
         }
+        boolean flag = isLeft;
+        isLeft = false;
         it.lhs.accept(this);
         i.op1 = lastExpr;
         it.rhs.accept(this);
         i.op2 = lastExpr;
+        isLeft = flag;
         i.result = new resReg(store++);
         lastExpr = i.result;
         currentBlock.instrs.add(i);
@@ -714,26 +749,57 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(logicExprNode it) {
-        binInstr b = new binInstr();
-        if (it.opCode == logicExprNode.logicOpType.land) {
-            b.op = binInstr.binaryOP.and;
-        }
-        else {
-            b.op = binInstr.binaryOP.or;
-        }
-        b.type = type2IR(it.type);
+        boolean flag = isLeft;
+        isLeft = false;
+        allocaInstr al = new allocaInstr();
+        al.type = type2IR(it.type);
+        al.result = new resReg(store++);
+        currentFunc.alloc.add(al);
         it.lhs.accept(this);
-        b.operand1 = lastExpr;
+        storeInstr st = new storeInstr();
+        st.type = type2IR(it.type);
+        st.value = lastExpr;
+        st.ptr = al.result;
+        currentBlock.instrs.add(st);
+        brInstr b1 = new brInstr();
+        b1.cond = lastExpr;
+        b1.trueLabel = new label("logicT", labelNum++);
+        b1.falseLabel = new label("logicF", labelNum++);
+        currentBlock.instrs.add(b1);
+        brInstr b2 = new brInstr();
+        switch (it.opCode) {
+            case land -> {
+                currentBlock.instrs.add(b1.trueLabel);
+                b2.destLabel = b1.falseLabel;
+            }
+            case lor -> {
+                currentBlock.instrs.add(b1.falseLabel);
+                b2.destLabel = b1.trueLabel;
+            }
+        }
         it.rhs.accept(this);
-        b.operand2 = lastExpr;
-        b.result = new resReg(store++);
-        lastExpr = b.result;
-        currentBlock.instrs.add(b);
+        storeInstr st1 = new storeInstr();
+        st1.type = type2IR(it.type);
+        st1.value = lastExpr;
+        st1.ptr = al.result;
+        currentBlock.instrs.add(st1);
+        currentBlock.instrs.add(b2);
+        currentBlock.instrs.add(b2.destLabel);
+        loadInstr load = new loadInstr();
+        load.type = type2IR(it.type);
+        load.pointer = al.result;
+        load.result = new resReg(store++);
+        currentBlock.instrs.add(load);
+        lastExpr = load.result;
+        isLeft = flag;
     }
 
     @Override
     public void visit(notExprNode it) {
+        boolean flag = isLeft;
+        isLeft = false;
         it.expr.accept(this);
+        isLeft = flag;
         binInstr b = new binInstr();
         b.op = binInstr.binaryOP.xor;
         b.type = type2IR(it.expr.type);
@@ -746,6 +812,8 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(ternaryExprNode it) {
+        boolean flag = isLeft;
+        isLeft = false;
         it.condition.accept(this);
         brInstr b = new brInstr();
         b.cond = lastExpr;
@@ -762,17 +830,20 @@ public class IRBuilder implements ASTVisitor{
         currentBlock.instrs.add(b.falseLabel);
         it.case1.accept(this);
         currentBlock.instrs.add(skipLabel);
+        isLeft = flag;
     }
 
     @Override
     public void visit(assignExprNode it) {
         storeInstr instr = new storeInstr();
         instr.type = type2IR(it.lhs.type);
+        boolean flag = isLeft;
         isLeft = true;
         it.lhs.accept(this);
         isLeft = false;
         instr.ptr = (Reg) lastExpr;
         it.rhs.accept(this);
+        isLeft = flag;
         instr.value = lastExpr;
         currentBlock.instrs.add(instr);
     }
@@ -792,7 +863,10 @@ public class IRBuilder implements ASTVisitor{
         }
         ArrayList<Reg> exprStr_list = new ArrayList<>();
         for (ExprNode expr : it.exprList) {
+            boolean flag = isLeft;
+            isLeft = false;
             expr.accept(this);
+            isLeft = flag;
             if (expr.type.isInt) {
                 callInstr call = new callInstr();
                 call.returnType = new ptrType();
