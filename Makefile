@@ -12,8 +12,8 @@ testall:
 
 .PHONY: testIR
 testIR:
-	testcases/codegen/scripts/test_llvm_ir.bash 'make build' testcases/codegen/e1.mx ./src/Backend/builtin/builtin.ll
+	testcases/codegen/scripts/test_llvm_ir_reimu.bash 'java -cp /ulib/antlr-4.13.2-complete.jar:bin Main' testcases/codegen/e1.mx ./src/Backend/builtin/builtin.ll
 
 .PHONY: testIRAll
 testIRAll:
-	testcases/codegen/scripts/test_llvm_ir_all.bash 'make build' testcases/codegen/ ./src/Backend/builtin/builtin.ll
+	testcases/codegen/scripts/test_llvm_ir_all.bash 'java -cp /ulib/antlr-4.13.2-complete.jar:bin Main' testcases/codegen/ ./src/Backend/builtin/builtin.ll

@@ -5,9 +5,11 @@ import IR.Instruction.callInstr;
 import IR.Instruction.label;
 
 public class mainFn extends block {
+    public funcDef init;
+
     public mainFn() {
         callInstr c = new callInstr();
-        c.methodName = "_init";
+        c.methodName = ".init";
         instrs.add(c);
     }
 
@@ -21,6 +23,6 @@ public class mainFn extends block {
             s.append(i.getString()).append("\n");
         }
         s.append("}");
-        return s.toString();
+        return init.getString() + s;
     }
 }

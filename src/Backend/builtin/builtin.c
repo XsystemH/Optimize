@@ -1,11 +1,14 @@
 #define bool _Bool
 typedef unsigned int size_t;
 
-int scanf(const char *format, ...);
-
-int printf(const char *format, ...);
-
-int sprintf(char *str, const char *format, ...);
+int printf(const char *pattern, ...);
+int sprintf(char *dest, const char *pattern, ...);
+int scanf(const char *pattern, ...);
+int sscanf(const char *src, const char *pattern, ...);
+size_t strlen(const char *str);
+int strcmp(const char *s1, const char *s2);
+void *memcpy(void *dest, const void *src, size_t n);
+void *malloc(size_t n);
 
 void print(char *s) { printf("%s", s); }
 
@@ -14,8 +17,6 @@ void println(char *s) { printf("%s\n", s); }
 void printInt(int n) { printf("%d", n); }
 
 void printlnInt(int n) { printf("%d\n", n); }
-
-void *malloc(size_t size);
 
 int *_malloc_array(int size, int length) {
   int *tmp = (int *) malloc(size * length + 4);
@@ -50,10 +51,14 @@ char *toString(int i) {
 }
 
 char *_str_add(char *str1, char *str2) {
-  char *res = malloc(strlen(str1) + strlen(str2) + 1);
-  strcpy(res, str1);
-  strcat(res, str2);
-  return res;
+    int length1 = strlen(str1);
+    int length2 = strlen(str2);
+    int length = length1 + length2;
+    char *buffer = malloc(length + 1);
+    memcpy(buffer, str1, length1);
+    memcpy(buffer + length1, str2, length2);
+    buffer[length] = '\0';
+    return buffer;
 }
 
 bool _str_eq(char *str1, char *str2) {
@@ -61,7 +66,7 @@ bool _str_eq(char *str1, char *str2) {
 }
 
 bool _str_ne(char *str1, char *str2) {
-  return strtrcmp(str1, str2) != 0;
+  return strcmp(str1, str2) != 0;
 }
 
 bool _str_lt(char* str1, char* str2) {

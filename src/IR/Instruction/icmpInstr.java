@@ -19,6 +19,6 @@ public class icmpInstr extends Instr{
 
     @Override
     public String getString() {
-        return result.getString() + " = icmp " + condName[cond.ordinal()] + " " + type.getString() + " " + op1.getString() + " " + op2.getString();
+        return result.getString() + " = icmp " + condName[cond.ordinal()] + " " + type.getString() + " " + op1.getString() + ", " + op2.getString();
     }
 }

@@ -12,10 +12,8 @@ import util.Scope.globalScope;
 import util.error.error;
 import util.error.semanticError;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -23,7 +21,9 @@ public class Main {
 
         String filename = "testcases/codegen/e1.mx";
         InputStream input = new FileInputStream(filename);
+        OutputStream output = new FileOutputStream("output.ll");
 //        InputStream input = System.in;
+//        OutputStream output = System.out;
         //input 设置为标准输入
         try{
             MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
@@ -40,8 +40,8 @@ public class Main {
             new SemanticChecker(gScope).visit(ast);
             IRBuilder irBuilder = new IRBuilder(gScope);
             irBuilder.visit(ast);
-            System.out.println(irBuilder.strPreDef.getString());
-            System.out.println(irBuilder.program.getString());
+            output.write(irBuilder.strPreDef.getString().getBytes(StandardCharsets.UTF_8));
+            output.write(irBuilder.program.getString().getBytes(StandardCharsets.UTF_8));
         }
         catch (error e) {
             System.out.println(e.message);

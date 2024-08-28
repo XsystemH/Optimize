@@ -25,13 +25,18 @@ public class funcDef extends block {
         if (className != null) {
             str.append(className).append("::");
         }
-        str.append(name).append("() ( ");
+        if (!params.isEmpty()) {
+            str.append(name).append("()(");
+        }
+        else {
+            str.append(name).append("(");
+        }
         for (int i = 0; i < params.size(); i++) {
             if (i > 0) str.append(", ");
             str.append(paramTypes.get(i).getString()).append(" %");
             str.append(params.get(i));
         }
-        str.append(" ) {\nentry:\n");
+        str.append(") {\nentry:\n");
         for (Instr instr : instrs) {
             if (!(instr instanceof label)) {
                 str.append("  ");

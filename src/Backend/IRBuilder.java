@@ -25,16 +25,20 @@ import java.util.ArrayList;
 public class IRBuilder implements ASTVisitor{
     public Program program;
     public block strPreDef;
+    public funcDef init;
     private block currentBlock;
     private Scope currentScope;
     private globalScope gScope;
     private int store;
     private int labelNum;
     private Expr lastExpr = null;
+    private boolean isLeft = false;
 
     public IRBuilder(globalScope gScope) {
         program = new Program();
         strPreDef = new block();
+        init = new funcDef();
+        init.name = ".init";
         currentBlock = program;
         currentScope = gScope;
         this.gScope = gScope;
@@ -135,6 +139,8 @@ public class IRBuilder implements ASTVisitor{
     public void visit(MainNode it) {
         block temp = currentBlock;
         currentBlock = new mainFn();
+        init.instrs.add(new retInstr());
+        ((mainFn)currentBlock).init = init;
         for (StmtNode s : it.statements) {
             s.accept(this);
         }
@@ -161,7 +167,7 @@ public class IRBuilder implements ASTVisitor{
                 currentBlock.instrs.add(instr);
 //                currentScope.defineVariable(it.name.get(i), it.type); gScope already has
                 if (it.expr.get(i) != null) {
-                    currentBlock = program.init;
+                    currentBlock = init;
                     it.expr.get(i).accept(this);
                     storeInstr st = new storeInstr();
                     st.type = type2IR(it.type);
@@ -312,18 +318,33 @@ public class IRBuilder implements ASTVisitor{
     @Override
     public void visit(variableExprNode it) {
         int d = currentScope.getVarDepth(it.name);
-        if (d == 0) {
-            loadInstr load = new loadInstr();
-            load.type = type2IR(gScope.getType(it.name, false));
-            load.pointer = new gloReg(it.name);
-            load.result = new resReg(store++);
-            lastExpr = load.result;
-            currentBlock.instrs.add(load);
+        if (d == 0) { // global
+            if (isLeft) {
+                lastExpr = new gloReg(it.name);
+            }
+            else {
+                loadInstr load = new loadInstr();
+                load.type = type2IR(gScope.getType(it.name, false));
+                load.pointer = new gloReg(it.name);
+                load.result = new resReg(store++);
+                lastExpr = load.result;
+                currentBlock.instrs.add(load);
+            }
         }
         else if (d != -1) {
-            lastExpr = new varReg(it.name, d);
+            if (isLeft) {
+                lastExpr = new varReg(it.name, d);
+            }
+            else {
+                loadInstr load = new loadInstr();
+                load.type = type2IR(gScope.getType(it.name, false));
+                load.pointer = new varReg(it.name, d);
+                load.result = new resReg(store++);
+                lastExpr = load.result;
+                currentBlock.instrs.add(load);
+            }
         }
-        else {
+        else { // in class
             getInstr g = new getInstr();
             g.ptr = new thisReg();
             g.type = type2IR(it.type);
@@ -381,10 +402,10 @@ public class IRBuilder implements ASTVisitor{
         }
         else if (it.className.type.isString) {
             switch (c.methodName) {
-                case "length" -> c.methodName = "_str_length";
-                case "substring" -> c.methodName = "_str_substring";
-                case "parseInt" -> c.methodName = "_str_parseInt";
-                case "ord" -> c.methodName = "_str_ord";
+                case "length" -> c.methodName = ".str.length";
+                case "substring" -> c.methodName = ".str.substring";
+                case "parseInt" -> c.methodName = ".str.parseInt";
+                case "ord" -> c.methodName = ".str.ord";
                 default -> throw(new RuntimeException("Invalid String method name: " + c.methodName));
             }
         }
@@ -441,7 +462,7 @@ public class IRBuilder implements ASTVisitor{
         for (int i = 0; i < size_list.size(); i++) {
             callInstr call = new callInstr();
             call.returnType = new ptrType();
-            call.methodName = "_malloc_array";
+            call.methodName = ".malloc_array";
             call.paramTypes.add(new IntType(32));
             t.dim--;
             call.paramExpr.add(new intCons(t.getSize()));
@@ -596,7 +617,7 @@ public class IRBuilder implements ASTVisitor{
     @Override
     public void visit(boolExprNode it) {
         icmpInstr i = new icmpInstr();
-        i.type = type2IR(it.type);
+        i.type = type2IR(it.lhs.type);
         switch (it.opCode) {
             case equal -> i.cond = icmpInstr.condType.eq;
             case notEqual -> i.cond = icmpInstr.condType.ne;
@@ -670,7 +691,9 @@ public class IRBuilder implements ASTVisitor{
     public void visit(assignExprNode it) {
         storeInstr instr = new storeInstr();
         instr.type = type2IR(it.lhs.type);
+        isLeft = true;
         it.lhs.accept(this);
+        isLeft = false;
         instr.ptr = (Reg) lastExpr;
         it.rhs.accept(this);
         instr.value = lastExpr;
@@ -749,7 +772,7 @@ public class IRBuilder implements ASTVisitor{
 
         callInstr call = new callInstr();
         call.returnType = new ptrType();
-        call.methodName = "_malloc_array";
+        call.methodName = ".malloc_array";
         call.paramTypes.add(new IntType(32));
         Type t = it.type; t.dim--; // content Type
         call.paramExpr.add(new intCons(t.getSize()));
@@ -791,12 +814,6 @@ public class IRBuilder implements ASTVisitor{
         s.reg = new gloReg(".str.pre_" + strPreDef.instrs.size());
         s.str = it.value.substring(1, it.value.length() - 1);
         strPreDef.instrs.add(s);
-        storeInstr st = new storeInstr();
-
-        st.type = new ptrType();
-        st.value = s.reg;
-        st.ptr = new resReg(store++);
-        lastExpr = st.ptr;
-        currentBlock.instrs.add(st);
+        lastExpr = s.reg;
     }
 }

@@ -18,6 +18,6 @@ public class binInstr extends Instr {
     @Override
     public String getString() {
         return result.getString() + " = " +opName[op.ordinal()] + " " +
-                type.getString() + " " + operand1.getString() + " " + operand2.getString();
+                type.getString() + " " + operand1.getString() + ", " + operand2.getString();
     }
 }
