@@ -204,9 +204,9 @@ public class IRBuilder implements ASTVisitor{
         brInstr b = new brInstr();
         it.condition.accept(this);
         b.cond = lastExpr;
-        b.trueLabel = new label(labelNum++);
-        b.falseLabel = new label(labelNum++);
-        label skip = new label(labelNum++);
+        b.trueLabel = new label("true", labelNum++);
+        b.falseLabel = new label("false", labelNum++);
+        label skip = new label("skip", labelNum++);
         currentBlock.instrs.add(b);
 
         currentBlock.instrs.add(b.trueLabel);
@@ -231,8 +231,8 @@ public class IRBuilder implements ASTVisitor{
     public void visit(forStmtNode it) {
         currentScope = new loopScope(currentScope);
         it.initialStmt.accept(this);
-        ((loopScope)currentScope).loopLabel = new label(labelNum++);
-        ((loopScope)currentScope).skipLabel = new label(labelNum++);
+        ((loopScope)currentScope).loopLabel = new label("loop", labelNum++);
+        ((loopScope)currentScope).skipLabel = new label("skip", labelNum++);
         brInstr b2 = new brInstr();
         b2.destLabel = ((loopScope)currentScope).loopLabel;
         currentBlock.instrs.add(b2);
@@ -240,7 +240,7 @@ public class IRBuilder implements ASTVisitor{
         it.conditionExpr.accept(this);
         brInstr br = new brInstr();
         br.cond = lastExpr;
-        br.trueLabel = new label(labelNum++);
+        br.trueLabel = new label("body", labelNum++);
         br.falseLabel = ((loopScope)currentScope).skipLabel;
         currentBlock.instrs.add(br);
         currentBlock.instrs.add(br.trueLabel);
@@ -256,13 +256,13 @@ public class IRBuilder implements ASTVisitor{
     @Override
     public void visit(whileStmtNode it) {
         currentScope = new loopScope(currentScope);
-        ((loopScope)currentScope).loopLabel = new label(labelNum++);
-        ((loopScope)currentScope).skipLabel = new label(labelNum++);
+        ((loopScope)currentScope).loopLabel = new label("loop", labelNum++);
+        ((loopScope)currentScope).skipLabel = new label("skip", labelNum++);
         currentBlock.instrs.add(((loopScope)currentScope).loopLabel);
         it.condition.accept(this);
         brInstr b = new brInstr();
         b.cond = lastExpr;
-        b.trueLabel = new label(labelNum++);
+        b.trueLabel = new label("body", labelNum++);
         b.falseLabel = ((loopScope)currentScope).skipLabel;
         currentBlock.instrs.add(b);
         currentBlock.instrs.add(b.trueLabel);
@@ -483,8 +483,8 @@ public class IRBuilder implements ASTVisitor{
             st.value = new intCons(0);
             st.ptr = a.result;
             currentBlock.instrs.add(st); // i = 0
-            ((loopScope)currentScope).loopLabel = new label(labelNum++);
-            ((loopScope)currentScope).skipLabel = new label(labelNum++);
+            ((loopScope)currentScope).loopLabel = new label("loop", labelNum++);
+            ((loopScope)currentScope).skipLabel = new label("skip", labelNum++);
             currentBlock.instrs.add(((loopScope)currentScope).loopLabel);
             icmpInstr icmp = new icmpInstr();
             icmp.type = new IntType(32);
@@ -495,7 +495,7 @@ public class IRBuilder implements ASTVisitor{
             currentBlock.instrs.add(icmp); // i < size()
             brInstr br = new brInstr();
             br.cond = icmp.result;
-            br.trueLabel = new label(labelNum++);
+            br.trueLabel = new label("body", labelNum++);
             br.falseLabel = ((loopScope)currentScope).skipLabel;
             currentBlock.instrs.add(br);
             currentBlock.instrs.add(br.trueLabel);
@@ -543,50 +543,76 @@ public class IRBuilder implements ASTVisitor{
         binInstr b = new binInstr();
         b.type = type2IR(it.type);
         switch (it.opCode) {
-            case add -> {
-                b.op = binInstr.binaryOP.add;
+            case add,sub -> {
+                isLeft = true;
+                it.expr.accept(this);
+                isLeft = false; // pointer
+                loadInstr load = new loadInstr();
+                load.type = type2IR(it.expr.type);
+                load.pointer = (Reg) lastExpr;
+                load.result = new resReg(store++);
+                currentBlock.instrs.add(load);
+                if (it.opCode == leftExprNode.leftOpType.add)
+                    b.op = binInstr.binaryOP.add;
+                else b.op = binInstr.binaryOP.sub;
                 b.operand1 = new intCons(1);
-                it.expr.accept(this);
-                b.operand2 = lastExpr;
-            }
-            case sub -> {
-                b.op = binInstr.binaryOP.sub;
-                it.expr.accept(this);
-                b.operand1 = lastExpr;
-                b.operand2 = new intCons(1);
+                b.operand2 = load.result;
+                b.result = (Reg) b.operand2;
+                lastExpr = b.result;
+                currentBlock.instrs.add(b);
+                storeInstr st = new storeInstr();
+                st.type = type2IR(it.type);
+                st.value = b.result;
+                st.ptr = load.pointer;
+                currentBlock.instrs.add(st);
             }
             case negation -> {
                 b.op = binInstr.binaryOP.xor;
                 b.operand1 = new intCons(-1);
                 it.expr.accept(this);
                 b.operand2 = lastExpr;
+                b.result = new resReg(store++);
+                lastExpr = b.result;
+                currentBlock.instrs.add(b);
             }
             case negative -> {
                 b.op = binInstr.binaryOP.sub ;
                 b.operand1 = new intCons(0);
                 it.expr.accept(this);
                 b.operand2 = lastExpr;
+                b.result = new resReg(store++);
+                lastExpr = b.result;
+                currentBlock.instrs.add(b);
             }
         }
-        b.result = new resReg(store++);
-        lastExpr = b.result;
-        currentBlock.instrs.add(b);
     }
 
     @Override
     public void visit(rightExprNode it) {
+        loadInstr l = new loadInstr();
+        isLeft = true;
+        it.expr.accept(this);
+        isLeft = false;
+        l.type = type2IR(it.type);
+        l.pointer = (Reg) lastExpr;
+        l.result = new resReg(store++);
+        lastExpr = l.result;
+        currentBlock.instrs.add(l);
         binInstr b = new binInstr();
         b.type = type2IR(it.type);
         switch (it.opCode) {
             case add -> b.op = binInstr.binaryOP.add;
             case sub -> b.op = binInstr.binaryOP.sub;
         }
-        it.expr.accept(this);
-        b.operand1 = lastExpr;
+        b.operand1 = l.result;
         b.operand2 = new intCons(1);
         b.result = new resReg(store++);
-        lastExpr = b.result;
         currentBlock.instrs.add(b);
+        storeInstr st = new storeInstr();
+        st.type = type2IR(it.type);
+        st.value = b.result;
+        st.ptr = l.pointer;
+        currentBlock.instrs.add(st);
     }
 
     @Override
@@ -672,13 +698,13 @@ public class IRBuilder implements ASTVisitor{
         it.condition.accept(this);
         brInstr b = new brInstr();
         b.cond = lastExpr;
-        b.trueLabel = new label(labelNum++);
-        b.falseLabel = new label(labelNum++);
+        b.trueLabel = new label("expr1", labelNum++);
+        b.falseLabel = new label("expr2", labelNum++);
 
         currentBlock.instrs.add(b.trueLabel);
         it.case0.accept(this);
         brInstr skip = new brInstr();
-        label skipLabel = new label(labelNum++);
+        label skipLabel = new label("skip", labelNum++);
         skip.destLabel = skipLabel;
         currentBlock.instrs.add(skip);
 

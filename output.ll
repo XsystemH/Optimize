@@ -49,70 +49,71 @@ entry:
   %.result.4 = load i32, ptr @k
   %.result.5 = sub i32 %.result.3, %.result.4
   %.result.6 = icmp sgt i32 %.result.5, 1
-  br i1 %.result.6, label %label_0, label %label_1
-label_0:
+  br i1 %.result.6, label %label_true_0, label %label_false_1
+label_true_0:
   call void @print(ptr @.str.pre_0)
-  br label %label_2
-label_1:
-  br label %label_2
-label_2:
+  br label %label_skip_2
+label_false_1:
+  br label %label_skip_2
+label_skip_2:
   %.result.7 = load i32, ptr @p
   %.result.8 = load i32, ptr @k
   %.result.9 = sub i32 %.result.7, %.result.8
   store i32 %.result.9, ptr @i
-  br label %label_3
-label_3:
+  br label %label_loop_3
+label_loop_3:
   %.result.10 = load i32, ptr @i
   %.result.11 = load i32, ptr @p
   %.result.12 = load i32, ptr @k
   %.result.13 = add i32 %.result.11, %.result.12
   %.result.14 = icmp sle i32 %.result.10, %.result.13
-  br i1 %.result.14, label %label_5, label %label_4
-label_5:
+  br i1 %.result.14, label %label_body_5, label %label_skip_4
+label_body_5:
   %.result.15 = load i32, ptr @i
-  %.result.16 = add i32 %.result.15, 1
+  %.result.16 = add i32 @i, 1
+  store i32 %.result.16, ptr @i
   %.result.17 = load i32, ptr @i
   %.result.18 = icmp sle i32 1, %.result.17
   %.result.19 = load i32, ptr @i
   %.result.20 = load i32, ptr @n
   %.result.21 = icmp sle i32 %.result.19, %.result.20
   %.result.22 = and i1 %.result.18, %.result.21
-  br i1 %.result.22, label %label_6, label %label_7
-label_6:
+  br i1 %.result.22, label %label_true_6, label %label_false_7
+label_true_6:
   %.result.23 = load i32, ptr @i
   %.result.24 = load i32, ptr @p
   %.result.25 = icmp eq i32 %.result.23, %.result.24
-  br i1 %.result.25, label %label_9, label %label_10
-label_9:
+  br i1 %.result.25, label %label_true_9, label %label_false_10
+label_true_9:
   call void @print(ptr @.str.pre_1)
   %.result.26 = load i32, ptr @i
   %.result.27 = call ptr @toString(i32 %.result.26)
   call void @print(ptr %.result.27)
   call void @print(ptr @.str.pre_2)
-  br label %label_11
-label_10:
+  br label %label_skip_11
+label_false_10:
   %.result.28 = load i32, ptr @i
   call void @printInt(i32 %.result.28)
   call void @print(ptr @.str.pre_3)
-  br label %label_11
-label_11:
-  br label %label_8
-label_7:
-  br label %label_8
-label_8:
-  br label %label_3
-label_4:
+  br label %label_skip_11
+label_skip_11:
+  br label %label_skip_8
+label_false_7:
+  br label %label_skip_8
+label_skip_8:
+  br label %label_loop_3
+label_skip_4:
   %.result.29 = load i32, ptr @p
   %.result.30 = load i32, ptr @k
   %.result.31 = add i32 %.result.29, %.result.30
   %.result.32 = load i32, ptr @n
   %.result.33 = icmp slt i32 %.result.31, %.result.32
-  br i1 %.result.33, label %label_12, label %label_13
-label_12:
+  br i1 %.result.33, label %label_true_12, label %label_false_13
+label_true_12:
   call void @print(ptr @.str.pre_4)
-  br label %label_14
-label_13:
-  br label %label_14
-label_14:
+  br label %label_skip_14
+label_false_13:
+  br label %label_skip_14
+label_skip_14:
   ret i32 0
 }
