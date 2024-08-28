@@ -253,7 +253,8 @@ public class IRBuilder implements ASTVisitor{
         br.falseLabel = ((loopScope)currentScope).skipLabel;
         currentBlock.instrs.add(br);
         currentBlock.instrs.add(br.trueLabel);
-        it.bodyStmt.accept(this);
+        if (it.bodyStmt != null)
+            it.bodyStmt.accept(this);
         it.incrementExpr.accept(this);
         brInstr b3 = new brInstr();
         b3.destLabel = ((loopScope)currentScope).loopLabel;
@@ -267,6 +268,9 @@ public class IRBuilder implements ASTVisitor{
         currentScope = new loopScope(currentScope);
         ((loopScope)currentScope).loopLabel = new label("loop", labelNum++);
         ((loopScope)currentScope).skipLabel = new label("skip", labelNum++);
+        brInstr b2 = new brInstr();
+        b2.destLabel = ((loopScope)currentScope).loopLabel;
+        currentBlock.instrs.add(b2);
         currentBlock.instrs.add(((loopScope)currentScope).loopLabel);
         it.condition.accept(this);
         brInstr b = new brInstr();
@@ -276,6 +280,9 @@ public class IRBuilder implements ASTVisitor{
         currentBlock.instrs.add(b);
         currentBlock.instrs.add(b.trueLabel);
         it.body.accept(this);
+        brInstr b3 = new brInstr();
+        b3.destLabel = ((loopScope)currentScope).loopLabel;
+        currentBlock.instrs.add(b3);
         currentBlock.instrs.add(b.falseLabel);
         currentScope = currentScope.parent;
     }
@@ -412,7 +419,7 @@ public class IRBuilder implements ASTVisitor{
         else if (it.className.type.isString) {
             switch (c.methodName) {
                 case "length" -> c.methodName = ".str.length";
-                case "substring" -> c.methodName = ".str.substring";
+                case "substring" -> c.methodName = ".str.substr";
                 case "parseInt" -> c.methodName = ".str.parseInt";
                 case "ord" -> c.methodName = ".str.ord";
                 default -> throw(new RuntimeException("Invalid String method name: " + c.methodName));

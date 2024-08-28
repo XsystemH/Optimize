@@ -1,8 +1,6 @@
 package IR;
 
-import IR.Instruction.Instr;
-import IR.Instruction.callInstr;
-import IR.Instruction.label;
+import IR.Instruction.*;
 
 public class mainFn extends block {
     public funcDef init;
@@ -21,6 +19,10 @@ public class mainFn extends block {
                 s.append("  ");
             }
             s.append(i.getString()).append("\n");
+        }
+        if (!(instrs.get(instrs.size() - 1) instanceof brInstr) &&
+                !(instrs.get(instrs.size() - 1) instanceof retInstr)) {
+            s.append("ret i32 0\n");
         }
         s.append("}");
         return init.getString() + s;

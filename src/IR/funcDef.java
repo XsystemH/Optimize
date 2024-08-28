@@ -2,7 +2,9 @@ package IR;
 
 import IR.IRType.IRType;
 import IR.Instruction.Instr;
+import IR.Instruction.brInstr;
 import IR.Instruction.label;
+import IR.Instruction.retInstr;
 
 import java.util.ArrayList;
 
@@ -37,6 +39,10 @@ public class funcDef extends block {
                 str.append("  ");
             }
             str.append(instr.getString()).append("\n");
+        }
+        if (!(instrs.get(instrs.size() - 1) instanceof brInstr) &&
+                !(instrs.get(instrs.size() - 1) instanceof retInstr)) {
+            str.append("ret void\n");
         }
         str.append("}\n");
         return str.toString();
