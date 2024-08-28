@@ -67,6 +67,36 @@ public class IRBuilder implements ASTVisitor{
         return ir;
     }
 
+    public String replaceStr(String input) {
+        if (input == null) {
+            return null;
+        }
+        String result = input.replace("\\n", "\\0A");
+        result = result.replace("\\\\", "\\5C");
+        result = result.replace("\\\"", "\\22");
+        return result;
+    }
+
+    public int countStr(String input) {
+        if (input == null) {
+            return 0;
+        }
+        int ans = input.length() + 1;
+        while (input.contains("\\0A")) {
+            input = input.replaceFirst("\\\\0A", "?");
+            ans -= 2;
+        }
+        while (input.contains("\\5c")) {
+            input = input.replaceFirst("\\\\5c", "?");
+            ans -= 2;
+        }
+        while (input.contains("\\22")) {
+            input = input.replaceFirst("\\\\22", "?");
+            ans -= 2;
+        }
+        return ans;
+    }
+
     private int getSize(IRType type) {
         if (type instanceof IntType) return 4;
         if (type instanceof ptrType) return 4;
@@ -115,7 +145,8 @@ public class IRBuilder implements ASTVisitor{
         currentScope = new funcScope(currentScope);
         funcDef temp = new funcDef();
         currentFunc = temp;
-        temp.returnType = type2IR(it.returnType);
+        if (!it.returnType.isVoid)
+            temp.returnType = type2IR(it.returnType);
         temp.className = currentScope.isInClass();
         temp.name = it.name;
         if (temp.className != null) {
@@ -421,9 +452,9 @@ public class IRBuilder implements ASTVisitor{
         c.methodName = it.funcName;
         if (it.className.type.dim > 0) {
             if (c.methodName.equals("size"))
-                c.methodName = "_arr_size";
+                c.methodName = ".arr.size";
             else throw (new RuntimeException("Array Method not supported"));
-            c.className = ""; // in case class[]
+            c.className = null; // in case class[]
         }
         else if (it.className.type.isString) {
             switch (c.methodName) {
@@ -857,7 +888,8 @@ public class IRBuilder implements ASTVisitor{
         for (String str : raw) {
             preStrInstr s = new preStrInstr();
             s.reg = new gloReg(".str.pre_" + strPreDef.instrs.size());
-            s.str = str.substring(1, str.length() - 1);
+            s.str = replaceStr(str.substring(1, str.length() - 1));
+            s.size = countStr(s.str);
             strPreDef.instrs.add(s);
             str_list.add(s.reg);
         }
@@ -962,7 +994,8 @@ public class IRBuilder implements ASTVisitor{
     public void visit(strConsNode it) {
         preStrInstr s = new preStrInstr();
         s.reg = new gloReg(".str.pre_" + strPreDef.instrs.size());
-        s.str = it.value.substring(1, it.value.length() - 1);
+        s.str = replaceStr(it.value.substring(1, it.value.length() - 1));
+        s.size = countStr(s.str);
         strPreDef.instrs.add(s);
         lastExpr = s.reg;
     }
