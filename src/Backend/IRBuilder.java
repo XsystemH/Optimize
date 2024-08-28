@@ -357,7 +357,7 @@ public class IRBuilder implements ASTVisitor{
             getInstr g = new getInstr();
             g.ptr = new thisReg();
             g.type = type2IR(it.type);
-            g.idx = new intCons(gScope.getClass(currentScope.isInClass()).idx.get(it.name));
+            g.idx.add(new intCons(gScope.getClass(currentScope.isInClass()).idx.get(it.name)));
             g.result = new resReg(store++);
             lastExpr = g.result;
             currentBlock.instrs.add(g);
@@ -391,7 +391,7 @@ public class IRBuilder implements ASTVisitor{
         getInstr g = new getInstr();
         it.className.accept(this);
         g.ptr = lastExpr;
-        g.idx = new intCons(gScope.classes.get(it.className.type.typeName).idx.get(it.memName));
+        g.idx.add(new intCons(gScope.classes.get(it.className.type.typeName).idx.get(it.memName)));
         g.type = type2IR(gScope.classes.get(it.className.type.typeName).vars.get(it.memName));
         g.result = new resReg(store++);
         lastExpr = g.result;
@@ -437,14 +437,17 @@ public class IRBuilder implements ASTVisitor{
     @Override
     public void visit(arrayVisitExprNode it) {
         getInstr g = new getInstr();
+        boolean flag = isLeft;
+        isLeft = false;
         it.arrayName.accept(this);
+        isLeft = flag;
         g.type = type2IR(it.type);
         g.ptr = lastExpr;
         boolean temp = isLeft;
         isLeft = false;
         it.index.accept(this);
         isLeft = temp;
-        g.idx = lastExpr;
+        g.idx.add(lastExpr);
         g.result = new resReg(store++);
         lastExpr = g.result;
         currentBlock.instrs.add(g);
@@ -523,7 +526,7 @@ public class IRBuilder implements ASTVisitor{
             getInstr get = new getInstr();
             get.type = new ptrType();
             get.ptr = ptr;
-            get.idx = a.result;
+            get.idx.add(a.result);
             get.result = new resReg(store++);
             currentBlock.instrs.add(get);
             ptr = get.result; // ptr = array[i]
@@ -832,10 +835,9 @@ public class IRBuilder implements ASTVisitor{
             getInstr g = new getInstr();
             g.type = type2IR(it.content.get(i).type);
             g.ptr = call.result;
-            g.idx = new intCons(i);
+            g.idx.add(new intCons(i));
             g.result = new resReg(store++);
             currentBlock.instrs.add(g); // get ptr
-
             storeInstr st = new storeInstr();
             st.type = type2IR(it.content.get(i).type);
             st.ptr = g.result;
