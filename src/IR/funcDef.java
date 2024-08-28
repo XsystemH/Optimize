@@ -25,12 +25,7 @@ public class funcDef extends block {
         if (className != null) {
             str.append(className).append("::");
         }
-        if (!params.isEmpty()) {
-            str.append(name).append("()(");
-        }
-        else {
-            str.append(name).append("(");
-        }
+        str.append(name).append("(");
         for (int i = 0; i < params.size(); i++) {
             if (i > 0) str.append(", ");
             str.append(paramTypes.get(i).getString()).append(" %");

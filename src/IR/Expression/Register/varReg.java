@@ -14,6 +14,9 @@ public class varReg extends Reg {
         if (depth == 0) {
             return "@" + name;
         }
+        if (depth == -1) {
+            return "%" + name; // for func param
+        }
         return "%" + name + "." + depth;
     }
 }

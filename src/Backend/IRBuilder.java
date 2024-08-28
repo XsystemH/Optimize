@@ -120,13 +120,22 @@ public class IRBuilder implements ASTVisitor{
             temp.params.add("this");
             temp.paramTypes.add(new ptrType());
         }
-        temp.params.addAll(it.paramName);
-        for (int i = 0; i < it.paramType.size(); i++) {
-            temp.paramTypes.add(type2IR(it.paramType.get(i)));
-            currentScope.defineVariable(temp.params.get(i), it.paramType.get(i));
-        }
         block tempBlock = currentBlock;
         currentBlock = temp;
+        for (int i = 0; i < it.paramType.size(); i++) {
+            temp.params.add(it.paramName.get(i));
+            temp.paramTypes.add(type2IR(it.paramType.get(i)));
+            currentScope.defineVariable(temp.params.get(i), it.paramType.get(i));
+            allocaInstr a = new allocaInstr();
+            a.type = type2IR(it.paramType.get(i));
+            a.result = new varReg(it.paramName.get(i), currentScope.depth);
+            currentBlock.instrs.add(a);
+            storeInstr st = new storeInstr();
+            st.type = type2IR(it.paramType.get(i));
+            st.value = new varReg(it.paramName.get(i), -1);
+            st.ptr = a.result;
+            currentBlock.instrs.add(st);
+        }
         for (StmtNode s : it.body) {
             s.accept(this);
         }
@@ -244,8 +253,8 @@ public class IRBuilder implements ASTVisitor{
         br.falseLabel = ((loopScope)currentScope).skipLabel;
         currentBlock.instrs.add(br);
         currentBlock.instrs.add(br.trueLabel);
-        it.incrementExpr.accept(this);
         it.bodyStmt.accept(this);
+        it.incrementExpr.accept(this);
         brInstr b3 = new brInstr();
         b3.destLabel = ((loopScope)currentScope).loopLabel;
         currentBlock.instrs.add(b3);
@@ -337,7 +346,7 @@ public class IRBuilder implements ASTVisitor{
             }
             else {
                 loadInstr load = new loadInstr();
-                load.type = type2IR(gScope.getType(it.name, false));
+                load.type = type2IR(it.type);
                 load.pointer = new varReg(it.name, d);
                 load.result = new resReg(store++);
                 lastExpr = load.result;
@@ -429,12 +438,24 @@ public class IRBuilder implements ASTVisitor{
     public void visit(arrayVisitExprNode it) {
         getInstr g = new getInstr();
         it.arrayName.accept(this);
-        g.ptr = (Reg) lastExpr;
+        g.type = type2IR(it.type);
+        g.ptr = lastExpr;
+        boolean temp = isLeft;
+        isLeft = false;
         it.index.accept(this);
+        isLeft = temp;
         g.idx = lastExpr;
         g.result = new resReg(store++);
         lastExpr = g.result;
         currentBlock.instrs.add(g);
+        if (!isLeft) {
+            loadInstr load = new loadInstr();
+            load.type = type2IR(it.type);
+            load.pointer = g.result;
+            load.result = new resReg(store++);
+            lastExpr = load.result;
+            currentBlock.instrs.add(load);
+        }
     }
 
     @Override
@@ -499,13 +520,6 @@ public class IRBuilder implements ASTVisitor{
             br.falseLabel = ((loopScope)currentScope).skipLabel;
             currentBlock.instrs.add(br);
             currentBlock.instrs.add(br.trueLabel);
-            binInstr bin = new binInstr();
-            bin.type = new IntType(32);
-            bin.op = binInstr.binaryOP.add;
-            bin.operand1 = a.result;
-            bin.operand2 = new intCons(1);
-            bin.result = a.result;
-            currentBlock.instrs.add(bin); // i++
             getInstr get = new getInstr();
             get.type = new ptrType();
             get.ptr = ptr;
@@ -513,6 +527,13 @@ public class IRBuilder implements ASTVisitor{
             get.result = new resReg(store++);
             currentBlock.instrs.add(get);
             ptr = get.result; // ptr = array[i]
+            binInstr bin = new binInstr();
+            bin.type = new IntType(32);
+            bin.op = binInstr.binaryOP.add;
+            bin.operand1 = a.result;
+            bin.operand2 = new intCons(1);
+            bin.result = a.result;
+            currentBlock.instrs.add(bin); // i++
         }
         for (int i = 0; i < size_list.size() - 1; i++) {
             brInstr br = new brInstr();
