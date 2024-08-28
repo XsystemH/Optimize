@@ -581,7 +581,7 @@ public class IRBuilder implements ASTVisitor{
                 else b.op = binInstr.binaryOP.sub;
                 b.operand1 = new intCons(1);
                 b.operand2 = load.result;
-                b.result = (Reg) b.operand2;
+                b.result = new resReg(store++);
                 lastExpr = b.result;
                 currentBlock.instrs.add(b);
                 storeInstr st = new storeInstr();
@@ -641,6 +641,26 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(binaryExprNode it) {
+        if (it.lhs.type.dim == 0 && it.lhs.type.isString) {
+            if (it.opCode != binaryExprNode.binaryOpType.add)
+                throw new RuntimeException("Wrong String op");
+            callInstr call = new callInstr();
+            call.returnType = new ptrType();
+            call.methodName = ".str.add";
+            call.paramTypes.add(new ptrType());
+            call.paramTypes.add(new ptrType());
+            boolean flag = isLeft;
+            isLeft = false;
+            it.lhs.accept(this);
+            call.paramExpr.add(lastExpr);
+            it.rhs.accept(this);
+            call.paramExpr.add(lastExpr);
+            isLeft = flag;
+            call.result = new resReg(store++);
+            lastExpr = call.result;
+            currentBlock.instrs.add(call);
+            return;
+        }
         binInstr b = new binInstr();
         b.type = type2IR(it.type);
         switch (it.opCode) {
