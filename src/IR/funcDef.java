@@ -46,7 +46,11 @@ public class funcDef extends block {
         }
         if (!(instrs.get(instrs.size() - 1) instanceof brInstr) &&
                 !(instrs.get(instrs.size() - 1) instanceof retInstr)) {
-            str.append("ret void\n");
+            if (returnType != null) {
+                str.append("ret ").append(returnType.getString()).append(" ");
+                str.append(returnType.getDefault()).append(" \n");
+            }
+            else str.append("ret void\n");
         }
         str.append("}\n");
         return str.toString();

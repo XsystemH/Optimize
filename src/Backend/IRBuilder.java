@@ -539,7 +539,7 @@ public class IRBuilder implements ASTVisitor{
             currentBlock.instrs.add(a);
             return;
         }
-        Type t = it.type;
+        Type t = new Type(it.type);
         Reg ptr = new resReg(store++);
         Reg ret = ptr;
         for (int i = 0; i < size_list.size(); i++) {
@@ -867,7 +867,7 @@ public class IRBuilder implements ASTVisitor{
     @Override
     public void visit(assignExprNode it) {
         storeInstr instr = new storeInstr();
-        instr.type = type2IR(it.lhs.type);
+        instr.type = type2IR(it.rhs.type);
         boolean flag = isLeft;
         isLeft = true;
         it.lhs.accept(this);
@@ -957,7 +957,7 @@ public class IRBuilder implements ASTVisitor{
         call.returnType = new ptrType();
         call.methodName = ".malloc_array";
         call.paramTypes.add(new IntType(32));
-        Type t = it.type; t.dim--; // content Type
+        Type t = new Type(it.type); t.dim--; // content Type
         call.paramExpr.add(new intCons(t.getSize()));
         call.paramTypes.add(new IntType(32));
         call.paramExpr.add(new intCons(it.content.size()));
