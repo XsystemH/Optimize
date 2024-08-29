@@ -698,7 +698,7 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(nullExprNode it) {
-        ptrCons n = new ptrCons();
+        lastExpr = new ptrCons();
     }
 
     @Override
