@@ -227,7 +227,7 @@ public class IRBuilder implements ASTVisitor{
                 allocaInstr instr = new allocaInstr();
                 instr.type = type2IR(it.type);
                 instr.result = new varReg(it.name.get(i), currentScope.depth);
-                currentBlock.instrs.add(instr);
+                currentFunc.alloc.add(instr);
 
                 currentScope.defineVariable(it.name.get(i), it.type);
 
@@ -551,12 +551,13 @@ public class IRBuilder implements ASTVisitor{
             size_list.add(lastExpr);
         }
         if (size_list.isEmpty()) {
-            allocaInstr a = new allocaInstr();
-            a.result = new resReg(store++);
-            a.type = new ptrType();
-            lastExpr = a.result;
-            currentBlock.instrs.add(a);
-            return;
+            throw new RuntimeException("Useless NewArr");
+//            allocaInstr a = new allocaInstr();
+//            a.result = new resReg(store++);
+//            a.type = new ptrType();
+//            lastExpr = a.result;
+//            currentBlock.instrs.add(a);
+//            return;
         }
         Type t = new Type(it.type);
         Reg ptr = new resReg(store);
@@ -719,8 +720,8 @@ public class IRBuilder implements ASTVisitor{
                 if (it.opCode == leftExprNode.leftOpType.add)
                     b.op = binInstr.binaryOP.add;
                 else b.op = binInstr.binaryOP.sub;
-                b.operand1 = new intCons(1);
-                b.operand2 = load.result;
+                b.operand1 = load.result;
+                b.operand2 = new intCons(1);
                 b.result = new resReg(store++);
                 lastExpr = b.result;
                 currentBlock.instrs.add(b);

@@ -255,7 +255,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         if (Objects.equals(ctx.op.getText(), "++")) {
             r.opCode = rightExprNode.rightOpType.add;
         } else if (Objects.equals(ctx.op.getText(), "--")) {
-            r.opCode = rightExprNode.rightOpType.add;
+            r.opCode = rightExprNode.rightOpType.sub;
         }
         return r;
     }
