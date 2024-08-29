@@ -159,7 +159,7 @@ public class IRBuilder implements ASTVisitor{
         for (int i = 0; i < it.paramType.size(); i++) {
             temp.params.add(it.paramName.get(i));
             temp.paramTypes.add(type2IR(it.paramType.get(i)));
-            currentScope.defineVariable(temp.params.get(i), it.paramType.get(i));
+            currentScope.defineVariable(it.paramName.get(i), it.paramType.get(i));
             allocaInstr a = new allocaInstr();
             a.type = type2IR(it.paramType.get(i));
             a.result = new varReg(it.paramName.get(i), currentScope.depth);
