@@ -39,12 +39,15 @@ expression
     | className=expression '.' memberName=Identifier #classMemExpr
     | className=expression '.' funcName=Identifier '(' expression? (','expression)* ')' #classFuncExpr
     | arrayName=expression '[' index=expression ']' #arrayVisitExpr
-    | New basicType ('[' expression? ']')* array_Constant? #newArrExpr
+    | New basicType ('[' expression? ']')+ array_Constant? #newArrExpr
     | New basicType ('(' ')')? #newVarExpr
     | Null #nullExpr
     | expression op=('++' | '--') #rightExpr
     | op=('++' | '--' | '~' | '-') expression #leftExpr
-    | expression op=('+' | '-' | '*' | '/' | '%' | '&' | '|' | '^' | '<<' | '>>') expression #binaryExpr
+    | expression op=('*' | '/' | '%') expression #binaryExpr1
+    | expression op=('<<' | '>>') expression #binaryExpr2
+    | expression op=('&' | '^' | '|') expression #binaryExpr3
+    | expression op= ('+' | '-') expression #binaryExpr4
     | expression op=('==' | '!=' | '>' | '<' | '>=' | '<=') expression #boolExpr
     | expression op=('&&' | '||') expression #logicExpr
     | '!' expression #notExpr

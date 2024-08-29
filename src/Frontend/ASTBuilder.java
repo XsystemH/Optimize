@@ -277,7 +277,67 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
     @Override
-    public ASTNode visitBinaryExpr(MxParser.BinaryExprContext ctx) {
+    public ASTNode visitBinaryExpr1(MxParser.BinaryExpr1Context ctx) {
+        binaryExprNode b = new binaryExprNode(new position(ctx));
+        b.lhs = (ExprNode) visit(ctx.expression(0));
+        b.rhs = (ExprNode) visit(ctx.expression(1));
+        switch (ctx.op.getText()) {
+            case "+" -> b.opCode = binaryExprNode.binaryOpType.add;
+            case "-" -> b.opCode = binaryExprNode.binaryOpType.sub;
+            case "*" -> b.opCode = binaryExprNode.binaryOpType.mul;
+            case "/" -> b.opCode = binaryExprNode.binaryOpType.div;
+            case "%" -> b.opCode = binaryExprNode.binaryOpType.mod;
+            case "&" -> b.opCode = binaryExprNode.binaryOpType.and;
+            case "|" -> b.opCode = binaryExprNode.binaryOpType.or_;
+            case "^" -> b.opCode = binaryExprNode.binaryOpType.xor;
+            case "<<" -> b.opCode = binaryExprNode.binaryOpType.leftShift;
+            case ">>" -> b.opCode = binaryExprNode.binaryOpType.rightShift;
+        }
+        return b;
+    }
+
+    @Override
+    public ASTNode visitBinaryExpr2(MxParser.BinaryExpr2Context ctx) {
+        binaryExprNode b = new binaryExprNode(new position(ctx));
+        b.lhs = (ExprNode) visit(ctx.expression(0));
+        b.rhs = (ExprNode) visit(ctx.expression(1));
+        switch (ctx.op.getText()) {
+            case "+" -> b.opCode = binaryExprNode.binaryOpType.add;
+            case "-" -> b.opCode = binaryExprNode.binaryOpType.sub;
+            case "*" -> b.opCode = binaryExprNode.binaryOpType.mul;
+            case "/" -> b.opCode = binaryExprNode.binaryOpType.div;
+            case "%" -> b.opCode = binaryExprNode.binaryOpType.mod;
+            case "&" -> b.opCode = binaryExprNode.binaryOpType.and;
+            case "|" -> b.opCode = binaryExprNode.binaryOpType.or_;
+            case "^" -> b.opCode = binaryExprNode.binaryOpType.xor;
+            case "<<" -> b.opCode = binaryExprNode.binaryOpType.leftShift;
+            case ">>" -> b.opCode = binaryExprNode.binaryOpType.rightShift;
+        }
+        return b;
+    }
+
+    @Override
+    public ASTNode visitBinaryExpr3(MxParser.BinaryExpr3Context ctx) {
+        binaryExprNode b = new binaryExprNode(new position(ctx));
+        b.lhs = (ExprNode) visit(ctx.expression(0));
+        b.rhs = (ExprNode) visit(ctx.expression(1));
+        switch (ctx.op.getText()) {
+            case "+" -> b.opCode = binaryExprNode.binaryOpType.add;
+            case "-" -> b.opCode = binaryExprNode.binaryOpType.sub;
+            case "*" -> b.opCode = binaryExprNode.binaryOpType.mul;
+            case "/" -> b.opCode = binaryExprNode.binaryOpType.div;
+            case "%" -> b.opCode = binaryExprNode.binaryOpType.mod;
+            case "&" -> b.opCode = binaryExprNode.binaryOpType.and;
+            case "|" -> b.opCode = binaryExprNode.binaryOpType.or_;
+            case "^" -> b.opCode = binaryExprNode.binaryOpType.xor;
+            case "<<" -> b.opCode = binaryExprNode.binaryOpType.leftShift;
+            case ">>" -> b.opCode = binaryExprNode.binaryOpType.rightShift;
+        }
+        return b;
+    }
+
+    @Override
+    public ASTNode visitBinaryExpr4(MxParser.BinaryExpr4Context ctx) {
         binaryExprNode b = new binaryExprNode(new position(ctx));
         b.lhs = (ExprNode) visit(ctx.expression(0));
         b.rhs = (ExprNode) visit(ctx.expression(1));

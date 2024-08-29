@@ -274,14 +274,17 @@ public class IRBuilder implements ASTVisitor{
     @Override
     public void visit(forStmtNode it) {
         currentScope = new loopScope(currentScope);
-        it.initialStmt.accept(this);
+        if (it.initialStmt != null)
+            it.initialStmt.accept(this);
         ((loopScope)currentScope).loopLabel = new label("loop", labelNum++);
         ((loopScope)currentScope).skipLabel = new label("skip", labelNum++);
         brInstr b2 = new brInstr();
         b2.destLabel = ((loopScope)currentScope).loopLabel;
         currentBlock.instrs.add(b2);
         currentBlock.instrs.add(((loopScope)currentScope).loopLabel);
-        it.conditionExpr.accept(this);
+        if (it.conditionExpr != null)
+            it.conditionExpr.accept(this);
+        else lastExpr = new boolCons(true);
         brInstr br = new brInstr();
         br.cond = lastExpr;
         br.trueLabel = new label("body", labelNum++);
@@ -290,7 +293,8 @@ public class IRBuilder implements ASTVisitor{
         currentBlock.instrs.add(br.trueLabel);
         if (it.bodyStmt != null)
             it.bodyStmt.accept(this);
-        it.incrementExpr.accept(this);
+        if (it.incrementExpr != null)
+            it.incrementExpr.accept(this);
         brInstr b3 = new brInstr();
         b3.destLabel = ((loopScope)currentScope).loopLabel;
         currentBlock.instrs.add(b3);
@@ -433,17 +437,31 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(classMemExprNode it) {
-        getInstr g = new getInstr();
+        getInstr g0 = new getInstr();
+        getInstr g1 = new getInstr();
         boolean flag = isLeft;
         isLeft = false;
         it.className.accept(this);
-        isLeft = false;
-        g.ptr = lastExpr;
-        g.idx.add(new intCons(gScope.classes.get(it.className.type.typeName).idx.get(it.memName)));
-        g.type = type2IR(gScope.classes.get(it.className.type.typeName).vars.get(it.memName));
-        g.result = new resReg(store++);
-        lastExpr = g.result;
-        currentBlock.instrs.add(g);
+        isLeft = flag;
+        g0.ptr = lastExpr;
+        g0.idx.add(new intCons(0));
+        g0.type = new classType(it.className.type.typeName);
+        g0.result = new resReg(store++);
+        g1.ptr = g0.result;
+        g1.idx.add(new intCons(gScope.classes.get(it.className.type.typeName).idx.get(it.memName)));
+        g1.type = g0.type;
+        g1.result = new resReg(store++);
+        lastExpr = g1.result;
+        currentBlock.instrs.add(g0);
+        currentBlock.instrs.add(g1);
+        if (!isLeft) {
+            loadInstr load = new loadInstr();
+            load.type = type2IR(it.type);
+            load.pointer = g1.result;
+            load.result = new resReg(store++);
+            lastExpr = load.result;
+            currentBlock.instrs.add(load);
+        }
     }
 
     @Override
@@ -636,11 +654,46 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(newVarExprNode it) {
-        allocaInstr a = new allocaInstr();
-        a.type = type2IR(it.type);
-        a.result = new resReg(store++);
-        lastExpr = a.result;
-        currentBlock.instrs.add(a);
+        ClassDecl c = gScope.getClass(it.type.typeName);
+        if (c != null) {
+            callInstr call = new callInstr();
+            call.returnType = new ptrType();
+            call.methodName = ".malloc";
+            call.paramTypes.add(new IntType(32));
+            call.paramExpr.add(new intCons(c.getSize()));
+            call.result = new resReg(store++);
+            lastExpr = call.result;
+            currentBlock.instrs.add(call);
+            for (int i = 0; i < c.vars.size(); i++) {
+                getInstr get = new getInstr();
+                get.type = new ptrType();
+                get.ptr = call.result;
+                get.idx.add(new intCons(i));
+                get.result = new resReg(store++);
+                currentBlock.instrs.add(get);
+                callInstr call2 = new callInstr();
+                call2.returnType = new ptrType();
+                call2.methodName = ".malloc";
+                call2.paramTypes.add(new IntType(32));
+                call2.paramExpr.add(new intCons(4));
+                call2.result = new resReg(store++);
+                currentBlock.instrs.add(call2);
+                storeInstr st = new storeInstr();
+                st.type = new ptrType();
+                st.value = call2.result;
+                st.ptr = get.result;
+                currentBlock.instrs.add(st);
+            }
+            return;
+        }
+        callInstr call = new callInstr();
+        call.returnType = new ptrType();
+        call.methodName = ".malloc";
+        call.paramTypes.add(new IntType(32));
+        call.paramExpr.add(new intCons(it.type.getSize()));
+        call.result = new resReg(store++);
+        lastExpr = call.result;
+        currentBlock.instrs.add(call);
     }
 
     @Override

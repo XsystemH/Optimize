@@ -50,9 +50,16 @@ char *toString(int i) {
   return s;
 }
 
+int _str_length(char *str) {
+    if (!str) {
+        return 0;
+    }
+    return strlen(str);
+}
+
 char *_str_add(char *str1, char *str2) {
-    int length1 = strlen(str1);
-    int length2 = strlen(str2);
+    int length1 = _str_length(str1);
+    int length2 = _str_length(str2);
     int length = length1 + length2;
     char *buffer = malloc(length + 1);
     memcpy(buffer, str1, length1);
@@ -83,10 +90,6 @@ bool _str_gt(char* str1, char* str2) {
 
 bool _str_ge(char* str1, char* str2) {
     return strcmp(str1, str2) >= 0;
-}
-
-int _str_length(char *str) {
-    return strlen(str);
 }
 
 char *_str_substr(char *str, int l, int r) {

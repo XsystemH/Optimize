@@ -29,8 +29,8 @@ public class ClassDecl {
         this.functions = new HashMap<>();
         this.hasConstructor = false;
 
+        int i = 0;
         for (varDefStmtNode var : cla.vars) {
-            int i = 0;
             for (String name : var.name) {
                 this.vars.put(name, var.type);
                 this.idx.put(name, i++);
@@ -42,10 +42,6 @@ public class ClassDecl {
     }
 
     public int getSize() {
-        int ret = 0;
-        for (Type type : vars.values()) {
-            ret += type.getSize();
-        }
-        return ret;
+        return vars.size() * 4;
     }
 }

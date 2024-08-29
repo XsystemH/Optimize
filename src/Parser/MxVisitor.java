@@ -196,13 +196,6 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitNewArrExpr(MxParser.NewArrExprContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code binaryExpr}
-	 * labeled alternative in {@link MxParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBinaryExpr(MxParser.BinaryExprContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code funcCallExpr}
 	 * labeled alternative in {@link MxParser#expression}.
 	 * @param ctx the parse tree
@@ -217,6 +210,13 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVariableExpr(MxParser.VariableExprContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code binaryExpr1}
+	 * labeled alternative in {@link MxParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBinaryExpr1(MxParser.BinaryExpr1Context ctx);
+	/**
 	 * Visit a parse tree produced by the {@code notExpr}
 	 * labeled alternative in {@link MxParser#expression}.
 	 * @param ctx the parse tree
@@ -230,6 +230,13 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitClassMemExpr(MxParser.ClassMemExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code binaryExpr4}
+	 * labeled alternative in {@link MxParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBinaryExpr4(MxParser.BinaryExpr4Context ctx);
 	/**
 	 * Visit a parse tree produced by the {@code ternaryExpr}
 	 * labeled alternative in {@link MxParser#expression}.
@@ -251,6 +258,20 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitArrayVisitExpr(MxParser.ArrayVisitExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code binaryExpr2}
+	 * labeled alternative in {@link MxParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBinaryExpr2(MxParser.BinaryExpr2Context ctx);
+	/**
+	 * Visit a parse tree produced by the {@code binaryExpr3}
+	 * labeled alternative in {@link MxParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBinaryExpr3(MxParser.BinaryExpr3Context ctx);
 	/**
 	 * Visit a parse tree produced by the {@code logicExpr}
 	 * labeled alternative in {@link MxParser#expression}.

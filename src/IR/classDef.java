@@ -12,7 +12,7 @@ public class classDef extends Instr {
 
     @Override
     public String getString() {
-        StringBuilder s = new StringBuilder("%class." + name + " = { ");
+        StringBuilder s = new StringBuilder("%class." + name + " = type { ");
         for (int i = 0; i < members.size(); i++) {
             if (i > 0) s.append(", ");
             if (members.get(i) instanceof classType) {
