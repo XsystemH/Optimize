@@ -173,7 +173,7 @@ public class IRBuilder implements ASTVisitor{
             allocaInstr a = new allocaInstr();
             a.type = type2IR(it.paramType.get(i));
             a.result = new varReg(it.paramName.get(i), currentScope.depth, varNum);
-            currentBlock.instrs.add(a);
+            currentFunc.alloc.add(a);
             storeInstr st = new storeInstr();
             st.type = type2IR(it.paramType.get(i));
             st.value = new varReg(it.paramName.get(i), -1, varNum);
@@ -286,12 +286,13 @@ public class IRBuilder implements ASTVisitor{
         currentScope = new loopScope(currentScope);
         if (it.initialStmt != null)
             it.initialStmt.accept(this);
-        ((loopScope)currentScope).loopLabel = new label("loop", labelNum++);
+        ((loopScope)currentScope).loopLabel = new label("step", labelNum++);
         ((loopScope)currentScope).skipLabel = new label("skip", labelNum++);
         brInstr b2 = new brInstr();
-        b2.destLabel = ((loopScope)currentScope).loopLabel;
+        b2.destLabel = new label("loop", labelNum++);
         currentBlock.instrs.add(b2);
-        currentBlock.instrs.add(((loopScope)currentScope).loopLabel);
+
+        currentBlock.instrs.add(b2.destLabel);
         if (it.conditionExpr != null)
             it.conditionExpr.accept(this);
         else lastExpr = new boolCons(true);
@@ -300,11 +301,17 @@ public class IRBuilder implements ASTVisitor{
         br.trueLabel = new label("body", labelNum++);
         br.falseLabel = ((loopScope)currentScope).skipLabel;
         currentBlock.instrs.add(br);
+
+        currentBlock.instrs.add(((loopScope)currentScope).loopLabel);
+        if (it.incrementExpr != null)
+            it.incrementExpr.accept(this);
+        brInstr b4 = new brInstr();
+        b4.destLabel = b2.destLabel;
+        currentBlock.instrs.add(b4);
+
         currentBlock.instrs.add(br.trueLabel);
         if (it.bodyStmt != null)
             it.bodyStmt.accept(this);
-        if (it.incrementExpr != null)
-            it.incrementExpr.accept(this);
         brInstr b3 = new brInstr();
         b3.destLabel = ((loopScope)currentScope).loopLabel;
         currentBlock.instrs.add(b3);
@@ -584,12 +591,6 @@ public class IRBuilder implements ASTVisitor{
         }
         if (size_list.isEmpty()) {
             throw new RuntimeException("Useless NewArr");
-//            allocaInstr a = new allocaInstr();
-//            a.result = new resReg(store++);
-//            a.type = new ptrType();
-//            lastExpr = a.result;
-//            currentBlock.instrs.add(a);
-//            return;
         }
         Type t = new Type(it.type);
         Reg ptr = new resReg(store);
@@ -855,6 +856,28 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(boolExprNode it) {
+        if (it.lhs.type.dim == 0 && it.lhs.type.isString) {
+            callInstr call = new callInstr();
+            call.returnType = new IntType(1);
+            switch(it.opCode) {
+                case equal -> call.methodName = ".str.eq";
+                case notEqual -> call.methodName = ".str.ne";
+                case less -> call.methodName = ".str.lt";
+                case greater -> call.methodName = ".str.gt";
+                case lessOrEqual -> call.methodName = ".str.le";
+                case greaterOrEqual -> call.methodName = ".str.ge";
+            }
+            call.paramTypes.add(new ptrType());
+            call.paramTypes.add(new ptrType());
+            it.lhs.accept(this);
+            call.paramExpr.add(lastExpr);
+            it.rhs.accept(this);
+            call.paramExpr.add(lastExpr);
+            call.result = new resReg(store++);
+            lastExpr = call.result;
+            currentBlock.instrs.add(call);
+            return;
+        }
         icmpInstr i = new icmpInstr();
         i.type = type2IR(it.lhs.type);
         switch (it.opCode) {
@@ -957,11 +980,13 @@ public class IRBuilder implements ASTVisitor{
 
         currentBlock.instrs.add(b.trueLabel);
         it.case0.accept(this);
-        storeInstr st0 = new storeInstr();
-        st0.type = type2IR(it.type);
-        st0.value = lastExpr;
-        st0.ptr = a.result;
-        currentBlock.instrs.add(st0);
+        if (!it.type.isVoid) {
+            storeInstr st0 = new storeInstr();
+            st0.type = type2IR(it.type);
+            st0.value = lastExpr;
+            st0.ptr = a.result;
+            currentBlock.instrs.add(st0);
+        }
         brInstr skip = new brInstr();
         label skipLabel = new label("skip", labelNum++);
         skip.destLabel = skipLabel;
@@ -969,11 +994,13 @@ public class IRBuilder implements ASTVisitor{
 
         currentBlock.instrs.add(b.falseLabel);
         it.case1.accept(this);
-        storeInstr st1 = new storeInstr();
-        st1.type = type2IR(it.type);
-        st1.value = lastExpr;
-        st1.ptr = a.result;
-        currentBlock.instrs.add(st1);
+        if (!it.type.isVoid) {
+            storeInstr st1 = new storeInstr();
+            st1.type = type2IR(it.type);
+            st1.value = lastExpr;
+            st1.ptr = a.result;
+            currentBlock.instrs.add(st1);
+        }
         currentBlock.instrs.add(skip);
         currentBlock.instrs.add(skipLabel);
 
@@ -1048,21 +1075,25 @@ public class IRBuilder implements ASTVisitor{
         }
         Reg temp = str_list.get(0);
         for (int i = 1; i < str_list.size(); i++) {
-            binInstr addStr = new binInstr();
-            addStr.type = new ptrType();
-            addStr.op = binInstr.binaryOP.add;
-            addStr.operand1 = temp;
-            addStr.operand2 = str_list.get(i);
-            addStr.result = new resReg(store++);
-            currentBlock.instrs.add(addStr);
-            binInstr addExpr = new binInstr();
-            addExpr.type = new ptrType();
-            addExpr.op = binInstr.binaryOP.add;
-            addExpr.operand1 = addStr.result;
-            addExpr.operand2 = exprStr_list.get(i - 1);
-            addExpr.result = new resReg(store++);
-            temp = addExpr.result;
-            currentBlock.instrs.add(addExpr);
+            callInstr callExpr = new callInstr();
+            callExpr.returnType = new ptrType();
+            callExpr.methodName = ".str.add";
+            callExpr.paramTypes.add(new ptrType());
+            callExpr.paramExpr.add(temp);
+            callExpr.paramTypes.add(new ptrType());
+            callExpr.paramExpr.add(exprStr_list.get(i-1));
+            callExpr.result = new resReg(store++);
+            currentBlock.instrs.add(callExpr);
+            callInstr callStr = new callInstr();
+            callStr.returnType = new ptrType();
+            callStr.methodName = ".str.add";
+            callStr.paramTypes.add(new ptrType());
+            callStr.paramExpr.add(callExpr.result);
+            callStr.paramTypes.add(new ptrType());
+            callStr.paramExpr.add(str_list.get(i));
+            callStr.result = new resReg(store++);
+            currentBlock.instrs.add(callStr);
+            temp = callStr.result;
         }
         lastExpr = temp;
     }

@@ -7,6 +7,7 @@ import java.util.Objects;
 public class Type extends BasicType{
     public int dim;
     public boolean isEmptyArray;
+    public boolean isVoid = false;
 
     public Type() {
         isEmptyArray = true;
@@ -59,8 +60,6 @@ public class Type extends BasicType{
     }
 
     public int getSize() {
-        if (dim > 0) return 4;
-        if (isBool) return 1;
         return 4;
     }
 }

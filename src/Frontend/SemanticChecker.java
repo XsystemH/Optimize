@@ -517,7 +517,7 @@ public class SemanticChecker implements ASTVisitor {
         if (contentType == null) {
             contentType = new Type();
         }
-        it.type = contentType;
+        it.type = new Type(contentType);
         it.type.dim += 1;
     }
 
