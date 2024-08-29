@@ -24,7 +24,7 @@ public class callInstr extends Instr{
             s = new StringBuilder("call void @");
         }
         if (className != null) {
-            s.append(className).append("::");
+            s.append(className).append("..");
         }
         s.append(methodName).append("(");
         for (int i = 0; i < paramTypes.size(); i++) {

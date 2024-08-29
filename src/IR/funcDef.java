@@ -26,7 +26,7 @@ public class funcDef extends block {
             str.append("void @");
         }
         if (className != null) {
-            str.append(className).append("::");
+            str.append(className).append("..");
         }
         str.append(name).append("(");
         for (int i = 0; i < params.size(); i++) {
