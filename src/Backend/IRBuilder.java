@@ -150,12 +150,26 @@ public class IRBuilder implements ASTVisitor{
             temp.returnType = type2IR(it.returnType);
         temp.className = currentScope.isInClass();
         temp.name = it.name;
+        block tempBlock = currentBlock;
+        currentBlock = temp;
         if (temp.className != null) {
             temp.params.add("this");
             temp.paramTypes.add(new ptrType());
+//            allocaInstr a = new allocaInstr();
+//            a.type = new ptrType();
+//            a.result = new varReg("this.ptr", -1);
+//            currentBlock.instrs.add(a);
+//            storeInstr st = new storeInstr();
+//            st.type = new ptrType();
+//            st.value = new varReg("this.this", -1);
+//            st.ptr = a.result;
+//            currentBlock.instrs.add(st);
+//            loadInstr load = new loadInstr();
+//            load.type = new ptrType();
+//            load.pointer = new varReg("this.this", -1);
+//            load.result = new varReg("this", -1);
+//            currentBlock.instrs.add(load);
         }
-        block tempBlock = currentBlock;
-        currentBlock = temp;
         for (int i = 0; i < it.paramType.size(); i++) {
             temp.params.add(it.paramName.get(i));
             temp.paramTypes.add(type2IR(it.paramType.get(i)));
@@ -407,6 +421,14 @@ public class IRBuilder implements ASTVisitor{
             g.result = new resReg(store++);
             lastExpr = g.result;
             currentBlock.instrs.add(g);
+            if (!isLeft) {
+                loadInstr load = new loadInstr();
+                load.type = type2IR(it.type);
+                load.pointer = new thisReg();
+                load.result = new resReg(store++);
+                lastExpr = load.result;
+                currentBlock.instrs.add(load);
+            }
         }
     }
 
@@ -419,6 +441,14 @@ public class IRBuilder implements ASTVisitor{
     public void visit(funcCallExprNode it) {
         callInstr c = new callInstr();
         c.methodName = it.funcName;
+        String cla = currentScope.isInClass();
+        if (cla != null) {
+            if (gScope.getClass(cla).functions.containsKey(it.funcName)) {
+                c.className = cla;
+                c.paramTypes.add(new ptrType());
+                c.paramExpr.add(new varReg("this", -1));
+            }
+        }
         for (int i = 0 ; i < it.parameters.size(); i++) {
             c.paramTypes.add(type2IR(it.parameters.get(i).type));
             boolean flag = isLeft;
@@ -661,30 +691,10 @@ public class IRBuilder implements ASTVisitor{
             call.returnType = new ptrType();
             call.methodName = ".malloc";
             call.paramTypes.add(new IntType(32));
-            call.paramExpr.add(new intCons(c.getSize()));
+            call.paramExpr.add(new intCons(c.getSize() + 4));
             call.result = new resReg(store++);
             lastExpr = call.result;
             currentBlock.instrs.add(call);
-            for (int i = 0; i < c.vars.size(); i++) {
-                getInstr get = new getInstr();
-                get.type = new ptrType();
-                get.ptr = call.result;
-                get.idx.add(new intCons(i));
-                get.result = new resReg(store++);
-                currentBlock.instrs.add(get);
-                callInstr call2 = new callInstr();
-                call2.returnType = new ptrType();
-                call2.methodName = ".malloc";
-                call2.paramTypes.add(new IntType(32));
-                call2.paramExpr.add(new intCons(4));
-                call2.result = new resReg(store++);
-                currentBlock.instrs.add(call2);
-                storeInstr st = new storeInstr();
-                st.type = new ptrType();
-                st.value = call2.result;
-                st.ptr = get.result;
-                currentBlock.instrs.add(st);
-            }
             return;
         }
         callInstr call = new callInstr();

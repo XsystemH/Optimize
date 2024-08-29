@@ -1,0 +1,37 @@
+/*
+Test Package: Codegen
+Author: Maohao Jun
+Time: 2020-01-25
+Input:
+=== input ===
+=== end ===
+Output:
+=== output ===
+MR, the leading TA enjoys this work. XD
+Mars, the striking TA enjoys this work. XD
+Mars, the striking TA wants to give up!!!!!
+
+=== end ===
+ExitCode: 0
+InstLimit: -1
+Origin Package: Codegen Pretest-542
+*/
+
+
+class TA{
+    string state;
+	int anger;
+};
+void work(string st, TA ta)
+{
+	printlnInt(ta.anger);
+}
+int main()
+{
+	TA mr;
+	mr = new TA;
+	mr.state = "the leading TA";
+	mr.anger = 0;
+	work("MR", mr);
+	return 0;
+}

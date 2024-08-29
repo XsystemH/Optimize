@@ -1,5 +1,9 @@
 export PATH="/usr/local/opt/bin:$PATH"
 
+java -cp /ulib/antlr-4.13.2-complete.jar:bin Main < test.mx > output.ll -emit-llvm
+clang-18 -m32 output.ll src/Backend/builtin/builtin.ll -o test
+./test
+
 clang -S -emit-llvm --target=riscv32-unknown-elf -O2 -fno-builtin-printf -fno-builtin-memcpy \builtin.c -o builtin_intermediate.ll
 sed 's/string_/string./g;s/array_/array./g' builtin_intermediate.ll > builtin.ll
 rm builtin_intermediate.ll
