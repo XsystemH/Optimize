@@ -44,8 +44,8 @@ public class funcDef extends block {
             }
             str.append(instr.getString()).append("\n");
         }
-        if (!(instrs.get(instrs.size() - 1) instanceof brInstr) &&
-                !(instrs.get(instrs.size() - 1) instanceof retInstr)) {
+        if (instrs.isEmpty() || (!(instrs.get(instrs.size() - 1) instanceof brInstr) &&
+                !(instrs.get(instrs.size() - 1) instanceof retInstr))) {
             if (returnType != null) {
                 str.append("ret ").append(returnType.getString()).append(" ");
                 str.append(returnType.getDefault()).append(" \n");

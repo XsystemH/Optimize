@@ -31,6 +31,7 @@ public class IRBuilder implements ASTVisitor{
     private funcDef currentFunc;
     private globalScope gScope;
     private int store;
+    private int varNum;
     private int labelNum;
     private Expr lastExpr = null;
     private boolean isLeft = false;
@@ -44,6 +45,7 @@ public class IRBuilder implements ASTVisitor{
         currentScope = gScope;
         this.gScope = gScope;
         store = 0;
+        varNum = 0;
         labelNum = 0;
     }
 
@@ -86,8 +88,8 @@ public class IRBuilder implements ASTVisitor{
             input = input.replaceFirst("\\\\0A", "?");
             ans -= 2;
         }
-        while (input.contains("\\5c")) {
-            input = input.replaceFirst("\\\\5c", "?");
+        while (input.contains("\\5C")) {
+            input = input.replaceFirst("\\\\5C", "?");
             ans -= 2;
         }
         while (input.contains("\\22")) {
@@ -127,12 +129,20 @@ public class IRBuilder implements ASTVisitor{
             c.members.add(type2IR(var.type));
         }
         currentBlock.instrs.add(c);
+        block temp = currentBlock;
+        currentBlock = new funcDef();
+        ((funcDef)currentBlock).name = it.name;
+        ((funcDef)currentBlock).className = it.name;
+        ((funcDef)currentBlock).paramTypes.add(new ptrType());
+        ((funcDef)currentBlock).params.add("this");
         if (it.constructor != null) {
             currentScope = new classScope(gScope);
             currentScope.className = it.name;
             it.constructor.accept(this);
             currentScope = currentScope.parent;
         }
+        temp.instrs.add(currentBlock);
+        currentBlock = temp;
         for (FuncNode f : it.functions) {
             currentScope = new classScope(gScope);
             currentScope.className = it.name;
@@ -155,32 +165,18 @@ public class IRBuilder implements ASTVisitor{
         if (temp.className != null) {
             temp.params.add("this");
             temp.paramTypes.add(new ptrType());
-//            allocaInstr a = new allocaInstr();
-//            a.type = new ptrType();
-//            a.result = new varReg("this.ptr", -1);
-//            currentBlock.instrs.add(a);
-//            storeInstr st = new storeInstr();
-//            st.type = new ptrType();
-//            st.value = new varReg("this.this", -1);
-//            st.ptr = a.result;
-//            currentBlock.instrs.add(st);
-//            loadInstr load = new loadInstr();
-//            load.type = new ptrType();
-//            load.pointer = new varReg("this.this", -1);
-//            load.result = new varReg("this", -1);
-//            currentBlock.instrs.add(load);
         }
         for (int i = 0; i < it.paramType.size(); i++) {
             temp.params.add(it.paramName.get(i));
             temp.paramTypes.add(type2IR(it.paramType.get(i)));
-            currentScope.defineVariable(it.paramName.get(i), it.paramType.get(i));
+            currentScope.defineVariable(it.paramName.get(i), it.paramType.get(i), varNum);
             allocaInstr a = new allocaInstr();
             a.type = type2IR(it.paramType.get(i));
-            a.result = new varReg(it.paramName.get(i), currentScope.depth);
+            a.result = new varReg(it.paramName.get(i), currentScope.depth, varNum);
             currentBlock.instrs.add(a);
             storeInstr st = new storeInstr();
             st.type = type2IR(it.paramType.get(i));
-            st.value = new varReg(it.paramName.get(i), -1);
+            st.value = new varReg(it.paramName.get(i), -1, varNum);
             st.ptr = a.result;
             currentBlock.instrs.add(st);
         }
@@ -240,10 +236,10 @@ public class IRBuilder implements ASTVisitor{
             for (int i = 0; i < it.name.size(); i++) {
                 allocaInstr instr = new allocaInstr();
                 instr.type = type2IR(it.type);
-                instr.result = new varReg(it.name.get(i), currentScope.depth);
+                instr.result = new varReg(it.name.get(i), currentScope.depth, varNum);
                 currentFunc.alloc.add(instr);
 
-                currentScope.defineVariable(it.name.get(i), it.type);
+                currentScope.defineVariable(it.name.get(i), it.type, varNum++);
 
                 if (it.expr.get(i) != null) {
                     it.expr.get(i).accept(this);
@@ -402,21 +398,27 @@ public class IRBuilder implements ASTVisitor{
         }
         else if (d != -1) {
             if (isLeft) {
-                lastExpr = new varReg(it.name, d);
+                lastExpr = new varReg(it.name, d, currentScope.getVarRank(it.name));
             }
             else {
                 loadInstr load = new loadInstr();
                 load.type = type2IR(it.type);
-                load.pointer = new varReg(it.name, d);
+                load.pointer = new varReg(it.name, d, currentScope.getVarRank(it.name));
                 load.result = new resReg(store++);
                 lastExpr = load.result;
                 currentBlock.instrs.add(load);
             }
         }
         else { // in class
+            getInstr g0 = new getInstr();
+            g0.ptr = new thisReg();
+            g0.type = new classType(currentScope.isInClass());
+            g0.idx.add(new intCons(0));
+            g0.result = new resReg(store++);
+            currentBlock.instrs.add(g0);
             getInstr g = new getInstr();
-            g.ptr = new thisReg();
-            g.type = type2IR(it.type);
+            g.ptr = g0.result;
+            g.type = g0.type;
             g.idx.add(new intCons(gScope.getClass(currentScope.isInClass()).idx.get(it.name)));
             g.result = new resReg(store++);
             lastExpr = g.result;
@@ -424,7 +426,7 @@ public class IRBuilder implements ASTVisitor{
             if (!isLeft) {
                 loadInstr load = new loadInstr();
                 load.type = type2IR(it.type);
-                load.pointer = new thisReg();
+                load.pointer = g.result;
                 load.result = new resReg(store++);
                 lastExpr = load.result;
                 currentBlock.instrs.add(load);
@@ -446,7 +448,7 @@ public class IRBuilder implements ASTVisitor{
             if (gScope.getClass(cla).functions.containsKey(it.funcName)) {
                 c.className = cla;
                 c.paramTypes.add(new ptrType());
-                c.paramExpr.add(new varReg("this", -1));
+                c.paramExpr.add(new varReg("this", -1, 0));
             }
         }
         for (int i = 0 ; i < it.parameters.size(); i++) {
@@ -695,6 +697,12 @@ public class IRBuilder implements ASTVisitor{
             call.result = new resReg(store++);
             lastExpr = call.result;
             currentBlock.instrs.add(call);
+            callInstr call2 = new callInstr();
+            call2.className = c.name;
+            call2.methodName = c.name;
+            call2.paramTypes.add(new ptrType());
+            call2.paramExpr.add(call.result);
+            currentBlock.instrs.add(call2);
             return;
         }
         callInstr call = new callInstr();
@@ -934,6 +942,10 @@ public class IRBuilder implements ASTVisitor{
 
     @Override
     public void visit(ternaryExprNode it) {
+        allocaInstr a = new allocaInstr();
+        a.type = type2IR(it.type);
+        a.result = new resReg(store++);
+        currentFunc.alloc.add(a);
         boolean flag = isLeft;
         isLeft = false;
         it.condition.accept(this);
@@ -941,9 +953,15 @@ public class IRBuilder implements ASTVisitor{
         b.cond = lastExpr;
         b.trueLabel = new label("expr1", labelNum++);
         b.falseLabel = new label("expr2", labelNum++);
+        currentBlock.instrs.add(b);
 
         currentBlock.instrs.add(b.trueLabel);
         it.case0.accept(this);
+        storeInstr st0 = new storeInstr();
+        st0.type = type2IR(it.type);
+        st0.value = lastExpr;
+        st0.ptr = a.result;
+        currentBlock.instrs.add(st0);
         brInstr skip = new brInstr();
         label skipLabel = new label("skip", labelNum++);
         skip.destLabel = skipLabel;
@@ -951,8 +969,21 @@ public class IRBuilder implements ASTVisitor{
 
         currentBlock.instrs.add(b.falseLabel);
         it.case1.accept(this);
+        storeInstr st1 = new storeInstr();
+        st1.type = type2IR(it.type);
+        st1.value = lastExpr;
+        st1.ptr = a.result;
+        currentBlock.instrs.add(st1);
+        currentBlock.instrs.add(skip);
         currentBlock.instrs.add(skipLabel);
+
+        loadInstr load = new loadInstr();
+        load.type = type2IR(it.type);
+        load.pointer = a.result;
+        load.result = new resReg(store++);
+        currentBlock.instrs.add(load);
         isLeft = flag;
+        lastExpr = load.result;
     }
 
     @Override

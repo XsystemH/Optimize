@@ -3,10 +3,12 @@ package IR.Expression.Register;
 public class varReg extends Reg {
     public String name;
     public int depth;
+    public int rank;
 
-    public varReg(String n, int d) {
+    public varReg(String n, int d, int r) {
         name = n;
         depth = d;
+        rank = r;
     }
 
     @Override
@@ -17,6 +19,6 @@ public class varReg extends Reg {
         if (depth == -1) {
             return "%" + name; // for func param
         }
-        return "%" + name + "." + depth;
+        return "%" + name + "." + depth + "." + rank;
     }
 }

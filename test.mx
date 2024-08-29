@@ -1,37 +1,28 @@
 /*
 Test Package: Codegen
-Author: Maohao Jun
-Time: 2020-01-25
+Author: 21' LIU Yiyu
+Time: 2023-08-07
 Input:
 === input ===
+1 2 3
 === end ===
 Output:
 === output ===
-MR, the leading TA enjoys this work. XD
-Mars, the striking TA enjoys this work. XD
-Mars, the striking TA wants to give up!!!!!
+3
+4
+4
+4
 
 === end ===
 ExitCode: 0
 InstLimit: -1
-Origin Package: Codegen Pretest-542
 */
 
-
-class TA{
-    string state;
-	int anger;
-};
-void work(string st, TA ta)
-{
-	printlnInt(ta.anger);
-}
-int main()
-{
-	TA mr;
-	mr = new TA;
-	mr.state = "the leading TA";
-	mr.anger = 0;
-	work("MR", mr);
-	return 0;
+int main() {
+    int a = getInt(), b = getInt(), c = getInt();
+    int d = (a++ == b) ? (a++ == b) ? ++c : ++a : (a++ == b) ? (++b == c++) ? ++b : ++c : ++a;
+    printlnInt(a);
+    printlnInt(b);
+    printlnInt(c);
+    printlnInt(d);
 }

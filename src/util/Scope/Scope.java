@@ -19,10 +19,12 @@ public class Scope {
     public int depth = 0;
 
     private HashMap<String, Type> member;
+    private HashMap<String, Integer> rank;
     public Scope parent;
 
     public Scope(Scope parent) {
         member = new HashMap<>();
+        rank = new HashMap<>();
         this.parent = parent;
         if (parent != null) {
             returnType = parent.returnType;
@@ -39,6 +41,12 @@ public class Scope {
         else return -1;
     }
 
+    public int getVarRank(String name) {
+        if (member.containsKey(name)) return rank.get(name);
+        if (parent != null) return parent.getVarRank(name);
+        else return -1;
+    }
+
     public boolean containsVariable(String name, boolean lookup) {
         if (member.containsKey(name)) return true;
         if (parent != null && lookup) return parent.containsVariable(name, true);
@@ -51,8 +59,9 @@ public class Scope {
         member.put(name, type);
     }
 
-    public void defineVariable(String name, Type type) {
+    public void defineVariable(String name, Type type, int r) {
         defineVariable(name, type, new position(0, 0), false);
+        rank.put(name, r);
     }
 
     public Type getType(String name, boolean lookup) {
