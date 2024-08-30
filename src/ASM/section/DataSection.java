@@ -5,8 +5,11 @@ import ASM.ASMInstr.Directive;
 import java.util.ArrayList;
 
 public class DataSection extends ASMSection{
-    public String name = ".data";
     ArrayList<ASMBlock> data = new ArrayList<>();
+
+    public DataSection() {
+        name = ".data";
+    }
 
     public void addGlobalVar(String var, String label) {
         ASMBlock block = new ASMBlock();

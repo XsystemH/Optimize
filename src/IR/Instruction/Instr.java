@@ -3,5 +3,7 @@ package IR.Instruction;
 public abstract class Instr {
     public Instr() {}
 
-    abstract public String getString();
+    public abstract String getString();
+
+    public abstract int getSpSize();
 }

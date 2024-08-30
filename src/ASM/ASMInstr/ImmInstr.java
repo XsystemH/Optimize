@@ -4,7 +4,7 @@ public class ImmInstr extends ASMInstr{
     public String opType;
     public String rd;
     public String rs;
-    public String imm;
+    public int imm;
 
     @Override
     public String getString() {

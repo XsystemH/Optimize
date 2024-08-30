@@ -5,8 +5,11 @@ import ASM.ASMInstr.Directive;
 import java.util.ArrayList;
 
 public class RodataSection extends ASMSection {
-    public String name = ".rodata";
     public ArrayList<ASMBlock> strings = new ArrayList<>();
+
+    public RodataSection() {
+        name = ".rodata";
+    }
 
     public void addStr(String str, String label) {
         ASMBlock block = new ASMBlock();
