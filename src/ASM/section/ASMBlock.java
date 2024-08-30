@@ -19,7 +19,7 @@ public class ASMBlock {
         if (isGlobal) {
             str.append(".global").append(label).append("\n");
         }
-        str.append(label).append("\n");
+        str.append(label).append(":\n");
         for (ASMInstr instr : instrs) {
             str.append("\t").append(instr.getString()).append("\n");
         }

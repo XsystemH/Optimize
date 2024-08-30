@@ -1,5 +1,7 @@
 package IR;
 
+import IR.Expression.Constant.intCons;
+import IR.IRType.IntType;
 import IR.Instruction.*;
 
 public class mainFn extends funcDef {
@@ -26,6 +28,10 @@ public class mainFn extends funcDef {
         if (!(instrs.get(instrs.size() - 1) instanceof brInstr) &&
                 !(instrs.get(instrs.size() - 1) instanceof retInstr)) {
             s.append("ret i32 0\n");
+            retInstr ret = new retInstr();
+            ret.type = new IntType(32);
+            ret.value = new intCons(0);
+            instrs.add(ret);
         }
         s.append("}");
         return init.getString() + s;

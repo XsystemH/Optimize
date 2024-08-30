@@ -28,6 +28,10 @@ public class ASMFunction {
     }
 
     public int getVirtualReg(String reg) {
+        if (!virtualReg.containsKey(reg)) {
+            int offset = alloc(4);
+            virtualReg.put(reg, offset);
+        }
         return virtualReg.get(reg);
     }
 

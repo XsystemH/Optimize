@@ -6,7 +6,6 @@ import IR.Expression.Constant.Cons;
 import IR.Expression.Expr;
 import IR.Expression.Register.Reg;
 import IR.Instruction.*;
-import IR.Program;
 import IR.funcDef;
 
 import java.util.ArrayList;
@@ -125,7 +124,7 @@ public class ASMBuilder {
         return instrs;
     }
 
-    public void visitProgram(Program program) {
+    public void visitProgram() {
         buildStringCons();
         buildGlobalVars();
         for (Instr irInstr : irBuilder.program.instrs) {
@@ -137,7 +136,7 @@ public class ASMBuilder {
     }
 
     public void buildStringCons() {
-        for (Instr irInstr : irBuilder.program.instrs) {
+        for (Instr irInstr : irBuilder.strPreDef.instrs) {
             if (irInstr instanceof preStrInstr preStr) {
                 String str = (preStr.str); // todo irStr2RiscV
                 String label = preStr.reg.getString().substring(1);

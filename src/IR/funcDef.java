@@ -1,5 +1,8 @@
 package IR;
 
+import IR.Expression.Constant.boolCons;
+import IR.Expression.Constant.intCons;
+import IR.Expression.Constant.ptrCons;
 import IR.IRType.IRType;
 import IR.Instruction.Instr;
 import IR.Instruction.brInstr;
@@ -49,8 +52,20 @@ public class funcDef extends block {
             if (returnType != null) {
                 str.append("ret ").append(returnType.getString()).append(" ");
                 str.append(returnType.getDefault()).append(" \n");
+                retInstr ret = new retInstr();
+                ret.type = returnType;
+                switch (returnType.getDefault()) {
+                    case "0" -> ret.value = new intCons(0);
+                    case "null" -> ret.value = new ptrCons();
+                    case "true" -> ret.value = new boolCons(true);
+                    case "false" -> ret.value = new boolCons(false);
+                }
+                instrs.add(ret);
             }
-            else str.append("ret void\n");
+            else {
+                str.append("ret void\n");
+                instrs.add(new retInstr());
+            }
         }
         str.append("}\n");
         return str.toString();

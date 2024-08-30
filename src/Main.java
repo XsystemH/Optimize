@@ -1,4 +1,5 @@
 import AST.ProgramNode;
+import Backend.ASMBuilder;
 import Backend.IRBuilder;
 import Frontend.ASTBuilder;
 import Frontend.SemanticChecker;
@@ -19,9 +20,9 @@ public class Main {
     public static void main(String[] args) throws IOException {
 //        System.out.println("Hello Compiler!");
 
-//        String filename = "testcases/codegen/t60.mx";
+//        String filename = "testcases/codegen/e1.mx";
 //        InputStream input = new FileInputStream(filename);
-//        OutputStream output = new FileOutputStream("output.ll");
+//        OutputStream output = new FileOutputStream("output.s");
         InputStream input = System.in;
         OutputStream output = System.out;
         //input 设置为标准输入
@@ -40,8 +41,12 @@ public class Main {
             new SemanticChecker(gScope).visit(ast);
             IRBuilder irBuilder = new IRBuilder(gScope);
             irBuilder.visit(ast);
-            output.write(irBuilder.strPreDef.getString().getBytes(StandardCharsets.UTF_8));
-            output.write(irBuilder.program.getString().getBytes(StandardCharsets.UTF_8));
+//            output.write(irBuilder.strPreDef.getString().getBytes(StandardCharsets.UTF_8));
+//            output.write(irBuilder.program.getString().getBytes(StandardCharsets.UTF_8));
+            irBuilder.program.getString();
+            ASMBuilder asmBuilder = new ASMBuilder(irBuilder);
+            asmBuilder.visitProgram();
+            output.write(asmBuilder.getString().getBytes(StandardCharsets.UTF_8));
         }
         catch (error e) {
             System.out.println(e.message);

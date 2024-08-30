@@ -2,7 +2,7 @@
 .typenull, @function
 .p2align 2
 .globalnull
-null
+null:
 	add sp, sp, -176
 	sw ra, 0(sp)
 	.init
@@ -39,15 +39,15 @@ null
 	bnez t0, B1.label_true_0:
 	j B1.label_false_1:
 
-B1.true
+B1.true:
 	la a0, .str.pre_0
 	print
 	j B1.label_skip_2:
 
-B1.false
+B1.false:
 	j B1.label_skip_2:
 
-B1.skip
+B1.skip:
 	la t0, p
 	lw t1, 0(t0)
 	sw t1, 16(sp)
@@ -63,7 +63,7 @@ B1.skip
 	sw t0, 0(t1)
 	j B1.label_loop_5:
 
-B1.loop
+B1.loop:
 	la t0, i
 	lw t1, 0(t0)
 	sw t1, 52(sp)
@@ -86,7 +86,7 @@ B1.loop
 	bnez t0, B1.label_body_6:
 	j B1.label_skip_4:
 
-B1.step
+B1.step:
 	la t0, i
 	lw t1, 0(t0)
 	sw t1, 52(sp)
@@ -99,7 +99,7 @@ B1.step
 	sw t0, 0(t1)
 	j B1.label_loop_5:
 
-B1.body
+B1.body:
 	la t0, i
 	lw t1, 0(t0)
 	sw t1, 52(sp)
@@ -115,7 +115,7 @@ B1.body
 	bnez t0, B1.label_logicT_7:
 	j B1.label_logicF_8:
 
-B1.logicT
+B1.logicT:
 	la t0, i
 	lw t1, 0(t0)
 	sw t1, 52(sp)
@@ -132,7 +132,7 @@ B1.logicT
 	sw t0, 0(t1)
 	j B1.label_logicF_8:
 
-B1.logicF
+B1.logicF:
 	lw t0, 92(sp)
 	lw t1, 0(t0)
 	sw t1, 92(sp)
@@ -140,7 +140,7 @@ B1.logicF
 	bnez t0, B1.label_true_9:
 	j B1.label_false_10:
 
-B1.true
+B1.true:
 	la t0, i
 	lw t1, 0(t0)
 	sw t1, 52(sp)
@@ -156,7 +156,7 @@ B1.true
 	bnez t0, B1.label_true_12:
 	j B1.label_false_13:
 
-B1.true
+B1.true:
 	la a0, .str.pre_1
 	print
 	la t0, i
@@ -171,7 +171,7 @@ B1.true
 	print
 	j B1.label_skip_14:
 
-B1.false
+B1.false:
 	la t0, i
 	lw t1, 0(t0)
 	sw t1, 52(sp)
@@ -181,16 +181,16 @@ B1.false
 	print
 	j B1.label_skip_14:
 
-B1.skip
+B1.skip:
 	j B1.label_skip_11:
 
-B1.false
+B1.false:
 	j B1.label_skip_11:
 
-B1.skip
+B1.skip:
 	j B1.label_step_3:
 
-B1.skip
+B1.skip:
 	la t0, p
 	lw t1, 0(t0)
 	sw t1, 16(sp)
@@ -212,15 +212,15 @@ B1.skip
 	bnez t0, B1.label_true_15:
 	j B1.label_false_16:
 
-B1.true
+B1.true:
 	la a0, .str.pre_4
 	print
 	j B1.label_skip_17:
 
-B1.false
+B1.false:
 	j B1.label_skip_17:
 
-B1.skip
+B1.skip:
 	li a0, 0
 	lw ra, 0(sp)
 	add sp, sp, 176
@@ -230,47 +230,47 @@ B1.skip
 .section.data
 .p2align 4
 .globaln
-n
+n:
 	.word 0
 
 .p2align 4
 .globalp
-p
+p:
 	.word 0
 
 .p2align 4
 .globalk
-k
+k:
 	.word 0
 
 .p2align 4
 .globali
-i
+i:
 	.word 0
 
 .section.rodata
 .p2align 1
 .global.str.pre_0
-.str.pre_0
+.str.pre_0:
 	.asciz "<< "
 
 .p2align 1
 .global.str.pre_1
-.str.pre_1
+.str.pre_1:
 	.asciz "("
 
 .p2align 1
 .global.str.pre_2
-.str.pre_2
+.str.pre_2:
 	.asciz ") "
 
 .p2align 1
 .global.str.pre_3
-.str.pre_3
+.str.pre_3:
 	.asciz " "
 
 .p2align 1
 .global.str.pre_4
-.str.pre_4
+.str.pre_4:
 	.asciz ">> "
 

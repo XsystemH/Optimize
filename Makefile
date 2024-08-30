@@ -17,3 +17,11 @@ testIR:
 .PHONY: testIRAll
 testIRAll:
 	testcases/codegen/scripts/test_llvm_ir_all_reimu.bash 'java -cp /ulib/antlr-4.13.2-complete.jar:bin Main' testcases/codegen/ ./src/Backend/builtin/builtin.ll
+
+.PHONY: testASM
+testASM:
+	testcases/codegen/scripts/test_asm.bash 'java -cp /ulib/antlr-4.13.2-complete.jar:bin Main' testcases/codegen/e1.mx ./src/Backend/builtin/builtin.s
+
+.PHONY: testASMAll
+testASMAll:
+	testcases/codegen/scripts/test_asm_all.bash 'java -cp /ulib/antlr-4.13.2-complete.jar:bin Main' testcases/codegen/ ./src/Backend/builtin/builtin.s
