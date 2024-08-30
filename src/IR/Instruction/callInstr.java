@@ -37,4 +37,10 @@ public class callInstr extends Instr{
         s.append(")");
         return s.toString();
     }
+
+    @Override
+    public int getSpSize() {
+        if (returnType == null) { return 0; }
+        return 1;
+    }
 }

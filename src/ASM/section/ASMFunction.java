@@ -1,7 +1,5 @@
 package ASM.section;
 
-import ASM.operand.PhysicalReg;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -12,7 +10,6 @@ public class ASMFunction {
     public int curOffset;
 
     public ASMBlock curBlock;
-    public PhysicalReg physicalReg = new PhysicalReg();
 
     public int idxNum = 0;
     public String head;
@@ -30,11 +27,24 @@ public class ASMFunction {
         virtualReg.put(reg, offset);
     }
 
+    public int getVirtualReg(String reg) {
+        return virtualReg.get(reg);
+    }
+
     public void newBlock(String label) {
         ASMBlock block = new ASMBlock();
         block.label = label;
         block.parent = this;
         curBlock = block;
         blocks.add(curBlock);
+    }
+
+    public String getString() {
+        StringBuilder s = new StringBuilder();
+        s.append(".type").append(name).append(", @function\n");
+        for (ASMBlock block : blocks) {
+            s.append(block.getString()).append("\n");
+        }
+        return s.toString();
     }
 }

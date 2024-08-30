@@ -13,4 +13,9 @@ public class storeInstr extends Instr{
     public String getString() {
         return "store " + type.getString() + " " + value.getString() + ", ptr " + ptr.getString();
     }
+
+    @Override
+    public int getSpSize() {
+        return 0;
+    }
 }

@@ -20,4 +20,9 @@ public class binInstr extends Instr {
         return result.getString() + " = " +opName[op.ordinal()] + " " +
                 type.getString() + " " + operand1.getString() + ", " + operand2.getString();
     }
+
+    @Override
+    public int getSpSize() {
+        return 1;
+    }
 }

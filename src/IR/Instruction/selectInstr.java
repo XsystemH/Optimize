@@ -17,4 +17,9 @@ public class selectInstr extends Instr{
         return result.getString() + " = select i1 " + cond.getString() + ", " + ty1.getString() + " " + val1.getString()
                 + ", " + ty2.getString() + " " + val2.getString();
     }
+
+    @Override
+    public int getSpSize() {
+        return 1;
+    }
 }

@@ -3,7 +3,7 @@ package IR.Instruction;
 import IR.Expression.Expr;
 import IR.IRType.IRType;
 
-public class retInstr extends Instr{
+public class retInstr extends Instr {
     public IRType type = null;
     public Expr value;
 
@@ -15,5 +15,10 @@ public class retInstr extends Instr{
         else {
             return "ret " + type.getString() + " " + value.getString();
         }
+    }
+
+    @Override
+    public int getSpSize() {
+        return 0;
     }
 }

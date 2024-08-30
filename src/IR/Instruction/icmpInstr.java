@@ -21,4 +21,9 @@ public class icmpInstr extends Instr{
     public String getString() {
         return result.getString() + " = icmp " + condName[cond.ordinal()] + " " + type.getString() + " " + op1.getString() + ", " + op2.getString();
     }
+
+    @Override
+    public int getSpSize() {
+        return 1;
+    }
 }

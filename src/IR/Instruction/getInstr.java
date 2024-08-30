@@ -20,4 +20,9 @@ public class getInstr extends Instr{
         }
         return str.toString();
     }
+
+    @Override
+    public int getSpSize() {
+        return 1;
+    }
 }

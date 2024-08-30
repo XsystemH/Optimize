@@ -26,6 +26,11 @@ public class RodataSection extends ASMSection {
 
     @Override
     public String getString() {
-        return "";
+        StringBuilder s = new StringBuilder();
+        s.append(".section").append(name).append("\n");
+        for (ASMBlock block : strings) {
+            s.append(block.getString()).append("\n");
+        }
+        return s.toString();
     }
 }

@@ -17,4 +17,9 @@ public class brInstr extends Instr{
             return "br label " + destLabel.getLabel();
         }
     }
+
+    @Override
+    public int getSpSize() {
+        return 0;
+    }
 }

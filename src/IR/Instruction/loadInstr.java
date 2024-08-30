@@ -12,4 +12,9 @@ public class loadInstr extends Instr{
     public String getString() {
         return result.getString() + " = load " + type.getString() + ", ptr " + pointer.getString();
     }
+
+    @Override
+    public int getSpSize() {
+        return 1;
+    }
 }

@@ -11,4 +11,9 @@ public class preStrInstr extends Instr{
     public String getString() {
         return reg.getString() + " = private unnamed_addr constant [" + size + " x i8] c\"" + str + "\\00" + "\"";
     }
+
+    @Override
+    public int getSpSize() {
+        return 0;
+    }
 }

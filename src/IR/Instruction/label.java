@@ -18,6 +18,11 @@ public class label extends Instr{
         return "label_" + info + "_" + num + ":";
     }
 
+    @Override
+    public int getSpSize() {
+        return 0;
+    }
+
     public String getLabel() {
         return "%label_" + info + "_" + num;
     }

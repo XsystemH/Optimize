@@ -11,4 +11,9 @@ public class globalInstr extends Instr{
     public String getString() {
         return result.getString() + " = global " + type.getString()+ " " + type.getDefault();
     }
+
+    @Override
+    public int getSpSize() {
+        return 0;
+    }
 }

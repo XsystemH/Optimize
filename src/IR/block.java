@@ -16,4 +16,13 @@ public class block extends Instr {
         }
         return ret.toString();
     }
+
+    @Override
+    public int getSpSize() {
+        int ret = 0;
+        for (Instr s : instrs) {
+            ret += s.getSpSize();
+        }
+        return ret;
+    }
 }

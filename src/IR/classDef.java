@@ -23,4 +23,9 @@ public class classDef extends Instr {
         s.append(" }\n");
         return s.toString();
     }
+
+    @Override
+    public int getSpSize() {
+        return 0;
+    }
 }
