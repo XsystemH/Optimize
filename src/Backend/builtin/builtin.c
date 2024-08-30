@@ -25,7 +25,7 @@ int *_malloc_array(int size, int length) {
 }
 
 int _arr_size(void* arr) {
-    return ((int*)arr)[-1];
+  return ((int*)arr)[-1];
 }
 
 void *_malloc(int size) {

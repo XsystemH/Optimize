@@ -421,19 +421,14 @@ public class IRBuilder implements ASTVisitor{
             g0.ptr = new thisReg();
             g0.type = new classType(currentScope.isInClass());
             g0.idx.add(new intCons(0));
+            g0.idx.add(new intCons(gScope.getClass(currentScope.isInClass()).idx.get(it.name)));
             g0.result = new resReg(store++);
+            lastExpr = g0.result;
             currentBlock.instrs.add(g0);
-            getInstr g = new getInstr();
-            g.ptr = g0.result;
-            g.type = g0.type;
-            g.idx.add(new intCons(gScope.getClass(currentScope.isInClass()).idx.get(it.name)));
-            g.result = new resReg(store++);
-            lastExpr = g.result;
-            currentBlock.instrs.add(g);
             if (!isLeft) {
                 loadInstr load = new loadInstr();
                 load.type = type2IR(it.type);
-                load.pointer = g.result;
+                load.pointer = g0.result;
                 load.result = new resReg(store++);
                 lastExpr = load.result;
                 currentBlock.instrs.add(load);
@@ -466,7 +461,7 @@ public class IRBuilder implements ASTVisitor{
             isLeft = flag;
             c.paramExpr.add(lastExpr);
         }
-        if (!((ReturnType)it.type).isVoid) {
+        if (!it.type.isVoid) {
             c.returnType = type2IR(it.type);
             c.result = new resReg(store++);
             lastExpr = c.result;
@@ -477,26 +472,21 @@ public class IRBuilder implements ASTVisitor{
     @Override
     public void visit(classMemExprNode it) {
         getInstr g0 = new getInstr();
-        getInstr g1 = new getInstr();
         boolean flag = isLeft;
         isLeft = false;
         it.className.accept(this);
         isLeft = flag;
         g0.ptr = lastExpr;
         g0.idx.add(new intCons(0));
+        g0.idx.add(new intCons(gScope.classes.get(it.className.type.typeName).idx.get(it.memName)));
         g0.type = new classType(it.className.type.typeName);
         g0.result = new resReg(store++);
-        g1.ptr = g0.result;
-        g1.idx.add(new intCons(gScope.classes.get(it.className.type.typeName).idx.get(it.memName)));
-        g1.type = g0.type;
-        g1.result = new resReg(store++);
-        lastExpr = g1.result;
+        lastExpr = g0.result;
         currentBlock.instrs.add(g0);
-        currentBlock.instrs.add(g1);
         if (!isLeft) {
             loadInstr load = new loadInstr();
             load.type = type2IR(it.type);
-            load.pointer = g1.result;
+            load.pointer = g0.result;
             load.result = new resReg(store++);
             lastExpr = load.result;
             currentBlock.instrs.add(load);
@@ -537,7 +527,7 @@ public class IRBuilder implements ASTVisitor{
             isLeft = flag2;
             c.paramExpr.add(lastExpr);
         }
-        if (!((ReturnType)it.type).isVoid) {
+        if (!it.type.isVoid) {
             c.returnType = type2IR(it.type);
             c.result = new resReg(store++);
             lastExpr = c.result;
@@ -552,7 +542,7 @@ public class IRBuilder implements ASTVisitor{
         isLeft = false;
         it.arrayName.accept(this);
         isLeft = flag;
-        g.type = type2IR(it.type);
+        g.type = new ptrType();
         g.ptr = lastExpr;
         boolean temp = isLeft;
         isLeft = false;
@@ -694,7 +684,7 @@ public class IRBuilder implements ASTVisitor{
             call.returnType = new ptrType();
             call.methodName = ".malloc";
             call.paramTypes.add(new IntType(32));
-            call.paramExpr.add(new intCons(c.getSize() + 4));
+            call.paramExpr.add(new intCons(c.getSize()));
             call.result = new resReg(store++);
             lastExpr = call.result;
             currentBlock.instrs.add(call);
