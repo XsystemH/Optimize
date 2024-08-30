@@ -181,7 +181,8 @@ public class IRBuilder implements ASTVisitor{
             currentBlock.instrs.add(st);
         }
         for (StmtNode s : it.body) {
-            s.accept(this);
+            if (s != null)
+                s.accept(this);
         }
         currentBlock = tempBlock;
         currentBlock.instrs.add(temp);
@@ -196,7 +197,8 @@ public class IRBuilder implements ASTVisitor{
         init.instrs.add(new retInstr());
         ((mainFn)currentBlock).init = init;
         for (StmtNode s : it.statements) {
-            s.accept(this);
+            if (s != null)
+                s.accept(this);
         }
         temp.instrs.add(currentBlock);
         currentBlock = temp;
@@ -206,7 +208,8 @@ public class IRBuilder implements ASTVisitor{
     public void visit(blockStmtNode it) {
         currentScope = new Scope(currentScope);
         for (StmtNode s : it.statements) {
-            s.accept(this);
+            if (s != null)
+                s.accept(this);
         }
         currentScope = currentScope.parent;
     }
@@ -265,7 +268,8 @@ public class IRBuilder implements ASTVisitor{
 
         currentBlock.instrs.add(b.trueLabel);
         currentScope = new Scope(currentScope);
-        it.thenBlock.accept(this);
+        if (it.thenBlock != null)
+            it.thenBlock.accept(this);
         currentScope = currentScope.parent;
         brInstr b2 = new brInstr();
         b2.destLabel = skip;
@@ -273,9 +277,8 @@ public class IRBuilder implements ASTVisitor{
 
         currentBlock.instrs.add(b.falseLabel);
         currentScope = new Scope(currentScope);
-        if (it.elseBlock != null) {
+        if (it.elseBlock != null)
             it.elseBlock.accept(this);
-        }
         currentScope = currentScope.parent;
         currentBlock.instrs.add(b2);
         currentBlock.instrs.add(skip);
@@ -335,7 +338,8 @@ public class IRBuilder implements ASTVisitor{
         b.falseLabel = ((loopScope)currentScope).skipLabel;
         currentBlock.instrs.add(b);
         currentBlock.instrs.add(b.trueLabel);
-        it.body.accept(this);
+        if (it.body != null)
+            it.body.accept(this);
         brInstr b3 = new brInstr();
         b3.destLabel = ((loopScope)currentScope).loopLabel;
         currentBlock.instrs.add(b3);

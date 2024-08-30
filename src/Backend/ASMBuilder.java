@@ -7,6 +7,7 @@ import IR.Expression.Expr;
 import IR.Expression.Register.Reg;
 import IR.Instruction.*;
 import IR.funcDef;
+import IR.mainFn;
 
 import java.util.ArrayList;
 
@@ -195,6 +196,11 @@ public class ASMBuilder {
             visitIRInstr(irInstr, func);
         }
         textSection.functions.add(func);
+
+        if (irFunc instanceof mainFn main) {
+            funcNum++;
+            buildFunction(main.init);
+        }
     }
 
     void visitIRInstr(Instr instr, ASMFunction func) {
