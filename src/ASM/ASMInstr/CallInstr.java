@@ -5,6 +5,6 @@ public class CallInstr extends ASMInstr {
 
     @Override
     public String getString() {
-        return func;
+        return "call " + func;
     }
 }

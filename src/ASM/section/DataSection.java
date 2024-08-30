@@ -26,7 +26,7 @@ public class DataSection extends ASMSection{
     @Override
     public String getString() {
         StringBuilder s = new StringBuilder();
-        s.append(".section").append(name).append("\n");
+        s.append(".section ").append(name).append("\n");
         for (ASMBlock block : data) {
             s.append(block.getString()).append("\n");
         }

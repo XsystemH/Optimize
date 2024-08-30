@@ -189,7 +189,7 @@ public class ASMBuilder {
         for (Instr irInstr : irFunc.instrs) {
             if (flag) flag = false;
             else if (irInstr instanceof label la) {
-                func.newBlock(func.head + la.info);
+                func.newBlock(func.head + la.getLabel().substring(1));
                 continue;
             }
             visitIRInstr(irInstr, func);
@@ -294,7 +294,7 @@ public class ASMBuilder {
     public void visitBr(brInstr br, ASMFunction func) {
         if (br.cond == null) {
             JInstr j = new JInstr();
-            j.label = func.head + br.destLabel.getString();
+            j.label = func.head + br.destLabel.getLabel().substring(1);
             func.curBlock.instrs.add(j);
             return;
         }
@@ -302,10 +302,10 @@ public class ASMBuilder {
         BranchInstr bi = new BranchInstr();
         bi.op = "bnez";
         bi.rs1 = "t0";
-        bi.label = func.head + br.trueLabel.getString();
+        bi.label = func.head + br.trueLabel.getLabel().substring(1);
         func.curBlock.instrs.add(bi);
         JInstr j = new JInstr();
-        j.label = func.head + br.falseLabel.getString();
+        j.label = func.head + br.falseLabel.getLabel().substring(1);
         func.curBlock.instrs.add(j);
     }
 

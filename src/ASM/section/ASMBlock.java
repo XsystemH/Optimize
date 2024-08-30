@@ -17,7 +17,7 @@ public class ASMBlock {
             str.append(".p2align ").append(alignSize).append("\n");
         }
         if (isGlobal) {
-            str.append(".global").append(label).append("\n");
+            str.append(".global ").append(label).append("\n");
         }
         str.append(label).append(":\n");
         for (ASMInstr instr : instrs) {

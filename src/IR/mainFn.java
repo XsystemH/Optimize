@@ -8,6 +8,7 @@ public class mainFn extends funcDef {
     public funcDef init;
 
     public mainFn() {
+        name = "main";
         callInstr c = new callInstr();
         c.methodName = ".init";
         instrs.add(c);
