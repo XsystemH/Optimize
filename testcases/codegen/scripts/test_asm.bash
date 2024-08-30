@@ -11,12 +11,12 @@
 # 1. Get an temporary directory
 # 2. Execute <compiler> < <testcase> > "$TEMPDIR/output.s"
 # 3. Get the test.in and test.ans from <testcase> using sed
-# 4. Execute reimu --input-file="$TEMPDIR/test.in" --output-file="$TEMPDIR/test.out" "$TEMPDIR/output.s" [builtin]
+# 4. Execute ravel --input-file="$TEMPDIR/test.in" --output-file="$TEMPDIR/test.out" "$TEMPDIR/output.s" [builtin]
 # 5. Compare the output and exit code
 
 # Usage
 if [ $# -ne 2 ] && [ $# -ne 3 ] && [ $# -ne 4 ]; then
-    cat << EOF >&2 
+    cat << EOF >&2
 Usage: $0 <compiler> <testcase> [builtin] [tempdir]
        The builtin and tempdir are optional. If there are three arguments, the
        script will check whether the third argument is a file. If it is a file,
@@ -41,9 +41,9 @@ if [ ! -f $TESTCASE ]; then
 fi
 source $(dirname $0)/utils.bash
 
-# Test whether reimu is installed
+# Test whether ravel is installed
 # If not installed, please follow the document at
-# <https://github.com/Engineev/reimu>.
+# <https://github.com/Engineev/ravel>.
 # Note: If you just follow the steps in the README, you need to put the last
 # line (export PATH="/usr/local/opt/bin:$PATH") in your .bashrc or .zshrc
 # (depending on which shell you are using).
@@ -125,13 +125,13 @@ if [ $? -ne 0 ]; then
 fi
 EXPECTED_EXIT_CODE=$(grep "ExitCode:" $TESTCASE | awk '{print $2}')
 
-# 4. Execute the code with reimu
-reimu --input-file="$TEMPDIR/test.in" --output-file="$TEMPDIR/test.out" "$TEMPDIR/output.s" $BUILTIN > "$TEMPDIR/reimu_output.txt"
+# 4. Execute the code with ravel
+reimu -i="$TEMPDIR/test.in" -o="$TEMPDIR/test.out" -f="$TEMPDIR/output.s",$BUILTIN -p="$TEMPDIR/ravel_output.txt" --silent
 if [ $? -ne 0 ]; then
     cat << EOF >&2
-Error: Reimu exits with a non-zero value.
+Error: Ravel exits with a non-zero value.
 You may run the following command again to see the error message:
-    Reimu --input-file='$TEMPDIR/test.in' --output-file='$TEMPDIR/test.out' '$TEMPDIR/output.s' $BUILTIN
+  reimu -i="$TEMPDIR/test.in" -o="$TEMPDIR/test.out" -f="$TEMPDIR/output.s",$BUILTIN -p="$TEMPDIR/ravel_output.txt" --silent
 EOF
     print_temp_dir
     exit 1
@@ -145,7 +145,7 @@ if [ $? -ne 0 ]; then
     print_temp_dir
     HAS_PROBLEM=1
 fi
-EXIT_CODE=$(grep 'exit code' "$TEMPDIR/reimu_output.txt" | awk '{print $3}')
+EXIT_CODE=$(grep 'exit code' "$TEMPDIR/ravel_output.txt" | awk '{print $3}')
 if [ $EXIT_CODE -ne $EXPECTED_EXIT_CODE ]; then
     echo "Error: Exit code mismatch." >&2
     print_temp_dir

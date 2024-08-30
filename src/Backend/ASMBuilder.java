@@ -10,6 +10,7 @@ import IR.funcDef;
 import IR.mainFn;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ASMBuilder {
     public static final int regSize = 36;
@@ -55,7 +56,9 @@ public class ASMBuilder {
             return instrs;
         }
         ImmInstr im = new ImmInstr();
-        im.opType = op;
+        if (Objects.equals(op, "sltu"))
+            im.opType = "sltiu";
+        else im.opType = op + "i";
         im.rd = rd;
         im.rs = rs;
         im.imm = imm;
@@ -164,11 +167,11 @@ public class ASMBuilder {
 
         ASMBlock block = new ASMBlock();
         block.label = irFunc.name;
-        block.isGlobal = true;
-        block.alignSize = 2;
+        block.isGlobal = false;
+        block.alignSize = 0;
         block.parent = func;
         func.curBlock = block;
-        func.blocks.add(block);
+        func.blocks.add(func.curBlock);
 
         func.idxNum = funcNum;
         func.head = "B" + funcNum + ".";
@@ -377,7 +380,7 @@ public class ASMBuilder {
                 ar1.rs2 = "t2";
                 func.curBlock.instrs.add(ar1);
                 ImmInstr ar2 = new ImmInstr();
-                ar2.opType = "sltu";
+                ar2.opType = "sltiu";
                 ar2.rd = "t0";
                 ar2.rs = "t3";
                 ar2.imm = 1;
@@ -391,7 +394,7 @@ public class ASMBuilder {
                 ar1.rs2 = "t2";
                 func.curBlock.instrs.add(ar1);
                 ImmInstr ar2 = new ImmInstr();
-                ar2.opType = "sltu";
+                ar2.opType = "sltiu";
                 ar2.rd = "t3";
                 ar2.rs = "t3";
                 ar2.imm = 1;
@@ -419,7 +422,7 @@ public class ASMBuilder {
                 ar1.rs2 = "t1";
                 func.curBlock.instrs.add(ar1);
                 ImmInstr ar2 = new ImmInstr();
-                ar2.opType = "xor";
+                ar2.opType = "xori";
                 ar2.rd = "t0";
                 ar2.rs = "t0";
                 ar2.imm = 1;
@@ -441,7 +444,7 @@ public class ASMBuilder {
                 ar1.rs2 = "t2";
                 func.curBlock.instrs.add(ar1);
                 ImmInstr ar2 = new ImmInstr();
-                ar2.opType = "slt";
+                ar2.opType = "slti";
                 ar2.rd = "t0";
                 ar2.rs = "t0";
                 ar2.imm = 1;
@@ -469,7 +472,7 @@ public class ASMBuilder {
         }
         func.curBlock.instrs.addAll(Lw("ra", 0, "sp"));
         ImmInstr imm = new ImmInstr();
-        imm.opType = "add";
+        imm.opType = "addi";
         imm.rd = "sp";
         imm.rs = "sp";
         imm.imm = func.spOffset;

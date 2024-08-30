@@ -20,7 +20,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
 //        System.out.println("Hello Compiler!");
 
-//        String filename = "testcases/sema/scope-package/scope-2.mx";
+//        String filename = "testcases/codegen/e1.mx";
 //        InputStream input = new FileInputStream(filename);
 //        OutputStream output = new FileOutputStream("output.s");
         InputStream input = System.in;

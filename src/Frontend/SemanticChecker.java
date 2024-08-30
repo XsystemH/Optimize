@@ -510,9 +510,9 @@ public class SemanticChecker implements ASTVisitor {
             if (contentType.isEmptyArray) {
                 contentType = cons.type;
             }
-            if (!cons.type.isEqual(contentType) && !cons.type.isEmptyArray) {
-                throw new semanticError("Type Mismatch", it.pos);
-            }
+//            if (!cons.type.isEqual(contentType) && !cons.type.isEmptyArray) {
+//                throw new semanticError("Type Mismatch", it.pos);
+//            }
         }
         if (contentType == null) {
             contentType = new Type();
