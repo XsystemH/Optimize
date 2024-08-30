@@ -167,8 +167,8 @@ public class ASMBuilder {
 
         ASMBlock block = new ASMBlock();
         block.label = irFunc.name;
-        block.isGlobal = false;
-        block.alignSize = 0;
+        block.isGlobal = true;
+        block.alignSize = 2;
         block.parent = func;
         func.curBlock = block;
         func.blocks.add(func.curBlock);

@@ -12,7 +12,7 @@ testsema:
 
 .PHONY: testIR
 testIR:
-	testcases/codegen/scripts/test_llvm_ir_reimu.bash 'java -cp /ulib/antlr-4.13.2-complete.jar:bin Main' testcases/codegen/t60.mx ./src/Backend/builtin/builtin.ll
+	testcases/codegen/scripts/test_llvm_ir_reimu.bash 'java -cp /ulib/antlr-4.13.2-complete.jar:bin Main' testcases/codegen/e1.mx ./src/Backend/builtin/builtin.ll
 
 .PHONY: testIRAll
 testIRAll:
@@ -20,7 +20,7 @@ testIRAll:
 
 .PHONY: testASM
 testASM:
-	testcases/codegen/scripts/test_asm.bash 'java -cp /ulib/antlr-4.13.2-complete.jar:bin Main' testcases/codegen/e1.mx ./src/Backend/builtin/builtin.s
+	testcases/codegen/scripts/test_asm.bash 'java -cp /ulib/antlr-4.13.2-complete.jar:bin Main' test.mx ./src/Backend/builtin/builtin.s
 
 .PHONY: testASMAll
 testASMAll:

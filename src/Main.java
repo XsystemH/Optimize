@@ -22,7 +22,7 @@ public class Main {
 
 //        String filename = "testcases/codegen/e1.mx";
 //        InputStream input = new FileInputStream(filename);
-//        OutputStream output = new FileOutputStream("output.s");
+//        OutputStream output = new FileOutputStream("output.ll");
         InputStream input = System.in;
         OutputStream output = System.out;
         //input 设置为标准输入
@@ -43,6 +43,7 @@ public class Main {
             irBuilder.visit(ast);
 //            output.write(irBuilder.strPreDef.getString().getBytes(StandardCharsets.UTF_8));
 //            output.write(irBuilder.program.getString().getBytes(StandardCharsets.UTF_8));
+            irBuilder.strPreDef.getString();
             irBuilder.program.getString();
             ASMBuilder asmBuilder = new ASMBuilder(irBuilder);
             asmBuilder.visitProgram();

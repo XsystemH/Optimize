@@ -1,5 +1,7 @@
-.section .text
+.text
 .type main, @function
+.global main
+.align 2
 main:
 	addi sp, sp, -176
 	sw ra, 0(sp)
@@ -225,6 +227,7 @@ B1.label_skip_17:
 	ret
 
 
+.global .init
 .type .init, @function
 .init:
 	addi sp, sp, -48
