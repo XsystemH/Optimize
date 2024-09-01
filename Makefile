@@ -4,7 +4,7 @@ build:
 
 .PHONY: run
 run:
-	cd bin && java -cp /ulib/antlr-4.13.2-complete.jar:. Main
+	cd bin && java -cp /ulib/antlr-4.13.2-complete.jar:. Main && cat ../src/Backend/builtin/builtin.s
 
 .PHONY: testsema
 testsema:
@@ -20,8 +20,8 @@ testIRAll:
 
 .PHONY: testASM
 testASM:
-	testcases/codegen/scripts/test_asm.bash 'java -cp /ulib/antlr-4.13.2-complete.jar:bin Main' testcases/codegen/t64.mx ./src/Backend/builtin/builtin.s
+	testcases/codegen/scripts/test_asm.bash 'java -cp /ulib/antlr-4.13.2-complete.jar:bin Main' testcases/codegen/t64.mx
 
 .PHONY: testASMAll
 testASMAll:
-	testcases/codegen/scripts/test_asm_all.bash 'java -cp /ulib/antlr-4.13.2-complete.jar:bin Main' testcases/codegen/ ./src/Backend/builtin/builtin.s
+	testcases/codegen/scripts/test_asm_all.bash 'java -cp /ulib/antlr-4.13.2-complete.jar:bin Main' testcases/codegen/

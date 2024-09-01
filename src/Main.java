@@ -11,7 +11,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import util.MxErrorListener;
 import util.Scope.globalScope;
 import util.error.error;
-import util.error.semanticError;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -20,7 +19,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
 //        System.out.println("Hello Compiler!");
 
-//        String filename = "test.mx";
+//        String filename = "testcases/sema/array-package/array-1.mx";
 //        InputStream input = new FileInputStream(filename);
 //        OutputStream output = new FileOutputStream("output.s");
         InputStream input = System.in;
@@ -45,12 +44,6 @@ public class Main {
 //            output.write(irBuilder.program.getString().getBytes(StandardCharsets.UTF_8));
             irBuilder.strPreDef.getString();
             irBuilder.program.getString();
-            String builtin = "src/Backend/builtin/builtin.s";
-            BufferedReader reader = new BufferedReader(new FileReader(builtin));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
             ASMBuilder asmBuilder = new ASMBuilder(irBuilder);
             asmBuilder.visitProgram();
             output.write(asmBuilder.getString().getBytes(StandardCharsets.UTF_8));

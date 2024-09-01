@@ -1,71 +1,427 @@
-.text
-.type check, @function
-.p2align 2
-.globl check
-check:
-	addi sp, sp, -96
-	sw ra, 0(sp)
-	sw a0, 4(sp)
-	sw a1, 8(sp)
-	addi t5, sp, 16
-	sw t5, 12(sp)
-	addi t5, sp, 24
-	sw t5, 20(sp)
-	addi t5, sp, 32
-	sw t5, 28(sp)
-	lw t0, 4(sp)
-	lw t1, 12(sp)
-	sw t0, 0(t1)
-	lw t0, 8(sp)
-	lw t1, 20(sp)
-	sw t0, 0(t1)
-	lw t0, 12(sp)
-	lw t1, 0(t0)
-	sw t1, 36(sp)
-	lw t0, 20(sp)
-	lw t1, 0(t0)
-	sw t1, 40(sp)
-	lw t1, 36(sp)
-	lw t2, 40(sp)
-	slt t0, t1, t2
-	sw t0, 44(sp)
-	lw t0, 44(sp)
-	lw t1, 28(sp)
-	sw t0, 0(t1)
-	lw t0, 44(sp)
-	bnez t0, B1.label_logicT_0
-	j B1.label_logicF_1
-
-B1.label_logicT_0:
-	lw t0, 12(sp)
-	lw t1, 0(t0)
-	sw t1, 48(sp)
-	lw t1, 48(sp)
-	li t2, 0
-	slt t0, t1, t2
-	xori t0, t0, 1
-	sw t0, 52(sp)
-	lw t0, 52(sp)
-	lw t1, 28(sp)
-	sw t0, 0(t1)
-	j B1.label_logicF_1
-
-B1.label_logicF_1:
-	lw t0, 28(sp)
-	lw t1, 0(t0)
-	sw t1, 56(sp)
-	lw a0, 56(sp)
-	lw ra, 0(sp)
-	addi sp, sp, 96
+	.text
+	.attribute	4, 16
+	.attribute	5, "rv32i2p1_m2p0_a2p1_c2p0"
+	.file	"builtin.c"
+	.globl	print                           # -- Begin function print
+	.p2align	1
+	.type	print,@function
+print:                                  # @print
+# %bb.0:
+	mv	a1, a0
+	lui	a0, %hi(.L.str)
+	addi	a0, a0, %lo(.L.str)
+	tail	printf
+.Lfunc_end0:
+	.size	print, .Lfunc_end0-print
+                                        # -- End function
+	.globl	println                         # -- Begin function println
+	.p2align	1
+	.type	println,@function
+println:                                # @println
+# %bb.0:
+	mv	a1, a0
+	lui	a0, %hi(.L.str.1)
+	addi	a0, a0, %lo(.L.str.1)
+	tail	printf
+.Lfunc_end1:
+	.size	println, .Lfunc_end1-println
+                                        # -- End function
+	.globl	printInt                        # -- Begin function printInt
+	.p2align	1
+	.type	printInt,@function
+printInt:                               # @printInt
+# %bb.0:
+	mv	a1, a0
+	lui	a0, %hi(.L.str.2)
+	addi	a0, a0, %lo(.L.str.2)
+	tail	printf
+.Lfunc_end2:
+	.size	printInt, .Lfunc_end2-printInt
+                                        # -- End function
+	.globl	printlnInt                      # -- Begin function printlnInt
+	.p2align	1
+	.type	printlnInt,@function
+printlnInt:                             # @printlnInt
+# %bb.0:
+	mv	a1, a0
+	lui	a0, %hi(.L.str.3)
+	addi	a0, a0, %lo(.L.str.3)
+	tail	printf
+.Lfunc_end3:
+	.size	printlnInt, .Lfunc_end3-printlnInt
+                                        # -- End function
+	.globl	.malloc_array                   # -- Begin function .malloc_array
+	.p2align	1
+	.type	.malloc_array,@function
+.malloc_array:                          # @.malloc_array
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	sw	a1, 8(sp)                       # 4-byte Folded Spill
+	mul	a0, a1, a0
+	addi	a0, a0, 4
+	call	malloc
+	lw	a1, 8(sp)                       # 4-byte Folded Reload
+	sw	a1, 0(a0)
+	addi	a0, a0, 4
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	addi	sp, sp, 16
 	ret
+.Lfunc_end4:
+	.size	.malloc_array, .Lfunc_end4-.malloc_array
+                                        # -- End function
+	.globl	.arr.size                       # -- Begin function .arr.size
+	.p2align	1
+	.type	.arr.size,@function
+.arr.size:                              # @.arr.size
+# %bb.0:
+	lw	a0, -4(a0)
+	ret
+.Lfunc_end5:
+	.size	.arr.size, .Lfunc_end5-.arr.size
+                                        # -- End function
+	.globl	.malloc                         # -- Begin function .malloc
+	.p2align	1
+	.type	.malloc,@function
+.malloc:                                # @.malloc
+# %bb.0:
+	tail	malloc
+.Lfunc_end6:
+	.size	.malloc, .Lfunc_end6-.malloc
+                                        # -- End function
+	.globl	getString                       # -- Begin function getString
+	.p2align	1
+	.type	getString,@function
+getString:                              # @getString
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	li	a0, 256
+	call	malloc
+	mv	a1, a0
+	sw	a1, 8(sp)                       # 4-byte Folded Spill
+	lui	a0, %hi(.L.str)
+	addi	a0, a0, %lo(.L.str)
+	call	scanf
+                                        # kill: def $x11 killed $x10
+	lw	a0, 8(sp)                       # 4-byte Folded Reload
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+.Lfunc_end7:
+	.size	getString, .Lfunc_end7-getString
+                                        # -- End function
+	.globl	getInt                          # -- Begin function getInt
+	.p2align	1
+	.type	getInt,@function
+getInt:                                 # @getInt
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	lui	a0, %hi(.L.str.2)
+	addi	a0, a0, %lo(.L.str.2)
+	addi	a1, sp, 8
+	call	scanf
+	lw	a0, 8(sp)
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+.Lfunc_end8:
+	.size	getInt, .Lfunc_end8-getInt
+                                        # -- End function
+	.globl	toString                        # -- Begin function toString
+	.p2align	1
+	.type	toString,@function
+toString:                               # @toString
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	sw	a0, 4(sp)                       # 4-byte Folded Spill
+	li	a0, 12
+	call	malloc
+	lw	a2, 4(sp)                       # 4-byte Folded Reload
+	sw	a0, 8(sp)                       # 4-byte Folded Spill
+	lui	a1, %hi(.L.str.2)
+	addi	a1, a1, %lo(.L.str.2)
+	call	sprintf
+                                        # kill: def $x11 killed $x10
+	lw	a0, 8(sp)                       # 4-byte Folded Reload
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+.Lfunc_end9:
+	.size	toString, .Lfunc_end9-toString
+                                        # -- End function
+	.globl	.str.length                     # -- Begin function .str.length
+	.p2align	1
+	.type	.str.length,@function
+.str.length:                            # @.str.length
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	sw	a0, 4(sp)                       # 4-byte Folded Spill
+	li	a1, 0
+	sw	a1, 8(sp)                       # 4-byte Folded Spill
+	beqz	a0, .LBB10_2
+	j	.LBB10_1
+.LBB10_1:
+	lw	a0, 4(sp)                       # 4-byte Folded Reload
+	call	strlen
+	sw	a0, 8(sp)                       # 4-byte Folded Spill
+	j	.LBB10_2
+.LBB10_2:
+	lw	a0, 8(sp)                       # 4-byte Folded Reload
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+.Lfunc_end10:
+	.size	.str.length, .Lfunc_end10-.str.length
+                                        # -- End function
+	.globl	.str.add                        # -- Begin function .str.add
+	.p2align	1
+	.type	.str.add,@function
+.str.add:                               # @.str.add
+# %bb.0:
+	addi	sp, sp, -48
+	sw	ra, 44(sp)                      # 4-byte Folded Spill
+	sw	a1, 32(sp)                      # 4-byte Folded Spill
+	sw	a0, 36(sp)                      # 4-byte Folded Spill
+	li	a1, 0
+	sw	a1, 40(sp)                      # 4-byte Folded Spill
+	beqz	a0, .LBB11_2
+	j	.LBB11_1
+.LBB11_1:
+	lw	a0, 36(sp)                      # 4-byte Folded Reload
+	call	strlen
+	sw	a0, 40(sp)                      # 4-byte Folded Spill
+	j	.LBB11_2
+.LBB11_2:
+	lw	a0, 32(sp)                      # 4-byte Folded Reload
+	lw	a1, 40(sp)                      # 4-byte Folded Reload
+	sw	a1, 24(sp)                      # 4-byte Folded Spill
+	li	a1, 0
+	sw	a1, 28(sp)                      # 4-byte Folded Spill
+	beqz	a0, .LBB11_4
+	j	.LBB11_3
+.LBB11_3:
+	lw	a0, 32(sp)                      # 4-byte Folded Reload
+	call	strlen
+	sw	a0, 28(sp)                      # 4-byte Folded Spill
+	j	.LBB11_4
+.LBB11_4:
+	lw	a1, 24(sp)                      # 4-byte Folded Reload
+	lw	a0, 28(sp)                      # 4-byte Folded Reload
+	sw	a0, 12(sp)                      # 4-byte Folded Spill
+	add	a0, a0, a1
+	sw	a0, 16(sp)                      # 4-byte Folded Spill
+	addi	a0, a0, 1
+	call	malloc
+	lw	a1, 36(sp)                      # 4-byte Folded Reload
+	lw	a2, 24(sp)                      # 4-byte Folded Reload
+	sw	a0, 20(sp)                      # 4-byte Folded Spill
+	call	memcpy
+	lw	a3, 24(sp)                      # 4-byte Folded Reload
+	lw	a1, 32(sp)                      # 4-byte Folded Reload
+	lw	a2, 12(sp)                      # 4-byte Folded Reload
+                                        # kill: def $x14 killed $x10
+	lw	a0, 20(sp)                      # 4-byte Folded Reload
+	add	a0, a0, a3
+	call	memcpy
+	lw	a1, 16(sp)                      # 4-byte Folded Reload
+                                        # kill: def $x12 killed $x10
+	lw	a0, 20(sp)                      # 4-byte Folded Reload
+	add	a2, a0, a1
+	li	a1, 0
+	sb	a1, 0(a2)
+	lw	ra, 44(sp)                      # 4-byte Folded Reload
+	addi	sp, sp, 48
+	ret
+.Lfunc_end11:
+	.size	.str.add, .Lfunc_end11-.str.add
+                                        # -- End function
+	.globl	.str.eq                         # -- Begin function .str.eq
+	.p2align	1
+	.type	.str.eq,@function
+.str.eq:                                # @.str.eq
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	call	strcmp
+	seqz	a0, a0
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+.Lfunc_end12:
+	.size	.str.eq, .Lfunc_end12-.str.eq
+                                        # -- End function
+	.globl	.str.ne                         # -- Begin function .str.ne
+	.p2align	1
+	.type	.str.ne,@function
+.str.ne:                                # @.str.ne
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	call	strcmp
+	snez	a0, a0
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+.Lfunc_end13:
+	.size	.str.ne, .Lfunc_end13-.str.ne
+                                        # -- End function
+	.globl	.str.lt                         # -- Begin function .str.lt
+	.p2align	1
+	.type	.str.lt,@function
+.str.lt:                                # @.str.lt
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	call	strcmp
+	srli	a0, a0, 31
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+.Lfunc_end14:
+	.size	.str.lt, .Lfunc_end14-.str.lt
+                                        # -- End function
+	.globl	.str.le                         # -- Begin function .str.le
+	.p2align	1
+	.type	.str.le,@function
+.str.le:                                # @.str.le
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	call	strcmp
+	slti	a0, a0, 1
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+.Lfunc_end15:
+	.size	.str.le, .Lfunc_end15-.str.le
+                                        # -- End function
+	.globl	.str.gt                         # -- Begin function .str.gt
+	.p2align	1
+	.type	.str.gt,@function
+.str.gt:                                # @.str.gt
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	call	strcmp
+	mv	a1, a0
+	li	a0, 0
+	slt	a0, a0, a1
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+.Lfunc_end16:
+	.size	.str.gt, .Lfunc_end16-.str.gt
+                                        # -- End function
+	.globl	.str.ge                         # -- Begin function .str.ge
+	.p2align	1
+	.type	.str.ge,@function
+.str.ge:                                # @.str.ge
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	call	strcmp
+	not	a0, a0
+	srli	a0, a0, 31
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+.Lfunc_end17:
+	.size	.str.ge, .Lfunc_end17-.str.ge
+                                        # -- End function
+	.globl	.str.substr                     # -- Begin function .str.substr
+	.p2align	1
+	.type	.str.substr,@function
+.str.substr:                            # @.str.substr
+# %bb.0:
+	addi	sp, sp, -32
+	sw	ra, 28(sp)                      # 4-byte Folded Spill
+	sw	a1, 12(sp)                      # 4-byte Folded Spill
+	sw	a0, 16(sp)                      # 4-byte Folded Spill
+	sub	a0, a2, a1
+	sw	a0, 20(sp)                      # 4-byte Folded Spill
+	addi	a0, a0, 1
+	call	malloc
+	lw	a3, 12(sp)                      # 4-byte Folded Reload
+	lw	a1, 16(sp)                      # 4-byte Folded Reload
+	lw	a2, 20(sp)                      # 4-byte Folded Reload
+	sw	a0, 24(sp)                      # 4-byte Folded Spill
+	add	a1, a1, a3
+	call	memcpy
+	lw	a1, 20(sp)                      # 4-byte Folded Reload
+                                        # kill: def $x12 killed $x10
+	lw	a0, 24(sp)                      # 4-byte Folded Reload
+	add	a2, a0, a1
+	li	a1, 0
+	sb	a1, 0(a2)
+	lw	ra, 28(sp)                      # 4-byte Folded Reload
+	addi	sp, sp, 32
+	ret
+.Lfunc_end18:
+	.size	.str.substr, .Lfunc_end18-.str.substr
+                                        # -- End function
+	.globl	.str.parseInt                   # -- Begin function .str.parseInt
+	.p2align	1
+	.type	.str.parseInt,@function
+.str.parseInt:                          # @.str.parseInt
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	lui	a1, %hi(.L.str.2)
+	addi	a1, a1, %lo(.L.str.2)
+	addi	a2, sp, 8
+	call	sscanf
+	lw	a0, 8(sp)
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+.Lfunc_end19:
+	.size	.str.parseInt, .Lfunc_end19-.str.parseInt
+                                        # -- End function
+	.globl	.str.ord                        # -- Begin function .str.ord
+	.p2align	1
+	.type	.str.ord,@function
+.str.ord:                               # @.str.ord
+# %bb.0:
+	add	a0, a0, a1
+	lbu	a0, 0(a0)
+	ret
+.Lfunc_end20:
+	.size	.str.ord, .Lfunc_end20-.str.ord
+                                        # -- End function
+	.type	.L.str,@object                  # @.str
+	.section	.rodata.str1.1,"aMS",@progbits,1
+.L.str:
+	.asciz	"%s"
+	.size	.L.str, 3
 
+	.type	.L.str.1,@object                # @.str.1
+.L.str.1:
+	.asciz	"%s\n"
+	.size	.L.str.1, 4
 
+	.type	.L.str.2,@object                # @.str.2
+.L.str.2:
+	.asciz	"%d"
+	.size	.L.str.2, 3
+
+	.type	.L.str.3,@object                # @.str.3
+.L.str.3:
+	.asciz	"%d\n"
+	.size	.L.str.3, 4
+
+	.ident	"Ubuntu clang version 18.1.8 (++20240731024944+3b5b5c1ec4a3-1~exp1~20240731145000.144)"
+	.section	".note.GNU-stack","",@progbits
+	.addrsig
+.text
 .type main, @function
 .p2align 2
 .globl main
 main:
-	li t6, -2432
-	add sp, sp, t6
+	addi sp, sp, -992
 	sw ra, 0(sp)
 	addi t5, sp, 8
 	sw t5, 4(sp)
@@ -85,3169 +441,1097 @@ main:
 	sw t5, 60(sp)
 	addi t5, sp, 72
 	sw t5, 68(sp)
-	addi t5, sp, 80
-	sw t5, 76(sp)
-	addi t5, sp, 88
-	sw t5, 84(sp)
-	addi t5, sp, 96
-	sw t5, 92(sp)
-	addi t5, sp, 104
-	sw t5, 100(sp)
-	addi t5, sp, 112
-	sw t5, 108(sp)
-	addi t5, sp, 120
-	sw t5, 116(sp)
-	addi t5, sp, 128
-	sw t5, 124(sp)
-	addi t5, sp, 136
-	sw t5, 132(sp)
-	addi t5, sp, 144
-	sw t5, 140(sp)
-	addi t5, sp, 152
-	sw t5, 148(sp)
-	addi t5, sp, 160
-	sw t5, 156(sp)
-	addi t5, sp, 168
-	sw t5, 164(sp)
-	addi t5, sp, 176
-	sw t5, 172(sp)
-	addi t5, sp, 184
-	sw t5, 180(sp)
-	addi t5, sp, 192
-	sw t5, 188(sp)
-	addi t5, sp, 200
-	sw t5, 196(sp)
-	addi t5, sp, 208
-	sw t5, 204(sp)
-	addi t5, sp, 216
-	sw t5, 212(sp)
-	addi t5, sp, 224
-	sw t5, 220(sp)
-	addi t5, sp, 232
-	sw t5, 228(sp)
-	addi t5, sp, 240
-	sw t5, 236(sp)
-	addi t5, sp, 248
-	sw t5, 244(sp)
-	addi t5, sp, 256
-	sw t5, 252(sp)
-	addi t5, sp, 264
-	sw t5, 260(sp)
-	addi t5, sp, 272
-	sw t5, 268(sp)
-	addi t5, sp, 280
-	sw t5, 276(sp)
-	addi t5, sp, 288
-	sw t5, 284(sp)
-	addi t5, sp, 296
-	sw t5, 292(sp)
-	addi t5, sp, 304
-	sw t5, 300(sp)
-	addi t5, sp, 312
-	sw t5, 308(sp)
-	addi t5, sp, 320
-	sw t5, 316(sp)
 	call .init
-	call getInt
-	sw a0, 324(sp)
-	lw t0, 324(sp)
-	lw t1, 4(sp)
-	sw t0, 0(t1)
+	li a0, 4
+	li a1, 5
+	call .malloc_array
+	sw a0, 76(sp)
 	li t0, 0
 	lw t1, 12(sp)
 	sw t0, 0(t1)
-	li t0, 0
-	lw t1, 52(sp)
+	j B1.label_loop_0
+
+B1.label_loop_0:
+	lw t0, 12(sp)
+	lw t1, 0(t0)
+	sw t1, 80(sp)
+	lw t1, 80(sp)
+	li t2, 5
+	slt t0, t1, t2
+	sw t0, 84(sp)
+	lw t0, 84(sp)
+	bnez t0, B1.label_body_2
+	j B1.label_skip_1
+
+B1.label_body_2:
+	lw t0, 76(sp)
+	lw t1, 80(sp)
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 88(sp)
+	lw t1, 80(sp)
+	li t2, 1
+	add t0, t1, t2
+	sw t0, 92(sp)
+	lw t0, 92(sp)
+	lw t1, 12(sp)
 	sw t0, 0(t1)
-	li t0, 0
-	lw t1, 20(sp)
+	li a0, 4
+	li a1, 5
+	call .malloc_array
+	sw a0, 96(sp)
+	lw t0, 96(sp)
+	lw t1, 88(sp)
 	sw t0, 0(t1)
+	j B1.label_loop_0
+
+B1.label_skip_1:
+	lw t0, 76(sp)
+	lw t1, 4(sp)
+	sw t0, 0(t1)
+	li a0, 4
+	li a1, 5
+	call .malloc_array
+	sw a0, 100(sp)
 	li t0, 0
 	lw t1, 28(sp)
 	sw t0, 0(t1)
-	lw t0, 4(sp)
+	j B1.label_loop_3
+
+B1.label_loop_3:
+	lw t0, 28(sp)
 	lw t1, 0(t0)
-	sw t1, 328(sp)
-	lw t1, 328(sp)
+	sw t1, 104(sp)
+	lw t1, 104(sp)
+	li t2, 5
+	slt t0, t1, t2
+	sw t0, 108(sp)
+	lw t0, 108(sp)
+	bnez t0, B1.label_body_5
+	j B1.label_skip_4
+
+B1.label_body_5:
+	lw t0, 100(sp)
+	lw t1, 104(sp)
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 112(sp)
+	lw t1, 104(sp)
 	li t2, 1
-	sub t0, t1, t2
-	sw t0, 332(sp)
-	lw t0, 332(sp)
+	add t0, t1, t2
+	sw t0, 116(sp)
+	lw t0, 116(sp)
+	lw t1, 28(sp)
+	sw t0, 0(t1)
+	li a0, 4
+	li a1, 5
+	call .malloc_array
+	sw a0, 120(sp)
+	lw t0, 120(sp)
+	lw t1, 112(sp)
+	sw t0, 0(t1)
+	j B1.label_loop_3
+
+B1.label_skip_4:
+	lw t0, 100(sp)
+	lw t1, 20(sp)
+	sw t0, 0(t1)
+	li a0, 4
+	li a1, 5
+	call .malloc_array
+	sw a0, 124(sp)
+	li t0, 0
+	lw t1, 44(sp)
+	sw t0, 0(t1)
+	j B1.label_loop_6
+
+B1.label_loop_6:
+	lw t0, 44(sp)
+	lw t1, 0(t0)
+	sw t1, 128(sp)
+	lw t1, 128(sp)
+	li t2, 5
+	slt t0, t1, t2
+	sw t0, 132(sp)
+	lw t0, 132(sp)
+	bnez t0, B1.label_body_8
+	j B1.label_skip_7
+
+B1.label_body_8:
+	lw t0, 124(sp)
+	lw t1, 128(sp)
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 136(sp)
+	lw t1, 128(sp)
+	li t2, 1
+	add t0, t1, t2
+	sw t0, 140(sp)
+	lw t0, 140(sp)
+	lw t1, 44(sp)
+	sw t0, 0(t1)
+	li a0, 4
+	li a1, 5
+	call .malloc_array
+	sw a0, 144(sp)
+	lw t0, 144(sp)
+	lw t1, 136(sp)
+	sw t0, 0(t1)
+	j B1.label_loop_6
+
+B1.label_skip_7:
+	lw t0, 124(sp)
 	lw t1, 36(sp)
 	sw t0, 0(t1)
 	lw t0, 4(sp)
 	lw t1, 0(t0)
-	sw t1, 336(sp)
-	lw t1, 336(sp)
-	li t2, 1
-	sub t0, t1, t2
-	sw t0, 340(sp)
-	lw t0, 340(sp)
-	lw t1, 44(sp)
-	sw t0, 0(t1)
-	li t0, 0
-	lw t1, 76(sp)
-	sw t0, 0(t1)
-	li t0, 0
-	lw t1, 84(sp)
-	sw t0, 0(t1)
-	li t0, 0
-	lw t1, 68(sp)
-	sw t0, 0(t1)
-	li t0, 0
-	lw t1, 60(sp)
+	sw t1, 148(sp)
+	lw t0, 148(sp)
+	li t1, 1
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 152(sp)
+	lw t0, 152(sp)
+	lw t1, 0(t0)
+	sw t1, 156(sp)
+	lw t0, 156(sp)
+	li t1, 1
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 160(sp)
+	li t0, 1
+	lw t1, 160(sp)
 	sw t0, 0(t1)
 	lw t0, 4(sp)
 	lw t1, 0(t0)
-	sw t1, 344(sp)
+	sw t1, 164(sp)
+	lw t0, 164(sp)
+	li t1, 1
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 168(sp)
+	lw t0, 168(sp)
+	lw t1, 0(t0)
+	sw t1, 172(sp)
+	lw t0, 172(sp)
+	li t1, 2
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 176(sp)
+	li t0, 1
+	lw t1, 176(sp)
+	sw t0, 0(t1)
 	lw t0, 4(sp)
+	lw t1, 0(t0)
+	sw t1, 180(sp)
+	lw t0, 180(sp)
+	li t1, 1
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 184(sp)
+	lw t0, 184(sp)
+	lw t1, 0(t0)
+	sw t1, 188(sp)
+	lw t0, 188(sp)
+	li t1, 3
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 192(sp)
+	li t0, 1
+	lw t1, 192(sp)
+	sw t0, 0(t1)
+	lw t0, 4(sp)
+	lw t1, 0(t0)
+	sw t1, 196(sp)
+	lw t0, 196(sp)
+	li t1, 1
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 200(sp)
+	lw t0, 200(sp)
+	lw t1, 0(t0)
+	sw t1, 204(sp)
+	lw t0, 204(sp)
+	li t1, 4
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 208(sp)
+	li t0, 1
+	lw t1, 208(sp)
+	sw t0, 0(t1)
+	lw t0, 4(sp)
+	lw t1, 0(t0)
+	sw t1, 212(sp)
+	lw t0, 212(sp)
+	li t1, 2
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 216(sp)
+	lw t0, 216(sp)
+	lw t1, 0(t0)
+	sw t1, 220(sp)
+	lw t0, 220(sp)
+	li t1, 1
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 224(sp)
+	li t0, 0
+	lw t1, 224(sp)
+	sw t0, 0(t1)
+	lw t0, 4(sp)
+	lw t1, 0(t0)
+	sw t1, 228(sp)
+	lw t0, 228(sp)
+	li t1, 2
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 232(sp)
+	lw t0, 232(sp)
+	lw t1, 0(t0)
+	sw t1, 236(sp)
+	lw t0, 236(sp)
+	li t1, 2
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 240(sp)
+	li t0, 1
+	lw t1, 240(sp)
+	sw t0, 0(t1)
+	lw t0, 4(sp)
+	lw t1, 0(t0)
+	sw t1, 244(sp)
+	lw t0, 244(sp)
+	li t1, 2
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 248(sp)
+	lw t0, 248(sp)
+	lw t1, 0(t0)
+	sw t1, 252(sp)
+	lw t0, 252(sp)
+	li t1, 3
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 256(sp)
+	li t0, 3
+	lw t1, 256(sp)
+	sw t0, 0(t1)
+	lw t0, 4(sp)
+	lw t1, 0(t0)
+	sw t1, 260(sp)
+	lw t0, 260(sp)
+	li t1, 2
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 264(sp)
+	lw t0, 264(sp)
+	lw t1, 0(t0)
+	sw t1, 268(sp)
+	lw t0, 268(sp)
+	li t1, 4
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 272(sp)
+	li t0, 6
+	lw t1, 272(sp)
+	sw t0, 0(t1)
+	lw t0, 4(sp)
+	lw t1, 0(t0)
+	sw t1, 276(sp)
+	lw t0, 276(sp)
+	li t1, 3
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 280(sp)
+	lw t0, 280(sp)
+	lw t1, 0(t0)
+	sw t1, 284(sp)
+	lw t0, 284(sp)
+	li t1, 1
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 288(sp)
+	li t0, 0
+	lw t1, 288(sp)
+	sw t0, 0(t1)
+	lw t0, 4(sp)
+	lw t1, 0(t0)
+	sw t1, 292(sp)
+	lw t0, 292(sp)
+	li t1, 3
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 296(sp)
+	lw t0, 296(sp)
+	lw t1, 0(t0)
+	sw t1, 300(sp)
+	lw t0, 300(sp)
+	li t1, 2
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 304(sp)
+	li t0, 0
+	lw t1, 304(sp)
+	sw t0, 0(t1)
+	lw t0, 4(sp)
+	lw t1, 0(t0)
+	sw t1, 308(sp)
+	lw t0, 308(sp)
+	li t1, 3
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 312(sp)
+	lw t0, 312(sp)
+	lw t1, 0(t0)
+	sw t1, 316(sp)
+	lw t0, 316(sp)
+	li t1, 3
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 320(sp)
+	li t0, 1
+	lw t1, 320(sp)
+	sw t0, 0(t1)
+	lw t0, 4(sp)
+	lw t1, 0(t0)
+	sw t1, 324(sp)
+	lw t0, 324(sp)
+	li t1, 3
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 328(sp)
+	lw t0, 328(sp)
+	lw t1, 0(t0)
+	sw t1, 332(sp)
+	lw t0, 332(sp)
+	li t1, 4
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 336(sp)
+	li t0, 7
+	lw t1, 336(sp)
+	sw t0, 0(t1)
+	lw t0, 4(sp)
+	lw t1, 0(t0)
+	sw t1, 340(sp)
+	lw t0, 340(sp)
+	li t1, 4
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 344(sp)
+	lw t0, 344(sp)
 	lw t1, 0(t0)
 	sw t1, 348(sp)
-	lw t1, 344(sp)
-	lw t2, 348(sp)
-	mul t0, t1, t2
-	sw t0, 352(sp)
-	li a0, 4
-	lw a1, 352(sp)
-	call .malloc_array
-	sw a0, 356(sp)
-	lw t0, 356(sp)
-	lw t1, 92(sp)
-	sw t0, 0(t1)
+	lw t0, 348(sp)
+	li t1, 1
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 352(sp)
 	li t0, 0
-	lw t1, 116(sp)
+	lw t1, 352(sp)
 	sw t0, 0(t1)
-	j B2.label_loop_4
-
-B2.label_loop_4:
-	lw t0, 116(sp)
-	lw t1, 0(t0)
-	sw t1, 360(sp)
 	lw t0, 4(sp)
+	lw t1, 0(t0)
+	sw t1, 356(sp)
+	lw t0, 356(sp)
+	li t1, 4
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 360(sp)
+	lw t0, 360(sp)
 	lw t1, 0(t0)
 	sw t1, 364(sp)
+	lw t0, 364(sp)
+	li t1, 2
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 368(sp)
+	li t0, 0
+	lw t1, 368(sp)
+	sw t0, 0(t1)
 	lw t0, 4(sp)
 	lw t1, 0(t0)
-	sw t1, 368(sp)
-	lw t1, 364(sp)
-	lw t2, 368(sp)
-	mul t0, t1, t2
-	sw t0, 372(sp)
-	lw t1, 360(sp)
-	lw t2, 372(sp)
-	slt t0, t1, t2
-	sw t0, 376(sp)
+	sw t1, 372(sp)
+	lw t0, 372(sp)
+	li t1, 4
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 376(sp)
 	lw t0, 376(sp)
-	bnez t0, B2.label_body_5
-	j B2.label_skip_3
-
-B2.label_step_2:
-	lw t0, 116(sp)
 	lw t1, 0(t0)
 	sw t1, 380(sp)
-	lw t1, 380(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 384(sp)
-	lw t0, 384(sp)
-	lw t1, 116(sp)
+	lw t0, 380(sp)
+	li t1, 3
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 384(sp)
+	li t0, 0
+	lw t1, 384(sp)
 	sw t0, 0(t1)
-	j B2.label_loop_4
-
-B2.label_body_5:
-	lw t0, 92(sp)
+	lw t0, 4(sp)
 	lw t1, 0(t0)
 	sw t1, 388(sp)
-	lw t0, 116(sp)
-	lw t1, 0(t0)
-	sw t1, 392(sp)
 	lw t0, 388(sp)
-	lw t1, 392(sp)
+	li t1, 4
 	slli t1, t1, 2
 	add t2, t0, t1
-	sw t2, 396(sp)
-	li t0, 0
-	lw t1, 396(sp)
-	sw t0, 0(t1)
-	j B2.label_step_2
-
-B2.label_skip_3:
-	lw t0, 4(sp)
+	sw t2, 392(sp)
+	lw t0, 392(sp)
 	lw t1, 0(t0)
-	sw t1, 400(sp)
-	lw t0, 4(sp)
+	sw t1, 396(sp)
+	lw t0, 396(sp)
+	li t1, 4
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 400(sp)
+	li t0, 1
+	lw t1, 400(sp)
+	sw t0, 0(t1)
+	lw t0, 20(sp)
 	lw t1, 0(t0)
 	sw t1, 404(sp)
-	lw t1, 400(sp)
-	lw t2, 404(sp)
-	mul t0, t1, t2
-	sw t0, 408(sp)
-	li a0, 4
-	lw a1, 408(sp)
-	call .malloc_array
-	sw a0, 412(sp)
-	lw t0, 412(sp)
-	lw t1, 100(sp)
-	sw t0, 0(t1)
-	li t0, 0
-	lw t1, 116(sp)
-	sw t0, 0(t1)
-	j B2.label_loop_8
-
-B2.label_loop_8:
-	lw t0, 116(sp)
+	lw t0, 404(sp)
+	li t1, 1
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 408(sp)
+	lw t0, 408(sp)
 	lw t1, 0(t0)
-	sw t1, 416(sp)
-	lw t0, 4(sp)
+	sw t1, 412(sp)
+	lw t0, 412(sp)
+	li t1, 1
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 416(sp)
+	li t0, 1
+	lw t1, 416(sp)
+	sw t0, 0(t1)
+	lw t0, 20(sp)
 	lw t1, 0(t0)
 	sw t1, 420(sp)
-	lw t0, 4(sp)
+	lw t0, 420(sp)
+	li t1, 1
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 424(sp)
+	lw t0, 424(sp)
 	lw t1, 0(t0)
-	sw t1, 424(sp)
-	lw t1, 420(sp)
-	lw t2, 424(sp)
-	mul t0, t1, t2
-	sw t0, 428(sp)
-	lw t1, 416(sp)
-	lw t2, 428(sp)
-	slt t0, t1, t2
-	sw t0, 432(sp)
-	lw t0, 432(sp)
-	bnez t0, B2.label_body_9
-	j B2.label_skip_7
-
-B2.label_step_6:
-	lw t0, 116(sp)
+	sw t1, 428(sp)
+	lw t0, 428(sp)
+	li t1, 2
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 432(sp)
+	li t0, 1
+	lw t1, 432(sp)
+	sw t0, 0(t1)
+	lw t0, 20(sp)
 	lw t1, 0(t0)
 	sw t1, 436(sp)
-	lw t1, 436(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 440(sp)
+	lw t0, 436(sp)
+	li t1, 1
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 440(sp)
 	lw t0, 440(sp)
-	lw t1, 116(sp)
-	sw t0, 0(t1)
-	j B2.label_loop_8
-
-B2.label_body_9:
-	lw t0, 100(sp)
 	lw t1, 0(t0)
 	sw t1, 444(sp)
-	lw t0, 116(sp)
-	lw t1, 0(t0)
-	sw t1, 448(sp)
 	lw t0, 444(sp)
-	lw t1, 448(sp)
+	li t1, 3
 	slli t1, t1, 2
 	add t2, t0, t1
-	sw t2, 452(sp)
-	li t0, 0
-	lw t1, 452(sp)
+	sw t2, 448(sp)
+	li t0, 1
+	lw t1, 448(sp)
 	sw t0, 0(t1)
-	j B2.label_step_6
-
-B2.label_skip_7:
-	lw t0, 4(sp)
+	lw t0, 20(sp)
 	lw t1, 0(t0)
-	sw t1, 456(sp)
-	li a0, 4
-	lw a1, 456(sp)
-	call .malloc_array
-	sw a0, 460(sp)
+	sw t1, 452(sp)
+	lw t0, 452(sp)
+	li t1, 1
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 456(sp)
+	lw t0, 456(sp)
+	lw t1, 0(t0)
+	sw t1, 460(sp)
 	lw t0, 460(sp)
-	lw t1, 108(sp)
+	li t1, 4
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 464(sp)
+	li t0, 1
+	lw t1, 464(sp)
 	sw t0, 0(t1)
-	li t0, 0
-	lw t1, 116(sp)
-	sw t0, 0(t1)
-	j B2.label_loop_12
-
-B2.label_loop_12:
-	lw t0, 116(sp)
-	lw t1, 0(t0)
-	sw t1, 464(sp)
-	lw t0, 4(sp)
+	lw t0, 20(sp)
 	lw t1, 0(t0)
 	sw t1, 468(sp)
-	lw t1, 464(sp)
-	lw t2, 468(sp)
-	slt t0, t1, t2
-	sw t0, 472(sp)
-	lw t0, 472(sp)
-	bnez t0, B2.label_body_13
-	j B2.label_skip_11
-
-B2.label_step_10:
-	lw t0, 116(sp)
-	lw t1, 0(t0)
-	sw t1, 476(sp)
-	lw t1, 476(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 480(sp)
-	lw t0, 480(sp)
-	lw t1, 116(sp)
-	sw t0, 0(t1)
-	j B2.label_loop_12
-
-B2.label_body_13:
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	sw t1, 484(sp)
-	lw t0, 116(sp)
-	lw t1, 0(t0)
-	sw t1, 488(sp)
-	lw t0, 484(sp)
-	lw t1, 488(sp)
+	lw t0, 468(sp)
+	li t1, 2
 	slli t1, t1, 2
 	add t2, t0, t1
-	sw t2, 492(sp)
-	lw t0, 4(sp)
+	sw t2, 472(sp)
+	lw t0, 472(sp)
 	lw t1, 0(t0)
-	sw t1, 496(sp)
-	li a0, 4
-	lw a1, 496(sp)
-	call .malloc_array
-	sw a0, 500(sp)
-	lw t0, 500(sp)
-	lw t1, 492(sp)
-	sw t0, 0(t1)
+	sw t1, 476(sp)
+	lw t0, 476(sp)
+	li t1, 1
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 480(sp)
 	li t0, 0
-	lw t1, 124(sp)
+	lw t1, 480(sp)
 	sw t0, 0(t1)
-	j B2.label_loop_16
-
-B2.label_loop_16:
-	lw t0, 124(sp)
+	lw t0, 20(sp)
+	lw t1, 0(t0)
+	sw t1, 484(sp)
+	lw t0, 484(sp)
+	li t1, 2
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 488(sp)
+	lw t0, 488(sp)
+	lw t1, 0(t0)
+	sw t1, 492(sp)
+	lw t0, 492(sp)
+	li t1, 2
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 496(sp)
+	li t1, 0
+	li t2, 1
+	sub t0, t1, t2
+	sw t0, 500(sp)
+	lw t0, 500(sp)
+	lw t1, 496(sp)
+	sw t0, 0(t1)
+	lw t0, 20(sp)
 	lw t1, 0(t0)
 	sw t1, 504(sp)
-	lw t0, 4(sp)
+	lw t0, 504(sp)
+	li t1, 2
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 508(sp)
+	lw t0, 508(sp)
 	lw t1, 0(t0)
-	sw t1, 508(sp)
-	lw t1, 504(sp)
-	lw t2, 508(sp)
-	slt t0, t1, t2
-	sw t0, 512(sp)
+	sw t1, 512(sp)
 	lw t0, 512(sp)
-	bnez t0, B2.label_body_17
-	j B2.label_skip_15
-
-B2.label_step_14:
-	lw t0, 124(sp)
-	lw t1, 0(t0)
-	sw t1, 516(sp)
+	li t1, 3
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 516(sp)
+	li t0, 3
 	lw t1, 516(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 520(sp)
-	lw t0, 520(sp)
-	lw t1, 124(sp)
 	sw t0, 0(t1)
-	j B2.label_loop_16
-
-B2.label_body_17:
-	lw t0, 108(sp)
+	lw t0, 20(sp)
 	lw t1, 0(t0)
-	sw t1, 524(sp)
-	lw t0, 116(sp)
+	sw t1, 520(sp)
+	lw t0, 520(sp)
+	li t1, 2
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 524(sp)
+	lw t0, 524(sp)
 	lw t1, 0(t0)
 	sw t1, 528(sp)
-	lw t0, 524(sp)
-	lw t1, 528(sp)
+	lw t0, 528(sp)
+	li t1, 4
 	slli t1, t1, 2
 	add t2, t0, t1
 	sw t2, 532(sp)
-	lw t0, 532(sp)
-	lw t1, 0(t0)
-	sw t1, 536(sp)
-	lw t0, 124(sp)
+	li t1, 0
+	li t2, 6
+	sub t0, t1, t2
+	sw t0, 536(sp)
+	lw t0, 536(sp)
+	lw t1, 532(sp)
+	sw t0, 0(t1)
+	lw t0, 20(sp)
 	lw t1, 0(t0)
 	sw t1, 540(sp)
-	lw t0, 536(sp)
-	lw t1, 540(sp)
+	lw t0, 540(sp)
+	li t1, 3
 	slli t1, t1, 2
 	add t2, t0, t1
 	sw t2, 544(sp)
-	li t1, 0
-	li t2, 1
-	sub t0, t1, t2
-	sw t0, 548(sp)
-	lw t0, 548(sp)
-	lw t1, 544(sp)
-	sw t0, 0(t1)
-	j B2.label_step_14
-
-B2.label_skip_15:
-	j B2.label_step_10
-
-B2.label_skip_11:
-	lw t0, 92(sp)
+	lw t0, 544(sp)
 	lw t1, 0(t0)
-	sw t1, 552(sp)
-	lw t0, 552(sp)
-	li t1, 0
+	sw t1, 548(sp)
+	lw t0, 548(sp)
+	li t1, 1
 	slli t1, t1, 2
 	add t2, t0, t1
-	sw t2, 556(sp)
+	sw t2, 552(sp)
+	li t0, 0
+	lw t1, 552(sp)
+	sw t0, 0(t1)
 	lw t0, 20(sp)
 	lw t1, 0(t0)
-	sw t1, 560(sp)
+	sw t1, 556(sp)
+	lw t0, 556(sp)
+	li t1, 3
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 560(sp)
 	lw t0, 560(sp)
-	lw t1, 556(sp)
-	sw t0, 0(t1)
-	lw t0, 100(sp)
 	lw t1, 0(t0)
 	sw t1, 564(sp)
 	lw t0, 564(sp)
-	li t1, 0
+	li t1, 2
 	slli t1, t1, 2
 	add t2, t0, t1
 	sw t2, 568(sp)
-	lw t0, 28(sp)
+	li t0, 0
+	lw t1, 568(sp)
+	sw t0, 0(t1)
+	lw t0, 20(sp)
 	lw t1, 0(t0)
 	sw t1, 572(sp)
 	lw t0, 572(sp)
-	lw t1, 568(sp)
-	sw t0, 0(t1)
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	sw t1, 576(sp)
-	lw t0, 20(sp)
+	li t1, 3
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 576(sp)
+	lw t0, 576(sp)
 	lw t1, 0(t0)
 	sw t1, 580(sp)
-	lw t0, 576(sp)
-	lw t1, 580(sp)
+	lw t0, 580(sp)
+	li t1, 3
 	slli t1, t1, 2
 	add t2, t0, t1
 	sw t2, 584(sp)
-	lw t0, 584(sp)
+	li t0, 2
+	lw t1, 584(sp)
+	sw t0, 0(t1)
+	lw t0, 20(sp)
 	lw t1, 0(t0)
 	sw t1, 588(sp)
-	lw t0, 28(sp)
-	lw t1, 0(t0)
-	sw t1, 592(sp)
 	lw t0, 588(sp)
-	lw t1, 592(sp)
+	li t1, 3
 	slli t1, t1, 2
 	add t2, t0, t1
-	sw t2, 596(sp)
-	li t0, 0
-	lw t1, 596(sp)
-	sw t0, 0(t1)
-	j B2.label_loop_18
-
-B2.label_loop_18:
-	lw t0, 12(sp)
+	sw t2, 592(sp)
+	lw t0, 592(sp)
 	lw t1, 0(t0)
-	sw t1, 600(sp)
-	lw t0, 52(sp)
+	sw t1, 596(sp)
+	lw t0, 596(sp)
+	li t1, 4
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 600(sp)
+	li t0, 11
+	lw t1, 600(sp)
+	sw t0, 0(t1)
+	lw t0, 20(sp)
 	lw t1, 0(t0)
 	sw t1, 604(sp)
-	lw t1, 600(sp)
-	lw t2, 604(sp)
-	slt t0, t2, t1
-	xori t0, t0, 1
-	sw t0, 608(sp)
+	lw t0, 604(sp)
+	li t1, 4
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 608(sp)
 	lw t0, 608(sp)
-	bnez t0, B2.label_body_20
-	j B2.label_skip_19
-
-B2.label_body_20:
-	la a0, .str.pre_0
-	call print
-	lw t0, 12(sp)
 	lw t1, 0(t0)
 	sw t1, 612(sp)
-	lw a0, 612(sp)
-	call printlnInt
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	sw t1, 616(sp)
-	lw t0, 92(sp)
+	lw t0, 612(sp)
+	li t1, 1
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 616(sp)
+	li t0, 0
+	lw t1, 616(sp)
+	sw t0, 0(t1)
+	lw t0, 20(sp)
 	lw t1, 0(t0)
 	sw t1, 620(sp)
-	lw t0, 12(sp)
-	lw t1, 0(t0)
-	sw t1, 624(sp)
 	lw t0, 620(sp)
-	lw t1, 624(sp)
+	li t1, 4
 	slli t1, t1, 2
 	add t2, t0, t1
-	sw t2, 628(sp)
+	sw t2, 624(sp)
+	lw t0, 624(sp)
+	lw t1, 0(t0)
+	sw t1, 628(sp)
 	lw t0, 628(sp)
-	lw t1, 0(t0)
-	sw t1, 632(sp)
-	lw t0, 616(sp)
-	lw t1, 632(sp)
+	li t1, 2
 	slli t1, t1, 2
 	add t2, t0, t1
-	sw t2, 636(sp)
-	lw t0, 636(sp)
+	sw t2, 632(sp)
+	li t0, 0
+	lw t1, 632(sp)
+	sw t0, 0(t1)
+	lw t0, 20(sp)
 	lw t1, 0(t0)
-	sw t1, 640(sp)
-	lw t0, 100(sp)
+	sw t1, 636(sp)
+	lw t0, 636(sp)
+	li t1, 4
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 640(sp)
+	lw t0, 640(sp)
 	lw t1, 0(t0)
 	sw t1, 644(sp)
-	lw t0, 12(sp)
-	lw t1, 0(t0)
-	sw t1, 648(sp)
 	lw t0, 644(sp)
+	li t1, 3
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 648(sp)
+	li t0, 0
 	lw t1, 648(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 652(sp)
-	lw t0, 652(sp)
-	lw t1, 0(t0)
-	sw t1, 656(sp)
-	lw t0, 640(sp)
-	lw t1, 656(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 660(sp)
-	lw t0, 660(sp)
-	lw t1, 0(t0)
-	sw t1, 664(sp)
-	lw t0, 664(sp)
-	lw t1, 68(sp)
 	sw t0, 0(t1)
-	lw t0, 92(sp)
+	lw t0, 20(sp)
 	lw t1, 0(t0)
-	sw t1, 668(sp)
-	lw t0, 12(sp)
+	sw t1, 652(sp)
+	lw t0, 652(sp)
+	li t1, 4
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 656(sp)
+	lw t0, 656(sp)
+	lw t1, 0(t0)
+	sw t1, 660(sp)
+	lw t0, 660(sp)
+	li t1, 4
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 664(sp)
+	li t1, 0
+	li t2, 6
+	sub t0, t1, t2
+	sw t0, 668(sp)
+	lw t0, 668(sp)
+	lw t1, 664(sp)
+	sw t0, 0(t1)
+	li t0, 1
+	lw t1, 52(sp)
+	sw t0, 0(t1)
+	j B1.label_loop_11
+
+B1.label_loop_11:
+	lw t0, 52(sp)
 	lw t1, 0(t0)
 	sw t1, 672(sp)
-	lw t0, 668(sp)
 	lw t1, 672(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 676(sp)
+	li t2, 4
+	slt t0, t2, t1
+	xori t0, t0, 1
+	sw t0, 676(sp)
 	lw t0, 676(sp)
+	bnez t0, B1.label_body_12
+	j B1.label_skip_10
+
+B1.label_step_9:
+	lw t0, 52(sp)
 	lw t1, 0(t0)
 	sw t1, 680(sp)
 	lw t1, 680(sp)
 	li t2, 1
-	sub t0, t1, t2
+	add t0, t1, t2
 	sw t0, 684(sp)
 	lw t0, 684(sp)
-	lw t1, 76(sp)
-	sw t0, 0(t1)
-	lw t0, 100(sp)
-	lw t1, 0(t0)
-	sw t1, 688(sp)
-	lw t0, 12(sp)
-	lw t1, 0(t0)
-	sw t1, 692(sp)
-	lw t0, 688(sp)
-	lw t1, 692(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 696(sp)
-	lw t0, 696(sp)
-	lw t1, 0(t0)
-	sw t1, 700(sp)
-	lw t1, 700(sp)
-	li t2, 2
-	sub t0, t1, t2
-	sw t0, 704(sp)
-	lw t0, 704(sp)
-	lw t1, 84(sp)
-	sw t0, 0(t1)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 708(sp)
-	lw t0, 4(sp)
-	lw t1, 0(t0)
-	sw t1, 712(sp)
-	lw a0, 708(sp)
-	lw a1, 712(sp)
-	call check
-	sw a0, 716(sp)
-	lw t0, 716(sp)
-	lw t1, 140(sp)
-	sw t0, 0(t1)
-	lw t0, 716(sp)
-	bnez t0, B2.label_logicT_21
-	j B2.label_logicF_22
-
-B2.label_logicT_21:
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 720(sp)
-	lw t0, 4(sp)
-	lw t1, 0(t0)
-	sw t1, 724(sp)
-	lw a0, 720(sp)
-	lw a1, 724(sp)
-	call check
-	sw a0, 728(sp)
-	lw t0, 728(sp)
-	lw t1, 140(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_22
-
-B2.label_logicF_22:
-	lw t0, 140(sp)
-	lw t1, 0(t0)
-	sw t1, 732(sp)
-	lw t0, 732(sp)
-	lw t1, 132(sp)
-	sw t0, 0(t1)
-	lw t0, 732(sp)
-	bnez t0, B2.label_logicT_23
-	j B2.label_logicF_24
-
-B2.label_logicT_23:
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	sw t1, 736(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 740(sp)
-	lw t0, 736(sp)
-	lw t1, 740(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 744(sp)
-	lw t0, 744(sp)
-	lw t1, 0(t0)
-	sw t1, 748(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 752(sp)
-	lw t0, 748(sp)
-	lw t1, 752(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 756(sp)
-	lw t0, 756(sp)
-	lw t1, 0(t0)
-	sw t1, 760(sp)
-	li t1, 0
-	li t2, 1
-	sub t0, t1, t2
-	sw t0, 764(sp)
-	lw t1, 760(sp)
-	lw t2, 764(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 768(sp)
-	lw t0, 768(sp)
-	lw t1, 132(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_24
-
-B2.label_logicF_24:
-	lw t0, 132(sp)
-	lw t1, 0(t0)
-	sw t1, 772(sp)
-	lw t0, 772(sp)
-	bnez t0, B2.label_true_25
-	j B2.label_false_26
-
-B2.label_true_25:
-	li a0, 1
-	call printlnInt
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 776(sp)
-	lw t1, 776(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 780(sp)
-	lw t0, 780(sp)
 	lw t1, 52(sp)
 	sw t0, 0(t1)
-	lw t0, 92(sp)
-	lw t1, 0(t0)
-	sw t1, 784(sp)
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 788(sp)
-	lw t0, 784(sp)
-	lw t1, 788(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 792(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 796(sp)
-	lw t0, 796(sp)
-	lw t1, 792(sp)
-	sw t0, 0(t1)
-	lw t0, 100(sp)
-	lw t1, 0(t0)
-	sw t1, 800(sp)
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 804(sp)
-	lw t0, 800(sp)
-	lw t1, 804(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 808(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 812(sp)
-	lw t0, 812(sp)
-	lw t1, 808(sp)
-	sw t0, 0(t1)
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	sw t1, 816(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 820(sp)
-	lw t0, 816(sp)
-	lw t1, 820(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 824(sp)
-	lw t0, 824(sp)
-	lw t1, 0(t0)
-	sw t1, 828(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 832(sp)
-	lw t0, 828(sp)
-	lw t1, 832(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 836(sp)
-	lw t0, 68(sp)
-	lw t1, 0(t0)
-	sw t1, 840(sp)
-	lw t1, 840(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 844(sp)
-	lw t0, 844(sp)
-	lw t1, 836(sp)
-	sw t0, 0(t1)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 848(sp)
-	lw t0, 36(sp)
-	lw t1, 0(t0)
-	sw t1, 852(sp)
-	lw t1, 848(sp)
-	lw t2, 852(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 856(sp)
-	lw t0, 856(sp)
-	lw t1, 148(sp)
-	sw t0, 0(t1)
-	lw t0, 856(sp)
-	bnez t0, B2.label_logicT_28
-	j B2.label_logicF_29
+	j B1.label_loop_11
 
-B2.label_logicT_28:
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 860(sp)
-	lw t0, 44(sp)
-	lw t1, 0(t0)
-	sw t1, 864(sp)
-	lw t1, 860(sp)
-	lw t2, 864(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 868(sp)
-	lw t0, 868(sp)
-	lw t1, 148(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_29
-
-B2.label_logicF_29:
-	lw t0, 148(sp)
-	lw t1, 0(t0)
-	sw t1, 872(sp)
-	lw t0, 872(sp)
-	bnez t0, B2.label_true_30
-	j B2.label_false_31
-
-B2.label_true_30:
+B1.label_body_12:
 	li t0, 1
 	lw t1, 60(sp)
 	sw t0, 0(t1)
-	j B2.label_skip_32
+	j B1.label_loop_15
 
-B2.label_false_31:
-	j B2.label_skip_32
+B1.label_loop_15:
+	lw t0, 60(sp)
+	lw t1, 0(t0)
+	sw t1, 688(sp)
+	lw t1, 688(sp)
+	li t2, 4
+	slt t0, t2, t1
+	xori t0, t0, 1
+	sw t0, 692(sp)
+	lw t0, 692(sp)
+	bnez t0, B1.label_body_16
+	j B1.label_skip_14
 
-B2.label_skip_32:
-	j B2.label_skip_27
+B1.label_step_13:
+	lw t0, 60(sp)
+	lw t1, 0(t0)
+	sw t1, 696(sp)
+	lw t1, 696(sp)
+	li t2, 1
+	add t0, t1, t2
+	sw t0, 700(sp)
+	lw t0, 700(sp)
+	lw t1, 60(sp)
+	sw t0, 0(t1)
+	j B1.label_loop_15
 
-B2.label_false_26:
-	j B2.label_skip_27
+B1.label_body_16:
+	lw t0, 36(sp)
+	lw t1, 0(t0)
+	sw t1, 704(sp)
+	lw t0, 52(sp)
+	lw t1, 0(t0)
+	sw t1, 708(sp)
+	lw t0, 704(sp)
+	lw t1, 708(sp)
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 712(sp)
+	lw t0, 712(sp)
+	lw t1, 0(t0)
+	sw t1, 716(sp)
+	lw t0, 60(sp)
+	lw t1, 0(t0)
+	sw t1, 720(sp)
+	lw t0, 716(sp)
+	lw t1, 720(sp)
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 724(sp)
+	li t0, 0
+	lw t1, 724(sp)
+	sw t0, 0(t1)
+	li t0, 1
+	lw t1, 68(sp)
+	sw t0, 0(t1)
+	j B1.label_loop_19
 
-B2.label_skip_27:
-	lw t0, 92(sp)
+B1.label_loop_19:
+	lw t0, 68(sp)
+	lw t1, 0(t0)
+	sw t1, 728(sp)
+	lw t1, 728(sp)
+	li t2, 4
+	slt t0, t2, t1
+	xori t0, t0, 1
+	sw t0, 732(sp)
+	lw t0, 732(sp)
+	bnez t0, B1.label_body_20
+	j B1.label_skip_18
+
+B1.label_step_17:
+	lw t0, 68(sp)
+	lw t1, 0(t0)
+	sw t1, 736(sp)
+	lw t1, 736(sp)
+	li t2, 1
+	add t0, t1, t2
+	sw t0, 740(sp)
+	lw t0, 740(sp)
+	lw t1, 68(sp)
+	sw t0, 0(t1)
+	j B1.label_loop_19
+
+B1.label_body_20:
+	lw t0, 36(sp)
+	lw t1, 0(t0)
+	sw t1, 744(sp)
+	lw t0, 52(sp)
+	lw t1, 0(t0)
+	sw t1, 748(sp)
+	lw t0, 744(sp)
+	lw t1, 748(sp)
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 752(sp)
+	lw t0, 752(sp)
+	lw t1, 0(t0)
+	sw t1, 756(sp)
+	lw t0, 60(sp)
+	lw t1, 0(t0)
+	sw t1, 760(sp)
+	lw t0, 756(sp)
+	lw t1, 760(sp)
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 764(sp)
+	lw t0, 36(sp)
+	lw t1, 0(t0)
+	sw t1, 768(sp)
+	lw t0, 52(sp)
+	lw t1, 0(t0)
+	sw t1, 772(sp)
+	lw t0, 768(sp)
+	lw t1, 772(sp)
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 776(sp)
+	lw t0, 776(sp)
+	lw t1, 0(t0)
+	sw t1, 780(sp)
+	lw t0, 60(sp)
+	lw t1, 0(t0)
+	sw t1, 784(sp)
+	lw t0, 780(sp)
+	lw t1, 784(sp)
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 788(sp)
+	lw t0, 788(sp)
+	lw t1, 0(t0)
+	sw t1, 792(sp)
+	lw t0, 4(sp)
+	lw t1, 0(t0)
+	sw t1, 796(sp)
+	lw t0, 52(sp)
+	lw t1, 0(t0)
+	sw t1, 800(sp)
+	lw t0, 796(sp)
+	lw t1, 800(sp)
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 804(sp)
+	lw t0, 804(sp)
+	lw t1, 0(t0)
+	sw t1, 808(sp)
+	lw t0, 68(sp)
+	lw t1, 0(t0)
+	sw t1, 812(sp)
+	lw t0, 808(sp)
+	lw t1, 812(sp)
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 816(sp)
+	lw t0, 816(sp)
+	lw t1, 0(t0)
+	sw t1, 820(sp)
+	lw t0, 20(sp)
+	lw t1, 0(t0)
+	sw t1, 824(sp)
+	lw t0, 68(sp)
+	lw t1, 0(t0)
+	sw t1, 828(sp)
+	lw t0, 824(sp)
+	lw t1, 828(sp)
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 832(sp)
+	lw t0, 832(sp)
+	lw t1, 0(t0)
+	sw t1, 836(sp)
+	lw t0, 60(sp)
+	lw t1, 0(t0)
+	sw t1, 840(sp)
+	lw t0, 836(sp)
+	lw t1, 840(sp)
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 844(sp)
+	lw t0, 844(sp)
+	lw t1, 0(t0)
+	sw t1, 848(sp)
+	lw t1, 820(sp)
+	lw t2, 848(sp)
+	mul t0, t1, t2
+	sw t0, 852(sp)
+	lw t1, 792(sp)
+	lw t2, 852(sp)
+	add t0, t1, t2
+	sw t0, 856(sp)
+	lw t0, 856(sp)
+	lw t1, 764(sp)
+	sw t0, 0(t1)
+	j B1.label_step_17
+
+B1.label_skip_18:
+	j B1.label_step_13
+
+B1.label_skip_14:
+	j B1.label_step_9
+
+B1.label_skip_10:
+	lw t0, 36(sp)
+	lw t1, 0(t0)
+	sw t1, 860(sp)
+	lw t0, 860(sp)
+	li t1, 1
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 864(sp)
+	lw t0, 864(sp)
+	lw t1, 0(t0)
+	sw t1, 868(sp)
+	lw t0, 868(sp)
+	li t1, 1
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 872(sp)
+	lw t0, 872(sp)
 	lw t1, 0(t0)
 	sw t1, 876(sp)
-	lw t0, 12(sp)
+	lw t0, 36(sp)
 	lw t1, 0(t0)
 	sw t1, 880(sp)
-	lw t0, 876(sp)
-	lw t1, 880(sp)
+	lw t0, 880(sp)
+	li t1, 2
 	slli t1, t1, 2
 	add t2, t0, t1
 	sw t2, 884(sp)
 	lw t0, 884(sp)
 	lw t1, 0(t0)
 	sw t1, 888(sp)
-	lw t1, 888(sp)
-	li t2, 1
-	sub t0, t1, t2
-	sw t0, 892(sp)
+	lw t0, 888(sp)
+	li t1, 2
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 892(sp)
 	lw t0, 892(sp)
-	lw t1, 76(sp)
-	sw t0, 0(t1)
-	lw t0, 100(sp)
 	lw t1, 0(t0)
 	sw t1, 896(sp)
-	lw t0, 12(sp)
+	lw t1, 876(sp)
+	lw t2, 896(sp)
+	add t0, t1, t2
+	sw t0, 900(sp)
+	lw t0, 36(sp)
 	lw t1, 0(t0)
-	sw t1, 900(sp)
-	lw t0, 896(sp)
-	lw t1, 900(sp)
+	sw t1, 904(sp)
+	lw t0, 904(sp)
+	li t1, 3
 	slli t1, t1, 2
 	add t2, t0, t1
-	sw t2, 904(sp)
-	lw t0, 904(sp)
+	sw t2, 908(sp)
+	lw t0, 908(sp)
 	lw t1, 0(t0)
-	sw t1, 908(sp)
-	lw t1, 908(sp)
-	li t2, 2
-	add t0, t1, t2
-	sw t0, 912(sp)
+	sw t1, 912(sp)
 	lw t0, 912(sp)
-	lw t1, 84(sp)
-	sw t0, 0(t1)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 916(sp)
-	lw t0, 4(sp)
+	li t1, 3
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 916(sp)
+	lw t0, 916(sp)
 	lw t1, 0(t0)
 	sw t1, 920(sp)
-	lw a0, 916(sp)
-	lw a1, 920(sp)
-	call check
-	sw a0, 924(sp)
-	lw t0, 924(sp)
-	lw t1, 164(sp)
-	sw t0, 0(t1)
-	lw t0, 924(sp)
-	bnez t0, B2.label_logicT_33
-	j B2.label_logicF_34
-
-B2.label_logicT_33:
-	lw t0, 84(sp)
+	lw t1, 900(sp)
+	lw t2, 920(sp)
+	add t0, t1, t2
+	sw t0, 924(sp)
+	lw t0, 36(sp)
 	lw t1, 0(t0)
 	sw t1, 928(sp)
-	lw t0, 4(sp)
+	lw t0, 928(sp)
+	li t1, 4
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 932(sp)
+	lw t0, 932(sp)
 	lw t1, 0(t0)
-	sw t1, 932(sp)
-	lw a0, 928(sp)
-	lw a1, 932(sp)
-	call check
-	sw a0, 936(sp)
+	sw t1, 936(sp)
 	lw t0, 936(sp)
-	lw t1, 164(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_34
-
-B2.label_logicF_34:
-	lw t0, 164(sp)
-	lw t1, 0(t0)
-	sw t1, 940(sp)
+	li t1, 4
+	slli t1, t1, 2
+	add t2, t0, t1
+	sw t2, 940(sp)
 	lw t0, 940(sp)
-	lw t1, 156(sp)
-	sw t0, 0(t1)
-	lw t0, 940(sp)
-	bnez t0, B2.label_logicT_35
-	j B2.label_logicF_36
-
-B2.label_logicT_35:
-	lw t0, 108(sp)
 	lw t1, 0(t0)
 	sw t1, 944(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 948(sp)
-	lw t0, 944(sp)
-	lw t1, 948(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 952(sp)
-	lw t0, 952(sp)
-	lw t1, 0(t0)
-	sw t1, 956(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 960(sp)
-	lw t0, 956(sp)
-	lw t1, 960(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 964(sp)
-	lw t0, 964(sp)
-	lw t1, 0(t0)
-	sw t1, 968(sp)
-	li t1, 0
-	li t2, 1
-	sub t0, t1, t2
-	sw t0, 972(sp)
-	lw t1, 968(sp)
-	lw t2, 972(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 976(sp)
-	lw t0, 976(sp)
-	lw t1, 156(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_36
-
-B2.label_logicF_36:
-	lw t0, 156(sp)
-	lw t1, 0(t0)
-	sw t1, 980(sp)
-	lw t0, 980(sp)
-	bnez t0, B2.label_true_37
-	j B2.label_false_38
-
-B2.label_true_37:
-	li a0, 2
-	call printlnInt
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 984(sp)
-	lw t1, 984(sp)
-	li t2, 1
+	lw t1, 924(sp)
+	lw t2, 944(sp)
 	add t0, t1, t2
-	sw t0, 988(sp)
-	lw t0, 988(sp)
-	lw t1, 52(sp)
-	sw t0, 0(t1)
-	lw t0, 92(sp)
-	lw t1, 0(t0)
-	sw t1, 992(sp)
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 996(sp)
-	lw t0, 992(sp)
-	lw t1, 996(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1000(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1004(sp)
-	lw t0, 1004(sp)
-	lw t1, 1000(sp)
-	sw t0, 0(t1)
-	lw t0, 100(sp)
-	lw t1, 0(t0)
-	sw t1, 1008(sp)
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 1012(sp)
-	lw t0, 1008(sp)
-	lw t1, 1012(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1016(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1020(sp)
-	lw t0, 1020(sp)
-	lw t1, 1016(sp)
-	sw t0, 0(t1)
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	sw t1, 1024(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1028(sp)
-	lw t0, 1024(sp)
-	lw t1, 1028(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1032(sp)
-	lw t0, 1032(sp)
-	lw t1, 0(t0)
-	sw t1, 1036(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1040(sp)
-	lw t0, 1036(sp)
-	lw t1, 1040(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1044(sp)
-	lw t0, 68(sp)
-	lw t1, 0(t0)
-	sw t1, 1048(sp)
-	lw t1, 1048(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 1052(sp)
-	lw t0, 1052(sp)
-	lw t1, 1044(sp)
-	sw t0, 0(t1)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1056(sp)
-	lw t0, 36(sp)
-	lw t1, 0(t0)
-	sw t1, 1060(sp)
-	lw t1, 1056(sp)
-	lw t2, 1060(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 1064(sp)
-	lw t0, 1064(sp)
-	lw t1, 172(sp)
-	sw t0, 0(t1)
-	lw t0, 1064(sp)
-	bnez t0, B2.label_logicT_40
-	j B2.label_logicF_41
-
-B2.label_logicT_40:
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1068(sp)
-	lw t0, 44(sp)
-	lw t1, 0(t0)
-	sw t1, 1072(sp)
-	lw t1, 1068(sp)
-	lw t2, 1072(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 1076(sp)
-	lw t0, 1076(sp)
-	lw t1, 172(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_41
-
-B2.label_logicF_41:
-	lw t0, 172(sp)
-	lw t1, 0(t0)
-	sw t1, 1080(sp)
-	lw t0, 1080(sp)
-	bnez t0, B2.label_true_42
-	j B2.label_false_43
-
-B2.label_true_42:
-	li t0, 1
-	lw t1, 60(sp)
-	sw t0, 0(t1)
-	j B2.label_skip_44
-
-B2.label_false_43:
-	j B2.label_skip_44
-
-B2.label_skip_44:
-	j B2.label_skip_39
-
-B2.label_false_38:
-	j B2.label_skip_39
-
-B2.label_skip_39:
-	lw t0, 92(sp)
-	lw t1, 0(t0)
-	sw t1, 1084(sp)
-	lw t0, 12(sp)
-	lw t1, 0(t0)
-	sw t1, 1088(sp)
-	lw t0, 1084(sp)
-	lw t1, 1088(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1092(sp)
-	lw t0, 1092(sp)
-	lw t1, 0(t0)
-	sw t1, 1096(sp)
-	lw t1, 1096(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 1100(sp)
-	lw t0, 1100(sp)
-	lw t1, 76(sp)
-	sw t0, 0(t1)
-	lw t0, 100(sp)
-	lw t1, 0(t0)
-	sw t1, 1104(sp)
-	lw t0, 12(sp)
-	lw t1, 0(t0)
-	sw t1, 1108(sp)
-	lw t0, 1104(sp)
-	lw t1, 1108(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1112(sp)
-	lw t0, 1112(sp)
-	lw t1, 0(t0)
-	sw t1, 1116(sp)
-	lw t1, 1116(sp)
-	li t2, 2
-	sub t0, t1, t2
-	sw t0, 1120(sp)
-	lw t0, 1120(sp)
-	lw t1, 84(sp)
-	sw t0, 0(t1)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1124(sp)
-	lw t0, 4(sp)
-	lw t1, 0(t0)
-	sw t1, 1128(sp)
-	lw a0, 1124(sp)
-	lw a1, 1128(sp)
-	call check
-	sw a0, 1132(sp)
-	lw t0, 1132(sp)
-	lw t1, 188(sp)
-	sw t0, 0(t1)
-	lw t0, 1132(sp)
-	bnez t0, B2.label_logicT_45
-	j B2.label_logicF_46
-
-B2.label_logicT_45:
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1136(sp)
-	lw t0, 4(sp)
-	lw t1, 0(t0)
-	sw t1, 1140(sp)
-	lw a0, 1136(sp)
-	lw a1, 1140(sp)
-	call check
-	sw a0, 1144(sp)
-	lw t0, 1144(sp)
-	lw t1, 188(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_46
-
-B2.label_logicF_46:
-	lw t0, 188(sp)
-	lw t1, 0(t0)
-	sw t1, 1148(sp)
-	lw t0, 1148(sp)
-	lw t1, 180(sp)
-	sw t0, 0(t1)
-	lw t0, 1148(sp)
-	bnez t0, B2.label_logicT_47
-	j B2.label_logicF_48
-
-B2.label_logicT_47:
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	sw t1, 1152(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1156(sp)
-	lw t0, 1152(sp)
-	lw t1, 1156(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1160(sp)
-	lw t0, 1160(sp)
-	lw t1, 0(t0)
-	sw t1, 1164(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1168(sp)
-	lw t0, 1164(sp)
-	lw t1, 1168(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1172(sp)
-	lw t0, 1172(sp)
-	lw t1, 0(t0)
-	sw t1, 1176(sp)
-	li t1, 0
-	li t2, 1
-	sub t0, t1, t2
-	sw t0, 1180(sp)
-	lw t1, 1176(sp)
-	lw t2, 1180(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 1184(sp)
-	lw t0, 1184(sp)
-	lw t1, 180(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_48
-
-B2.label_logicF_48:
-	lw t0, 180(sp)
-	lw t1, 0(t0)
-	sw t1, 1188(sp)
-	lw t0, 1188(sp)
-	bnez t0, B2.label_true_49
-	j B2.label_false_50
-
-B2.label_true_49:
-	li a0, 3
-	call printlnInt
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 1192(sp)
-	lw t1, 1192(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 1196(sp)
-	lw t0, 1196(sp)
-	lw t1, 52(sp)
-	sw t0, 0(t1)
-	lw t0, 92(sp)
-	lw t1, 0(t0)
-	sw t1, 1200(sp)
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 1204(sp)
-	lw t0, 1200(sp)
-	lw t1, 1204(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1208(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1212(sp)
-	lw t0, 1212(sp)
-	lw t1, 1208(sp)
-	sw t0, 0(t1)
-	lw t0, 100(sp)
-	lw t1, 0(t0)
-	sw t1, 1216(sp)
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 1220(sp)
-	lw t0, 1216(sp)
-	lw t1, 1220(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1224(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1228(sp)
-	lw t0, 1228(sp)
-	lw t1, 1224(sp)
-	sw t0, 0(t1)
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	sw t1, 1232(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1236(sp)
-	lw t0, 1232(sp)
-	lw t1, 1236(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1240(sp)
-	lw t0, 1240(sp)
-	lw t1, 0(t0)
-	sw t1, 1244(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1248(sp)
-	lw t0, 1244(sp)
-	lw t1, 1248(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1252(sp)
-	lw t0, 68(sp)
-	lw t1, 0(t0)
-	sw t1, 1256(sp)
-	lw t1, 1256(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 1260(sp)
-	lw t0, 1260(sp)
-	lw t1, 1252(sp)
-	sw t0, 0(t1)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1264(sp)
-	lw t0, 36(sp)
-	lw t1, 0(t0)
-	sw t1, 1268(sp)
-	lw t1, 1264(sp)
-	lw t2, 1268(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 1272(sp)
-	lw t0, 1272(sp)
-	lw t1, 196(sp)
-	sw t0, 0(t1)
-	lw t0, 1272(sp)
-	bnez t0, B2.label_logicT_52
-	j B2.label_logicF_53
-
-B2.label_logicT_52:
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1276(sp)
-	lw t0, 44(sp)
-	lw t1, 0(t0)
-	sw t1, 1280(sp)
-	lw t1, 1276(sp)
-	lw t2, 1280(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 1284(sp)
-	lw t0, 1284(sp)
-	lw t1, 196(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_53
-
-B2.label_logicF_53:
-	lw t0, 196(sp)
-	lw t1, 0(t0)
-	sw t1, 1288(sp)
-	lw t0, 1288(sp)
-	bnez t0, B2.label_true_54
-	j B2.label_false_55
-
-B2.label_true_54:
-	li t0, 1
-	lw t1, 60(sp)
-	sw t0, 0(t1)
-	j B2.label_skip_56
-
-B2.label_false_55:
-	j B2.label_skip_56
-
-B2.label_skip_56:
-	j B2.label_skip_51
-
-B2.label_false_50:
-	j B2.label_skip_51
-
-B2.label_skip_51:
-	lw t0, 92(sp)
-	lw t1, 0(t0)
-	sw t1, 1292(sp)
-	lw t0, 12(sp)
-	lw t1, 0(t0)
-	sw t1, 1296(sp)
-	lw t0, 1292(sp)
-	lw t1, 1296(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1300(sp)
-	lw t0, 1300(sp)
-	lw t1, 0(t0)
-	sw t1, 1304(sp)
-	lw t1, 1304(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 1308(sp)
-	lw t0, 1308(sp)
-	lw t1, 76(sp)
-	sw t0, 0(t1)
-	lw t0, 100(sp)
-	lw t1, 0(t0)
-	sw t1, 1312(sp)
-	lw t0, 12(sp)
-	lw t1, 0(t0)
-	sw t1, 1316(sp)
-	lw t0, 1312(sp)
-	lw t1, 1316(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1320(sp)
-	lw t0, 1320(sp)
-	lw t1, 0(t0)
-	sw t1, 1324(sp)
-	lw t1, 1324(sp)
-	li t2, 2
-	add t0, t1, t2
-	sw t0, 1328(sp)
-	lw t0, 1328(sp)
-	lw t1, 84(sp)
-	sw t0, 0(t1)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1332(sp)
-	lw t0, 4(sp)
-	lw t1, 0(t0)
-	sw t1, 1336(sp)
-	lw a0, 1332(sp)
-	lw a1, 1336(sp)
-	call check
-	sw a0, 1340(sp)
-	lw t0, 1340(sp)
-	lw t1, 212(sp)
-	sw t0, 0(t1)
-	lw t0, 1340(sp)
-	bnez t0, B2.label_logicT_57
-	j B2.label_logicF_58
-
-B2.label_logicT_57:
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1344(sp)
-	lw t0, 4(sp)
-	lw t1, 0(t0)
-	sw t1, 1348(sp)
-	lw a0, 1344(sp)
-	lw a1, 1348(sp)
-	call check
-	sw a0, 1352(sp)
-	lw t0, 1352(sp)
-	lw t1, 212(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_58
-
-B2.label_logicF_58:
-	lw t0, 212(sp)
-	lw t1, 0(t0)
-	sw t1, 1356(sp)
-	lw t0, 1356(sp)
-	lw t1, 204(sp)
-	sw t0, 0(t1)
-	lw t0, 1356(sp)
-	bnez t0, B2.label_logicT_59
-	j B2.label_logicF_60
-
-B2.label_logicT_59:
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	sw t1, 1360(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1364(sp)
-	lw t0, 1360(sp)
-	lw t1, 1364(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1368(sp)
-	lw t0, 1368(sp)
-	lw t1, 0(t0)
-	sw t1, 1372(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1376(sp)
-	lw t0, 1372(sp)
-	lw t1, 1376(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1380(sp)
-	lw t0, 1380(sp)
-	lw t1, 0(t0)
-	sw t1, 1384(sp)
-	li t1, 0
-	li t2, 1
-	sub t0, t1, t2
-	sw t0, 1388(sp)
-	lw t1, 1384(sp)
-	lw t2, 1388(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 1392(sp)
-	lw t0, 1392(sp)
-	lw t1, 204(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_60
-
-B2.label_logicF_60:
-	lw t0, 204(sp)
-	lw t1, 0(t0)
-	sw t1, 1396(sp)
-	lw t0, 1396(sp)
-	bnez t0, B2.label_true_61
-	j B2.label_false_62
-
-B2.label_true_61:
-	li a0, 4
-	call printlnInt
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 1400(sp)
-	lw t1, 1400(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 1404(sp)
-	lw t0, 1404(sp)
-	lw t1, 52(sp)
-	sw t0, 0(t1)
-	lw t0, 92(sp)
-	lw t1, 0(t0)
-	sw t1, 1408(sp)
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 1412(sp)
-	lw t0, 1408(sp)
-	lw t1, 1412(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1416(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1420(sp)
-	lw t0, 1420(sp)
-	lw t1, 1416(sp)
-	sw t0, 0(t1)
-	lw t0, 100(sp)
-	lw t1, 0(t0)
-	sw t1, 1424(sp)
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 1428(sp)
-	lw t0, 1424(sp)
-	lw t1, 1428(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1432(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1436(sp)
-	lw t0, 1436(sp)
-	lw t1, 1432(sp)
-	sw t0, 0(t1)
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	sw t1, 1440(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1444(sp)
-	lw t0, 1440(sp)
-	lw t1, 1444(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1448(sp)
-	lw t0, 1448(sp)
-	lw t1, 0(t0)
-	sw t1, 1452(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1456(sp)
-	lw t0, 1452(sp)
-	lw t1, 1456(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1460(sp)
-	lw t0, 68(sp)
-	lw t1, 0(t0)
-	sw t1, 1464(sp)
-	lw t1, 1464(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 1468(sp)
-	lw t0, 1468(sp)
-	lw t1, 1460(sp)
-	sw t0, 0(t1)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1472(sp)
-	lw t0, 36(sp)
-	lw t1, 0(t0)
-	sw t1, 1476(sp)
-	lw t1, 1472(sp)
-	lw t2, 1476(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 1480(sp)
-	lw t0, 1480(sp)
-	lw t1, 220(sp)
-	sw t0, 0(t1)
-	lw t0, 1480(sp)
-	bnez t0, B2.label_logicT_64
-	j B2.label_logicF_65
-
-B2.label_logicT_64:
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1484(sp)
-	lw t0, 44(sp)
-	lw t1, 0(t0)
-	sw t1, 1488(sp)
-	lw t1, 1484(sp)
-	lw t2, 1488(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 1492(sp)
-	lw t0, 1492(sp)
-	lw t1, 220(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_65
-
-B2.label_logicF_65:
-	lw t0, 220(sp)
-	lw t1, 0(t0)
-	sw t1, 1496(sp)
-	lw t0, 1496(sp)
-	bnez t0, B2.label_true_66
-	j B2.label_false_67
-
-B2.label_true_66:
-	li t0, 1
-	lw t1, 60(sp)
-	sw t0, 0(t1)
-	j B2.label_skip_68
-
-B2.label_false_67:
-	j B2.label_skip_68
-
-B2.label_skip_68:
-	j B2.label_skip_63
-
-B2.label_false_62:
-	j B2.label_skip_63
-
-B2.label_skip_63:
-	la a0, .str.pre_1
-	call println
-	lw t0, 92(sp)
-	lw t1, 0(t0)
-	sw t1, 1500(sp)
-	lw t0, 12(sp)
-	lw t1, 0(t0)
-	sw t1, 1504(sp)
-	lw t0, 1500(sp)
-	lw t1, 1504(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1508(sp)
-	lw t0, 1508(sp)
-	lw t1, 0(t0)
-	sw t1, 1512(sp)
-	lw t1, 1512(sp)
-	li t2, 2
-	sub t0, t1, t2
-	sw t0, 1516(sp)
-	lw t0, 1516(sp)
-	lw t1, 76(sp)
-	sw t0, 0(t1)
-	lw t0, 100(sp)
-	lw t1, 0(t0)
-	sw t1, 1520(sp)
-	lw t0, 12(sp)
-	lw t1, 0(t0)
-	sw t1, 1524(sp)
-	lw t0, 1520(sp)
-	lw t1, 1524(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1528(sp)
-	lw t0, 1528(sp)
-	lw t1, 0(t0)
-	sw t1, 1532(sp)
-	lw t1, 1532(sp)
-	li t2, 1
-	sub t0, t1, t2
-	sw t0, 1536(sp)
-	lw t0, 1536(sp)
-	lw t1, 84(sp)
-	sw t0, 0(t1)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1540(sp)
-	lw t0, 4(sp)
-	lw t1, 0(t0)
-	sw t1, 1544(sp)
-	lw a0, 1540(sp)
-	lw a1, 1544(sp)
-	call check
-	sw a0, 1548(sp)
-	lw t0, 1548(sp)
-	lw t1, 236(sp)
-	sw t0, 0(t1)
-	lw t0, 1548(sp)
-	bnez t0, B2.label_logicT_69
-	j B2.label_logicF_70
-
-B2.label_logicT_69:
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1552(sp)
-	lw t0, 4(sp)
-	lw t1, 0(t0)
-	sw t1, 1556(sp)
-	lw a0, 1552(sp)
-	lw a1, 1556(sp)
-	call check
-	sw a0, 1560(sp)
-	lw t0, 1560(sp)
-	lw t1, 236(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_70
-
-B2.label_logicF_70:
-	lw t0, 236(sp)
-	lw t1, 0(t0)
-	sw t1, 1564(sp)
-	lw t0, 1564(sp)
-	lw t1, 228(sp)
-	sw t0, 0(t1)
-	lw t0, 1564(sp)
-	bnez t0, B2.label_logicT_71
-	j B2.label_logicF_72
-
-B2.label_logicT_71:
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	sw t1, 1568(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1572(sp)
-	lw t0, 1568(sp)
-	lw t1, 1572(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1576(sp)
-	lw t0, 1576(sp)
-	lw t1, 0(t0)
-	sw t1, 1580(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1584(sp)
-	lw t0, 1580(sp)
-	lw t1, 1584(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1588(sp)
-	lw t0, 1588(sp)
-	lw t1, 0(t0)
-	sw t1, 1592(sp)
-	li t1, 0
-	li t2, 1
-	sub t0, t1, t2
-	sw t0, 1596(sp)
-	lw t1, 1592(sp)
-	lw t2, 1596(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 1600(sp)
-	lw t0, 1600(sp)
-	lw t1, 228(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_72
-
-B2.label_logicF_72:
-	lw t0, 228(sp)
-	lw t1, 0(t0)
-	sw t1, 1604(sp)
-	lw t0, 1604(sp)
-	bnez t0, B2.label_true_73
-	j B2.label_false_74
-
-B2.label_true_73:
-	li a0, 5
-	call printlnInt
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 1608(sp)
-	lw t1, 1608(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 1612(sp)
-	lw t0, 1612(sp)
-	lw t1, 52(sp)
-	sw t0, 0(t1)
-	lw t0, 92(sp)
-	lw t1, 0(t0)
-	sw t1, 1616(sp)
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 1620(sp)
-	lw t0, 1616(sp)
-	lw t1, 1620(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1624(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1628(sp)
-	lw t0, 1628(sp)
-	lw t1, 1624(sp)
-	sw t0, 0(t1)
-	lw t0, 100(sp)
-	lw t1, 0(t0)
-	sw t1, 1632(sp)
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 1636(sp)
-	lw t0, 1632(sp)
-	lw t1, 1636(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1640(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1644(sp)
-	lw t0, 1644(sp)
-	lw t1, 1640(sp)
-	sw t0, 0(t1)
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	sw t1, 1648(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1652(sp)
-	lw t0, 1648(sp)
-	lw t1, 1652(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1656(sp)
-	lw t0, 1656(sp)
-	lw t1, 0(t0)
-	sw t1, 1660(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1664(sp)
-	lw t0, 1660(sp)
-	lw t1, 1664(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1668(sp)
-	lw t0, 68(sp)
-	lw t1, 0(t0)
-	sw t1, 1672(sp)
-	lw t1, 1672(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 1676(sp)
-	lw t0, 1676(sp)
-	lw t1, 1668(sp)
-	sw t0, 0(t1)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1680(sp)
-	lw t0, 36(sp)
-	lw t1, 0(t0)
-	sw t1, 1684(sp)
-	lw t1, 1680(sp)
-	lw t2, 1684(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 1688(sp)
-	lw t0, 1688(sp)
-	lw t1, 244(sp)
-	sw t0, 0(t1)
-	lw t0, 1688(sp)
-	bnez t0, B2.label_logicT_76
-	j B2.label_logicF_77
-
-B2.label_logicT_76:
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1692(sp)
-	lw t0, 44(sp)
-	lw t1, 0(t0)
-	sw t1, 1696(sp)
-	lw t1, 1692(sp)
-	lw t2, 1696(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 1700(sp)
-	lw t0, 1700(sp)
-	lw t1, 244(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_77
-
-B2.label_logicF_77:
-	lw t0, 244(sp)
-	lw t1, 0(t0)
-	sw t1, 1704(sp)
-	lw t0, 1704(sp)
-	bnez t0, B2.label_true_78
-	j B2.label_false_79
-
-B2.label_true_78:
-	li t0, 1
-	lw t1, 60(sp)
-	sw t0, 0(t1)
-	j B2.label_skip_80
-
-B2.label_false_79:
-	j B2.label_skip_80
-
-B2.label_skip_80:
-	j B2.label_skip_75
-
-B2.label_false_74:
-	j B2.label_skip_75
-
-B2.label_skip_75:
-	la a0, .str.pre_2
-	call println
-	lw t0, 92(sp)
-	lw t1, 0(t0)
-	sw t1, 1708(sp)
-	lw t0, 12(sp)
-	lw t1, 0(t0)
-	sw t1, 1712(sp)
-	lw t0, 1708(sp)
-	lw t1, 1712(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1716(sp)
-	lw t0, 1716(sp)
-	lw t1, 0(t0)
-	sw t1, 1720(sp)
-	lw t1, 1720(sp)
-	li t2, 2
-	sub t0, t1, t2
-	sw t0, 1724(sp)
-	lw t0, 1724(sp)
-	lw t1, 76(sp)
-	sw t0, 0(t1)
-	lw t0, 100(sp)
-	lw t1, 0(t0)
-	sw t1, 1728(sp)
-	lw t0, 12(sp)
-	lw t1, 0(t0)
-	sw t1, 1732(sp)
-	lw t0, 1728(sp)
-	lw t1, 1732(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1736(sp)
-	lw t0, 1736(sp)
-	lw t1, 0(t0)
-	sw t1, 1740(sp)
-	lw t1, 1740(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 1744(sp)
-	lw t0, 1744(sp)
-	lw t1, 84(sp)
-	sw t0, 0(t1)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1748(sp)
-	lw t0, 4(sp)
-	lw t1, 0(t0)
-	sw t1, 1752(sp)
-	lw a0, 1748(sp)
-	lw a1, 1752(sp)
-	call check
-	sw a0, 1756(sp)
-	lw t0, 1756(sp)
-	lw t1, 260(sp)
-	sw t0, 0(t1)
-	lw t0, 1756(sp)
-	bnez t0, B2.label_logicT_81
-	j B2.label_logicF_82
-
-B2.label_logicT_81:
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1760(sp)
-	lw t0, 4(sp)
-	lw t1, 0(t0)
-	sw t1, 1764(sp)
-	lw a0, 1760(sp)
-	lw a1, 1764(sp)
-	call check
-	sw a0, 1768(sp)
-	lw t0, 1768(sp)
-	lw t1, 260(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_82
-
-B2.label_logicF_82:
-	lw t0, 260(sp)
-	lw t1, 0(t0)
-	sw t1, 1772(sp)
-	lw t0, 1772(sp)
-	lw t1, 252(sp)
-	sw t0, 0(t1)
-	lw t0, 1772(sp)
-	bnez t0, B2.label_logicT_83
-	j B2.label_logicF_84
-
-B2.label_logicT_83:
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	sw t1, 1776(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1780(sp)
-	lw t0, 1776(sp)
-	lw t1, 1780(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1784(sp)
-	lw t0, 1784(sp)
-	lw t1, 0(t0)
-	sw t1, 1788(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1792(sp)
-	lw t0, 1788(sp)
-	lw t1, 1792(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1796(sp)
-	lw t0, 1796(sp)
-	lw t1, 0(t0)
-	sw t1, 1800(sp)
-	li t1, 0
-	li t2, 1
-	sub t0, t1, t2
-	sw t0, 1804(sp)
-	lw t1, 1800(sp)
-	lw t2, 1804(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 1808(sp)
-	lw t0, 1808(sp)
-	lw t1, 252(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_84
-
-B2.label_logicF_84:
-	lw t0, 252(sp)
-	lw t1, 0(t0)
-	sw t1, 1812(sp)
-	lw t0, 1812(sp)
-	bnez t0, B2.label_true_85
-	j B2.label_false_86
-
-B2.label_true_85:
-	li a0, 6
-	call printlnInt
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 1816(sp)
-	lw t1, 1816(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 1820(sp)
-	lw t0, 1820(sp)
-	lw t1, 52(sp)
-	sw t0, 0(t1)
-	lw t0, 92(sp)
-	lw t1, 0(t0)
-	sw t1, 1824(sp)
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 1828(sp)
-	lw t0, 1824(sp)
-	lw t1, 1828(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1832(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1836(sp)
-	lw t0, 1836(sp)
-	lw t1, 1832(sp)
-	sw t0, 0(t1)
-	lw t0, 100(sp)
-	lw t1, 0(t0)
-	sw t1, 1840(sp)
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 1844(sp)
-	lw t0, 1840(sp)
-	lw t1, 1844(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1848(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1852(sp)
-	lw t0, 1852(sp)
-	lw t1, 1848(sp)
-	sw t0, 0(t1)
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	sw t1, 1856(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1860(sp)
-	lw t0, 1856(sp)
-	lw t1, 1860(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1864(sp)
-	lw t0, 1864(sp)
-	lw t1, 0(t0)
-	sw t1, 1868(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1872(sp)
-	lw t0, 1868(sp)
-	lw t1, 1872(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1876(sp)
-	lw t0, 68(sp)
-	lw t1, 0(t0)
-	sw t1, 1880(sp)
-	lw t1, 1880(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 1884(sp)
-	lw t0, 1884(sp)
-	lw t1, 1876(sp)
-	sw t0, 0(t1)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1888(sp)
-	lw t0, 36(sp)
-	lw t1, 0(t0)
-	sw t1, 1892(sp)
-	lw t1, 1888(sp)
-	lw t2, 1892(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 1896(sp)
-	lw t0, 1896(sp)
-	lw t1, 268(sp)
-	sw t0, 0(t1)
-	lw t0, 1896(sp)
-	bnez t0, B2.label_logicT_88
-	j B2.label_logicF_89
-
-B2.label_logicT_88:
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1900(sp)
-	lw t0, 44(sp)
-	lw t1, 0(t0)
-	sw t1, 1904(sp)
-	lw t1, 1900(sp)
-	lw t2, 1904(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 1908(sp)
-	lw t0, 1908(sp)
-	lw t1, 268(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_89
-
-B2.label_logicF_89:
-	lw t0, 268(sp)
-	lw t1, 0(t0)
-	sw t1, 1912(sp)
-	lw t0, 1912(sp)
-	bnez t0, B2.label_true_90
-	j B2.label_false_91
-
-B2.label_true_90:
-	li t0, 1
-	lw t1, 60(sp)
-	sw t0, 0(t1)
-	j B2.label_skip_92
-
-B2.label_false_91:
-	j B2.label_skip_92
-
-B2.label_skip_92:
-	j B2.label_skip_87
-
-B2.label_false_86:
-	j B2.label_skip_87
-
-B2.label_skip_87:
-	la a0, .str.pre_3
-	call println
-	lw t0, 92(sp)
-	lw t1, 0(t0)
-	sw t1, 1916(sp)
-	lw t0, 12(sp)
-	lw t1, 0(t0)
-	sw t1, 1920(sp)
-	lw t0, 1916(sp)
-	lw t1, 1920(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1924(sp)
-	lw t0, 1924(sp)
-	lw t1, 0(t0)
-	sw t1, 1928(sp)
-	lw t1, 1928(sp)
-	li t2, 2
-	add t0, t1, t2
-	sw t0, 1932(sp)
-	lw t0, 1932(sp)
-	lw t1, 76(sp)
-	sw t0, 0(t1)
-	lw t0, 100(sp)
-	lw t1, 0(t0)
-	sw t1, 1936(sp)
-	lw t0, 12(sp)
-	lw t1, 0(t0)
-	sw t1, 1940(sp)
-	lw t0, 1936(sp)
-	lw t1, 1940(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1944(sp)
-	lw t0, 1944(sp)
-	lw t1, 0(t0)
-	sw t1, 1948(sp)
-	lw t1, 1948(sp)
-	li t2, 1
-	sub t0, t1, t2
-	sw t0, 1952(sp)
-	lw t0, 1952(sp)
-	lw t1, 84(sp)
-	sw t0, 0(t1)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1956(sp)
-	lw t0, 4(sp)
-	lw t1, 0(t0)
-	sw t1, 1960(sp)
-	lw a0, 1956(sp)
-	lw a1, 1960(sp)
-	call check
-	sw a0, 1964(sp)
-	lw t0, 1964(sp)
-	lw t1, 284(sp)
-	sw t0, 0(t1)
-	lw t0, 1964(sp)
-	bnez t0, B2.label_logicT_93
-	j B2.label_logicF_94
-
-B2.label_logicT_93:
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 1968(sp)
-	lw t0, 4(sp)
-	lw t1, 0(t0)
-	sw t1, 1972(sp)
-	lw a0, 1968(sp)
-	lw a1, 1972(sp)
-	call check
-	sw a0, 1976(sp)
-	lw t0, 1976(sp)
-	lw t1, 284(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_94
-
-B2.label_logicF_94:
-	lw t0, 284(sp)
-	lw t1, 0(t0)
-	sw t1, 1980(sp)
-	lw t0, 1980(sp)
-	lw t1, 276(sp)
-	sw t0, 0(t1)
-	lw t0, 1980(sp)
-	bnez t0, B2.label_logicT_95
-	j B2.label_logicF_96
-
-B2.label_logicT_95:
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	sw t1, 1984(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 1988(sp)
-	lw t0, 1984(sp)
-	lw t1, 1988(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 1992(sp)
-	lw t0, 1992(sp)
-	lw t1, 0(t0)
-	sw t1, 1996(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	sw t1, 2000(sp)
-	lw t0, 1996(sp)
-	lw t1, 2000(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 2004(sp)
-	lw t0, 2004(sp)
-	lw t1, 0(t0)
-	sw t1, 2008(sp)
-	li t1, 0
-	li t2, 1
-	sub t0, t1, t2
-	sw t0, 2012(sp)
-	lw t1, 2008(sp)
-	lw t2, 2012(sp)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	sw t0, 2016(sp)
-	lw t0, 2016(sp)
-	lw t1, 276(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_96
-
-B2.label_logicF_96:
-	lw t0, 276(sp)
-	lw t1, 0(t0)
-	sw t1, 2020(sp)
-	lw t0, 2020(sp)
-	bnez t0, B2.label_true_97
-	j B2.label_false_98
-
-B2.label_true_97:
-	li a0, 7
-	call printlnInt
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 2024(sp)
-	lw t1, 2024(sp)
-	li t2, 1
-	add t0, t1, t2
-	sw t0, 2028(sp)
-	lw t0, 2028(sp)
-	lw t1, 52(sp)
-	sw t0, 0(t1)
-	lw t0, 92(sp)
-	lw t1, 0(t0)
-	sw t1, 2032(sp)
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	sw t1, 2036(sp)
-	lw t0, 2032(sp)
-	lw t1, 2036(sp)
-	slli t1, t1, 2
-	add t2, t0, t1
-	sw t2, 2040(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	sw t1, 2044(sp)
-	lw t0, 2044(sp)
-	lw t1, 2040(sp)
-	sw t0, 0(t1)
-	lw t0, 100(sp)
-	lw t1, 0(t0)
-	li t6, 2048
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	li t6, 2052
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2048
-	add t6, sp, t6
-	lw t0, 0(t6)
-	li t6, 2052
-	add t6, sp, t6
-	lw t1, 0(t6)
-	slli t1, t1, 2
-	add t2, t0, t1
-	li t6, 2056
-	add t6, sp, t6
-	sw t2, 0(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	li t6, 2060
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2060
-	add t6, sp, t6
-	lw t0, 0(t6)
-	li t6, 2056
-	add t6, sp, t6
-	lw t1, 0(t6)
-	sw t0, 0(t1)
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	li t6, 2064
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	li t6, 2068
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2064
-	add t6, sp, t6
-	lw t0, 0(t6)
-	li t6, 2068
-	add t6, sp, t6
-	lw t1, 0(t6)
-	slli t1, t1, 2
-	add t2, t0, t1
-	li t6, 2072
-	add t6, sp, t6
-	sw t2, 0(sp)
-	li t6, 2072
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 0(t0)
-	li t6, 2076
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	li t6, 2080
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2076
-	add t6, sp, t6
-	lw t0, 0(t6)
-	li t6, 2080
-	add t6, sp, t6
-	lw t1, 0(t6)
-	slli t1, t1, 2
-	add t2, t0, t1
-	li t6, 2084
-	add t6, sp, t6
-	sw t2, 0(sp)
-	lw t0, 68(sp)
-	lw t1, 0(t0)
-	li t6, 2088
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2088
-	add t6, sp, t6
-	lw t1, 0(t6)
-	li t2, 1
-	add t0, t1, t2
-	li t6, 2092
-	add t6, sp, t6
-	sw t0, 0(sp)
-	li t6, 2092
-	add t6, sp, t6
-	lw t0, 0(t6)
-	li t6, 2084
-	add t6, sp, t6
-	lw t1, 0(t6)
-	sw t0, 0(t1)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	li t6, 2096
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 36(sp)
-	lw t1, 0(t0)
-	li t6, 2100
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2096
-	add t6, sp, t6
-	lw t1, 0(t6)
-	li t6, 2100
-	add t6, sp, t6
-	lw t2, 0(t6)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	li t6, 2104
-	add t6, sp, t6
-	sw t0, 0(sp)
-	li t6, 2104
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 292(sp)
-	sw t0, 0(t1)
-	li t6, 2104
-	add t6, sp, t6
-	lw t0, 0(t6)
-	bnez t0, B2.label_logicT_100
-	j B2.label_logicF_101
-
-B2.label_logicT_100:
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	li t6, 2108
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 44(sp)
-	lw t1, 0(t0)
-	li t6, 2112
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2108
-	add t6, sp, t6
-	lw t1, 0(t6)
-	li t6, 2112
-	add t6, sp, t6
-	lw t2, 0(t6)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	li t6, 2116
-	add t6, sp, t6
-	sw t0, 0(sp)
-	li t6, 2116
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 292(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_101
-
-B2.label_logicF_101:
-	lw t0, 292(sp)
-	lw t1, 0(t0)
-	li t6, 2120
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2120
-	add t6, sp, t6
-	lw t0, 0(t6)
-	bnez t0, B2.label_true_102
-	j B2.label_false_103
-
-B2.label_true_102:
-	li t0, 1
-	lw t1, 60(sp)
-	sw t0, 0(t1)
-	j B2.label_skip_104
-
-B2.label_false_103:
-	j B2.label_skip_104
-
-B2.label_skip_104:
-	j B2.label_skip_99
-
-B2.label_false_98:
-	j B2.label_skip_99
-
-B2.label_skip_99:
-	la a0, .str.pre_4
-	call println
-	li t1, 1
-	li t2, 10
-	add t0, t1, t2
-	li t6, 2124
-	add t6, sp, t6
-	sw t0, 0(sp)
-	li t6, 2124
-	add t6, sp, t6
-	lw a0, 0(t6)
-	call printlnInt
-	lw t0, 92(sp)
-	lw t1, 0(t0)
-	li t6, 2128
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 12(sp)
-	lw t1, 0(t0)
-	li t6, 2132
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2128
-	add t6, sp, t6
-	lw t0, 0(t6)
-	li t6, 2132
-	add t6, sp, t6
-	lw t1, 0(t6)
-	slli t1, t1, 2
-	add t2, t0, t1
-	li t6, 2136
-	add t6, sp, t6
-	sw t2, 0(sp)
-	li t6, 2136
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 0(t0)
-	li t6, 2140
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2140
-	add t6, sp, t6
-	lw t1, 0(t6)
-	li t2, 2
-	add t0, t1, t2
-	li t6, 2144
-	add t6, sp, t6
-	sw t0, 0(sp)
-	li t6, 2144
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 76(sp)
-	sw t0, 0(t1)
-	la a0, .str.pre_5
-	call println
-	lw t0, 100(sp)
-	lw t1, 0(t0)
-	li t6, 2148
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 12(sp)
-	lw t1, 0(t0)
-	li t6, 2152
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2148
-	add t6, sp, t6
-	lw t0, 0(t6)
-	li t6, 2152
-	add t6, sp, t6
-	lw t1, 0(t6)
-	slli t1, t1, 2
-	add t2, t0, t1
-	li t6, 2156
-	add t6, sp, t6
-	sw t2, 0(sp)
-	li t6, 2156
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 0(t0)
-	li t6, 2160
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2160
-	add t6, sp, t6
-	lw t1, 0(t6)
-	li t2, 1
-	add t0, t1, t2
-	li t6, 2164
-	add t6, sp, t6
-	sw t0, 0(sp)
-	li t6, 2164
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 84(sp)
-	sw t0, 0(t1)
-	la a0, .str.pre_6
-	call println
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	li t6, 2168
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 4(sp)
-	lw t1, 0(t0)
-	li t6, 2172
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2168
-	add t6, sp, t6
-	lw a0, 0(t6)
-	li t6, 2172
-	add t6, sp, t6
-	lw a1, 0(t6)
-	call check
-	li t6, 2176
-	add t6, sp, t6
-	sw a0, 0(sp)
-	li t6, 2176
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 308(sp)
-	sw t0, 0(t1)
-	li t6, 2176
-	add t6, sp, t6
-	lw t0, 0(t6)
-	bnez t0, B2.label_logicT_105
-	j B2.label_logicF_106
-
-B2.label_logicT_105:
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	li t6, 2180
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 4(sp)
-	lw t1, 0(t0)
-	li t6, 2184
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2180
-	add t6, sp, t6
-	lw a0, 0(t6)
-	li t6, 2184
-	add t6, sp, t6
-	lw a1, 0(t6)
-	call check
-	li t6, 2188
-	add t6, sp, t6
-	sw a0, 0(sp)
-	li t6, 2188
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 308(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_106
-
-B2.label_logicF_106:
-	lw t0, 308(sp)
-	lw t1, 0(t0)
-	li t6, 2192
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2192
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 300(sp)
-	sw t0, 0(t1)
-	li t6, 2192
-	add t6, sp, t6
-	lw t0, 0(t6)
-	bnez t0, B2.label_logicT_107
-	j B2.label_logicF_108
-
-B2.label_logicT_107:
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	li t6, 2196
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	li t6, 2200
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2196
-	add t6, sp, t6
-	lw t0, 0(t6)
-	li t6, 2200
-	add t6, sp, t6
-	lw t1, 0(t6)
-	slli t1, t1, 2
-	add t2, t0, t1
-	li t6, 2204
-	add t6, sp, t6
-	sw t2, 0(sp)
-	li t6, 2204
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 0(t0)
-	li t6, 2208
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	li t6, 2212
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2208
-	add t6, sp, t6
-	lw t0, 0(t6)
-	li t6, 2212
-	add t6, sp, t6
-	lw t1, 0(t6)
-	slli t1, t1, 2
-	add t2, t0, t1
-	li t6, 2216
-	add t6, sp, t6
-	sw t2, 0(sp)
-	li t6, 2216
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 0(t0)
-	li t6, 2220
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t1, 0
-	li t2, 1
-	sub t0, t1, t2
-	li t6, 2224
-	add t6, sp, t6
-	sw t0, 0(sp)
-	li t6, 2220
-	add t6, sp, t6
-	lw t1, 0(t6)
-	li t6, 2224
-	add t6, sp, t6
-	lw t2, 0(t6)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	li t6, 2228
-	add t6, sp, t6
-	sw t0, 0(sp)
-	li t6, 2228
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 300(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_108
-
-B2.label_logicF_108:
-	lw t0, 300(sp)
-	lw t1, 0(t0)
-	li t6, 2232
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2232
-	add t6, sp, t6
-	lw t0, 0(t6)
-	bnez t0, B2.label_true_109
-	j B2.label_false_110
-
-B2.label_true_109:
-	li a0, 8
-	call printlnInt
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	li t6, 2236
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2236
-	add t6, sp, t6
-	lw t1, 0(t6)
-	li t2, 1
-	add t0, t1, t2
-	li t6, 2240
-	add t6, sp, t6
-	sw t0, 0(sp)
-	li t6, 2240
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 52(sp)
-	sw t0, 0(t1)
-	lw t0, 92(sp)
-	lw t1, 0(t0)
-	li t6, 2244
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	li t6, 2248
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2244
-	add t6, sp, t6
-	lw t0, 0(t6)
-	li t6, 2248
-	add t6, sp, t6
-	lw t1, 0(t6)
-	slli t1, t1, 2
-	add t2, t0, t1
-	li t6, 2252
-	add t6, sp, t6
-	sw t2, 0(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	li t6, 2256
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2256
-	add t6, sp, t6
-	lw t0, 0(t6)
-	li t6, 2252
-	add t6, sp, t6
-	lw t1, 0(t6)
-	sw t0, 0(t1)
-	lw t0, 100(sp)
-	lw t1, 0(t0)
-	li t6, 2260
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 52(sp)
-	lw t1, 0(t0)
-	li t6, 2264
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2260
-	add t6, sp, t6
-	lw t0, 0(t6)
-	li t6, 2264
-	add t6, sp, t6
-	lw t1, 0(t6)
-	slli t1, t1, 2
-	add t2, t0, t1
-	li t6, 2268
-	add t6, sp, t6
-	sw t2, 0(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	li t6, 2272
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2272
-	add t6, sp, t6
-	lw t0, 0(t6)
-	li t6, 2268
-	add t6, sp, t6
-	lw t1, 0(t6)
-	sw t0, 0(t1)
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	li t6, 2276
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	li t6, 2280
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2276
-	add t6, sp, t6
-	lw t0, 0(t6)
-	li t6, 2280
-	add t6, sp, t6
-	lw t1, 0(t6)
-	slli t1, t1, 2
-	add t2, t0, t1
-	li t6, 2284
-	add t6, sp, t6
-	sw t2, 0(sp)
-	li t6, 2284
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 0(t0)
-	li t6, 2288
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	li t6, 2292
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2288
-	add t6, sp, t6
-	lw t0, 0(t6)
-	li t6, 2292
-	add t6, sp, t6
-	lw t1, 0(t6)
-	slli t1, t1, 2
-	add t2, t0, t1
-	li t6, 2296
-	add t6, sp, t6
-	sw t2, 0(sp)
-	lw t0, 68(sp)
-	lw t1, 0(t0)
-	li t6, 2300
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2300
-	add t6, sp, t6
-	lw t1, 0(t6)
-	li t2, 1
-	add t0, t1, t2
-	li t6, 2304
-	add t6, sp, t6
-	sw t0, 0(sp)
-	li t6, 2304
-	add t6, sp, t6
-	lw t0, 0(t6)
-	li t6, 2296
-	add t6, sp, t6
-	lw t1, 0(t6)
-	sw t0, 0(t1)
-	lw t0, 76(sp)
-	lw t1, 0(t0)
-	li t6, 2308
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 36(sp)
-	lw t1, 0(t0)
-	li t6, 2312
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2308
-	add t6, sp, t6
-	lw t1, 0(t6)
-	li t6, 2312
-	add t6, sp, t6
-	lw t2, 0(t6)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	li t6, 2316
-	add t6, sp, t6
-	sw t0, 0(sp)
-	li t6, 2316
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 316(sp)
-	sw t0, 0(t1)
-	li t6, 2316
-	add t6, sp, t6
-	lw t0, 0(t6)
-	bnez t0, B2.label_logicT_112
-	j B2.label_logicF_113
-
-B2.label_logicT_112:
-	lw t0, 84(sp)
-	lw t1, 0(t0)
-	li t6, 2320
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 44(sp)
-	lw t1, 0(t0)
-	li t6, 2324
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2320
-	add t6, sp, t6
-	lw t1, 0(t6)
-	li t6, 2324
-	add t6, sp, t6
-	lw t2, 0(t6)
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	li t6, 2328
-	add t6, sp, t6
-	sw t0, 0(sp)
-	li t6, 2328
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 316(sp)
-	sw t0, 0(t1)
-	j B2.label_logicF_113
-
-B2.label_logicF_113:
-	lw t0, 316(sp)
-	lw t1, 0(t0)
-	li t6, 2332
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2332
-	add t6, sp, t6
-	lw t0, 0(t6)
-	bnez t0, B2.label_true_114
-	j B2.label_false_115
-
-B2.label_true_114:
-	li t0, 1
-	lw t1, 60(sp)
-	sw t0, 0(t1)
-	j B2.label_skip_116
-
-B2.label_false_115:
-	j B2.label_skip_116
-
-B2.label_skip_116:
-	j B2.label_skip_111
-
-B2.label_false_110:
-	j B2.label_skip_111
-
-B2.label_skip_111:
-	la a0, .str.pre_7
-	call println
-	la a0, .str.pre_8
-	call println
-	lw t0, 60(sp)
-	lw t1, 0(t0)
-	li t6, 2336
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2336
-	add t6, sp, t6
-	lw t1, 0(t6)
-	li t2, 1
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	li t6, 2340
-	add t6, sp, t6
-	sw t0, 0(sp)
-	li t6, 2340
-	add t6, sp, t6
-	lw t0, 0(t6)
-	bnez t0, B2.label_true_117
-	j B2.label_false_118
-
-B2.label_true_117:
-	j B2.label_skip_19
-	j B2.label_skip_119
-
-B2.label_false_118:
-	j B2.label_skip_119
-
-B2.label_skip_119:
-	lw t0, 12(sp)
-	lw t1, 0(t0)
-	li t6, 2344
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2344
-	add t6, sp, t6
-	lw t1, 0(t6)
-	li t2, 1
-	add t0, t1, t2
-	li t6, 2348
-	add t6, sp, t6
-	sw t0, 0(sp)
-	li t6, 2348
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 12(sp)
-	sw t0, 0(t1)
-	j B2.label_loop_18
-
-B2.label_skip_19:
-	lw t0, 60(sp)
-	lw t1, 0(t0)
-	li t6, 2352
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2352
-	add t6, sp, t6
-	lw t1, 0(t6)
-	li t2, 1
-	xor t3, t1, t2
-	sltiu t0, t3, 1
-	li t6, 2356
-	add t6, sp, t6
-	sw t0, 0(sp)
-	li t6, 2356
-	add t6, sp, t6
-	lw t0, 0(t6)
-	bnez t0, B2.label_true_120
-	j B2.label_false_121
-
-B2.label_true_120:
-	lw t0, 108(sp)
-	lw t1, 0(t0)
-	li t6, 2360
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 36(sp)
-	lw t1, 0(t0)
-	li t6, 2364
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2360
-	add t6, sp, t6
-	lw t0, 0(t6)
-	li t6, 2364
-	add t6, sp, t6
-	lw t1, 0(t6)
-	slli t1, t1, 2
-	add t2, t0, t1
-	li t6, 2368
-	add t6, sp, t6
-	sw t2, 0(sp)
-	li t6, 2368
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 0(t0)
-	li t6, 2372
-	add t6, sp, t6
-	sw t1, 0(sp)
-	lw t0, 44(sp)
-	lw t1, 0(t0)
-	li t6, 2376
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2372
-	add t6, sp, t6
-	lw t0, 0(t6)
-	li t6, 2376
-	add t6, sp, t6
-	lw t1, 0(t6)
-	slli t1, t1, 2
-	add t2, t0, t1
-	li t6, 2380
-	add t6, sp, t6
-	sw t2, 0(sp)
-	li t6, 2380
-	add t6, sp, t6
-	lw t0, 0(t6)
-	lw t1, 0(t0)
-	li t6, 2384
-	add t6, sp, t6
-	sw t1, 0(sp)
-	li t6, 2384
-	add t6, sp, t6
-	lw a0, 0(t6)
-	call toString
-	li t6, 2388
-	add t6, sp, t6
-	sw a0, 0(sp)
-	li t6, 2388
-	add t6, sp, t6
-	lw a0, 0(t6)
-	call println
-	j B2.label_skip_122
-
-B2.label_false_121:
-	la a0, .str.pre_9
-	call print
-	j B2.label_skip_122
-
-B2.label_skip_122:
-	li a0, 0
+	sw t0, 948(sp)
+	lw a0, 948(sp)
 	lw ra, 0(sp)
-	li t6, 2432
-	add sp, sp, t6
+	addi sp, sp, 992
 	ret
 
 
@@ -3264,53 +1548,3 @@ B2.label_skip_122:
 
 .section .data
 .section .rodata
-.p2align 1
-.globl .str.pre_0
-.str.pre_0:
-	.asciz "loop"
-
-.p2align 1
-.globl .str.pre_1
-.str.pre_1:
-	.asciz "4 finish"
-
-.p2align 1
-.globl .str.pre_2
-.str.pre_2:
-	.asciz "5 finish"
-
-.p2align 1
-.globl .str.pre_3
-.str.pre_3:
-	.asciz "6 finish"
-
-.p2align 1
-.globl .str.pre_4
-.str.pre_4:
-	.asciz "7 finish"
-
-.p2align 1
-.globl .str.pre_5
-.str.pre_5:
-	.asciz "?"
-
-.p2align 1
-.globl .str.pre_6
-.str.pre_6:
-	.asciz "?"
-
-.p2align 1
-.globl .str.pre_7
-.str.pre_7:
-	.asciz "8 finish"
-
-.p2align 1
-.globl .str.pre_8
-.str.pre_8:
-	.asciz "finish if"
-
-.p2align 1
-.globl .str.pre_9
-.str.pre_9:
-	.asciz "no solution!\n"
-
