@@ -45,7 +45,7 @@ public class ASMFunction {
 
     public String getString() {
         StringBuilder s = new StringBuilder();
-        s.append(".type ").append(name).append(" , @function\n");
+        s.append(".type ").append(name).append(", @function\n");
         for (ASMBlock block : blocks) {
             s.append(block.getString()).append("\n");
         }

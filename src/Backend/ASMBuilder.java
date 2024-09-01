@@ -26,12 +26,22 @@ public class ASMBuilder {
         irBuilder = ir;
     }
 
+    public String IR2RiscV(String str){
+        String ret = str.replace("\\22", "\\\"");
+        ret = ret.replace("\\0A", "\\n");
+        ret = ret.replace("\\5C", "\\\\");
+        return ret;
+    }
+
     boolean outOfBound(int imm) {
         return imm < -2048 || imm > 2047;
     }
 
     public int getSpSize(funcDef func){
         int size = func.params.size();
+        for (Instr alloc : func.alloc) {
+            size += alloc.getSpSize();
+        }
         for (Instr instr : func.instrs) {
             size += instr.getSpSize();
         }
@@ -85,9 +95,8 @@ public class ASMBuilder {
             SwInstr sw = new SwInstr();
             sw.src = src;
             sw.offset = 0;
-            sw.dest = rd;
+            sw.dest = "t6"; // not sp
             instrs.add(sw);
-
             return instrs;
         }
         SwInstr sw = new SwInstr();
@@ -142,7 +151,7 @@ public class ASMBuilder {
     public void buildStringCons() {
         for (Instr irInstr : irBuilder.strPreDef.instrs) {
             if (irInstr instanceof preStrInstr preStr) {
-                String str = (preStr.str); // todo irStr2RiscV
+                String str = IR2RiscV(preStr.str);
                 String label = preStr.reg.getString().substring(1);
                 roDataSection.addStr(str, label);
             }
@@ -160,13 +169,15 @@ public class ASMBuilder {
 
     public void buildFunction(funcDef irFunc) {
         ASMFunction func = new ASMFunction();
-        func.name = irFunc.name;
+        if (irFunc.className != null)
+            func.name = irFunc.className + ".." + irFunc.name;
+        else func.name = irFunc.name;
         int size = getSpSize(irFunc) + regSize;
         func.spOffset = (size / 16 + (size%16==0 ? 0 : 1)) * 16;
         func.curOffset = 0;
 
         ASMBlock block = new ASMBlock();
-        block.label = irFunc.name;
+        block.label = func.name;
         block.isGlobal = true;
         block.alignSize = 2;
         block.parent = func;
@@ -189,8 +200,11 @@ public class ASMBuilder {
             }
         }
 
+        ArrayList<Instr> funcInstr = new ArrayList<>();
+        funcInstr.addAll(irFunc.alloc);
+        funcInstr.addAll(irFunc.instrs);
         boolean flag = true;
-        for (Instr irInstr : irFunc.instrs) {
+        for (Instr irInstr : funcInstr) {
             if (flag) flag = false;
             else if (irInstr instanceof label la) {
                 func.newBlock(func.head + la.getLabel().substring(1));
@@ -360,8 +374,8 @@ public class ASMBuilder {
         else getReg(get.idx.get(0), "t1", func);
         func.curBlock.instrs.addAll(Imm("sll", "t1", "t1", 2));
         ArithInstr ar = new ArithInstr();
-        ar.rd = "t2";
         ar.opType = "add";
+        ar.rd = "t2";
         ar.rs1 = "t0";
         ar.rs2 = "t1";
         func.curBlock.instrs.add(ar);
@@ -400,7 +414,7 @@ public class ASMBuilder {
                 ar2.imm = 1;
                 func.curBlock.instrs.add(ar2);
                 ImmInstr ar3 = new ImmInstr();
-                ar3.opType = "xor";
+                ar3.opType = "xori";
                 ar3.rd = "t0";
                 ar3.rs = "t3";
                 ar3.imm = 1;
@@ -410,16 +424,16 @@ public class ASMBuilder {
                 ArithInstr ar1 = new ArithInstr();
                 ar1.opType = "slt";
                 ar1.rd = "t0";
-                ar1.rs1 = "t1";
-                ar1.rs2 = "t2";
+                ar1.rs1 = "t2";
+                ar1.rs2 = "t1";
                 func.curBlock.instrs.add(ar1);
             }
             case sge -> {
                 ArithInstr ar1 = new ArithInstr();
                 ar1.opType = "slt";
                 ar1.rd = "t0";
-                ar1.rs1 = "t2";
-                ar1.rs2 = "t1";
+                ar1.rs1 = "t1";
+                ar1.rs2 = "t2";
                 func.curBlock.instrs.add(ar1);
                 ImmInstr ar2 = new ImmInstr();
                 ar2.opType = "xori";
@@ -432,19 +446,19 @@ public class ASMBuilder {
                 ArithInstr ar1 = new ArithInstr();
                 ar1.opType = "slt";
                 ar1.rd = "t0";
-                ar1.rs1 = "t2";
-                ar1.rs2 = "t1";
+                ar1.rs1 = "t1";
+                ar1.rs2 = "t2";
                 func.curBlock.instrs.add(ar1);
             }
             case sle -> {
                 ArithInstr ar1 = new ArithInstr();
                 ar1.opType = "slt";
                 ar1.rd = "t0";
-                ar1.rs1 = "t1";
-                ar1.rs2 = "t2";
+                ar1.rs1 = "t2";
+                ar1.rs2 = "t1";
                 func.curBlock.instrs.add(ar1);
                 ImmInstr ar2 = new ImmInstr();
-                ar2.opType = "slti";
+                ar2.opType = "xori";
                 ar2.rd = "t0";
                 ar2.rs = "t0";
                 ar2.imm = 1;
@@ -462,7 +476,7 @@ public class ASMBuilder {
         lw.offset = 0;
         lw.base = "t0";
         func.curBlock.instrs.add(lw);
-        int offset = func.getVirtualReg(load.pointer.getString());
+        int offset = func.getVirtualReg(load.result.getString());
         func.curBlock.instrs.addAll(Sw("t1", offset, "sp"));
     }
 
@@ -471,12 +485,7 @@ public class ASMBuilder {
             getReg(ret.value, "a0", func);
         }
         func.curBlock.instrs.addAll(Lw("ra", 0, "sp"));
-        ImmInstr imm = new ImmInstr();
-        imm.opType = "addi";
-        imm.rd = "sp";
-        imm.rs = "sp";
-        imm.imm = func.spOffset;
-        func.curBlock.instrs.add(imm);
+        func.curBlock.instrs.addAll(Imm("add", "sp", "sp", func.spOffset));
         Directive r = new Directive();
         r.dir = "ret";
         func.curBlock.instrs.add(r);

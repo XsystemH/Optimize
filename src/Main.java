@@ -20,9 +20,9 @@ public class Main {
     public static void main(String[] args) throws IOException {
 //        System.out.println("Hello Compiler!");
 
-//        String filename = "testcases/codegen/e1.mx";
+//        String filename = "test.mx";
 //        InputStream input = new FileInputStream(filename);
-//        OutputStream output = new FileOutputStream("output.ll");
+//        OutputStream output = new FileOutputStream("output.s");
         InputStream input = System.in;
         OutputStream output = System.out;
         //input 设置为标准输入
@@ -45,6 +45,12 @@ public class Main {
 //            output.write(irBuilder.program.getString().getBytes(StandardCharsets.UTF_8));
             irBuilder.strPreDef.getString();
             irBuilder.program.getString();
+            String builtin = "src/Backend/builtin/builtin.s";
+            BufferedReader reader = new BufferedReader(new FileReader(builtin));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
             ASMBuilder asmBuilder = new ASMBuilder(irBuilder);
             asmBuilder.visitProgram();
             output.write(asmBuilder.getString().getBytes(StandardCharsets.UTF_8));
