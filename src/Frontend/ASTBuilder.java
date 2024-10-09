@@ -22,7 +22,6 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitProgram(MxParser.ProgramContext ctx) {
         ProgramNode p = new ProgramNode(new position(ctx));
-        boolean visitedMain = false;
         for (int i = 0; i < ctx.getChildCount(); i++) {
             if (ctx.getChild(i) instanceof MxParser.ClassDefContext) {
                 p.members.add((ClassNode) visit(ctx.getChild(i)));
@@ -42,7 +41,6 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         if (ctx.mainFn() == null) {
             throw new semanticError("Invalid Identifier", new position(ctx));
         }
-//        p.mainFn = (FuncNode) visit(ctx.mainFn());
         return p;
     }
 
