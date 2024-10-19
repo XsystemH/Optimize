@@ -4,6 +4,9 @@ import Backend.IRBuilder;
 import Frontend.ASTBuilder;
 import Frontend.SemanticChecker;
 import Frontend.SymbolCollector;
+import IR.Instruction.Instr;
+import IR.funcDef;
+import Opt.CFG;
 import Parser.*;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -19,11 +22,11 @@ public class Main {
     public static void main(String[] args) throws IOException {
 //        System.out.println("Hello Compiler!");
 
-        String filename = "testcases/sema/array-package/array-1.mx";
-        InputStream input = new FileInputStream(filename);
-        OutputStream output = new FileOutputStream("output.s");
-//        InputStream input = System.in;
-//        OutputStream output = System.out;
+//        String filename = "testcases/sema/array-package/array-1.mx";
+//        InputStream input = new FileInputStream(filename);
+//        OutputStream output = new FileOutputStream("output.s");
+        InputStream input = System.in;
+        OutputStream output = System.out;
         //input 设置为标准输入
         try{
             MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
@@ -44,6 +47,13 @@ public class Main {
 //            output.write(irBuilder.program.getString().getBytes(StandardCharsets.UTF_8));
             irBuilder.strPreDef.getString();
             irBuilder.program.getString();
+
+            for (Instr instr : irBuilder.program.instrs) {
+                if (instr instanceof funcDef func) {
+                    func.cfg = new CFG(func);
+                }
+            }
+
             ASMBuilder asmBuilder = new ASMBuilder(irBuilder);
             asmBuilder.visitProgram();
             output.write(asmBuilder.getString().getBytes(StandardCharsets.UTF_8));

@@ -8,6 +8,7 @@ import IR.Instruction.Instr;
 import IR.Instruction.brInstr;
 import IR.Instruction.label;
 import IR.Instruction.retInstr;
+import Opt.CFG;
 
 import java.util.ArrayList;
 
@@ -18,6 +19,8 @@ public class funcDef extends block {
     public ArrayList<String> params = new ArrayList<>();
     public ArrayList<IRType> paramTypes = new ArrayList<>();
     public ArrayList<Instr> alloc = new ArrayList<>();
+
+    public CFG cfg;
 
     @Override
     public String getString() {

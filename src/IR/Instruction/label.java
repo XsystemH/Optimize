@@ -24,6 +24,7 @@ public class label extends Instr{
     }
 
     public String getLabel() {
+        if (num == -1) return info;
         return "%label_" + info + "_" + num;
     }
 }
