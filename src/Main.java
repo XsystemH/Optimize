@@ -51,6 +51,7 @@ public class Main {
             for (Instr instr : irBuilder.program.instrs) {
                 if (instr instanceof funcDef func) {
                     func.cfg = new CFG(func);
+                    func.cfg.Mem2Reg();
                 }
             }
 
