@@ -55,6 +55,8 @@ public class Main {
                 }
             }
 
+
+
             ASMBuilder asmBuilder = new ASMBuilder(irBuilder);
             asmBuilder.visitProgram();
             output.write(asmBuilder.getString().getBytes(StandardCharsets.UTF_8));
@@ -64,6 +66,5 @@ public class Main {
             System.exit(1);
         }
 //        System.out.println("Successfully parsed!");
-        return;
     }
 }

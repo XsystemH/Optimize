@@ -1,6 +1,8 @@
 package Opt;
 
 import IR.Expression.Expr;
+import IR.Expression.Register.Reg;
+import IR.Expression.Register.varReg;
 import IR.Instruction.*;
 import IR.funcDef;
 
@@ -11,6 +13,8 @@ public class CFG {
     public BasicBlock Entry;
     public ArrayList<BasicBlock> Exit;
     public ArrayList<allocaInstr> AllocInstr;
+
+    public ArrayList<BasicBlock> rpo;
 
     public CFG(funcDef func) {
         BasicBlocks = new HashMap<>();
@@ -92,6 +96,20 @@ public class CFG {
     }
 
     public void Mem2Reg() {
+        rmUnused();
+        Dominate();
+        getPhiPos();
+
+        HashMap<Reg, Expr> last_def = new HashMap<>();
+        HashMap<Reg, Stack<Expr>> cur_name = new HashMap<>();
+        for (allocaInstr alloc : AllocInstr) {
+            cur_name.put(alloc.result, new Stack<>());
+        }
+
+        reNameVar(rpo.get(0), cur_name, last_def);
+    }
+
+    private void rmUnused() {
         // Mem2Reg
         for (allocaInstr alloc : AllocInstr) {
             // case 1: no use
@@ -108,15 +126,16 @@ public class CFG {
 //
 //                Expr val = ((storeInstr) alloc.defs.get(0)).value;
 //                for (Instr use : alloc.uses) {
-//                    // todo: mem -> val
+//
 //                }
 //                continue;
 //            }
             // to SSA
         }
-        // Dominate
-        ArrayList<BasicBlock> rpo = getRPO(Entry);
-        Queue<String> queue = new LinkedList<>();
+    }
+
+    private void Dominate() {
+        rpo = getRPO(Entry);
         HashMap<String, BitSet> domSets = new HashMap<>();
 
         for (String name : BasicBlocks.keySet()) {
@@ -152,6 +171,43 @@ public class CFG {
                 }
             }
         } while (flag);
+
+        for (BasicBlock bb : rpo) {
+            bb.dom = domSets.get(bb.Label.getLabel());
+        }
+
+        // get Immediate Dominator
+        for (int i = 0; i < BasicBlocks.size(); i++) {
+            BasicBlock cur = rpo.get(i);
+            for (int j = 0; j < BasicBlocks.size(); j++) {
+                if (cur.dom.get(j)) {
+                    // tmp = (dom[j] & dom[i]) ^ dom[i]
+                    BitSet tmp = (BitSet) rpo.get(j).dom.clone();
+                    tmp.and(cur.dom);
+                    tmp.xor(cur.dom);
+
+                    if (tmp.cardinality() == 1 && tmp.get(i)) {
+                        cur.iDom = j;
+                        cur.iDomBlock = rpo.get(j);
+                        rpo.get(j).domChildren.add(cur);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // get Dominance Frontier
+        for (BasicBlock bb : rpo) {
+            if (bb.lastBlocks.size() > 1) {
+                for (String la : bb.lastBlocks) {
+                    BasicBlock runner = BasicBlocks.get(la);
+                    while (runner != null && runner != BasicBlocks.get(la).iDomBlock) {
+                        runner.domFrontier.add(bb);
+                        runner = runner.iDomBlock;
+                    }
+                }
+            }
+        }
     }
 
     private ArrayList<BasicBlock> getRPO(BasicBlock start) {
@@ -183,5 +239,193 @@ public class CFG {
             rpo.add(po.get(i));
         }
         return rpo;
+    }
+
+    private void getPhiPos() {
+        for (allocaInstr alloc : AllocInstr) {
+            if (alloc.toReg) continue;
+
+            HashSet<BasicBlock> workTable = getWorkTable(alloc.result);
+            HashSet<BasicBlock> added = new HashSet<>();
+
+            while (!workTable.isEmpty()) {
+                BasicBlock cur = workTable.iterator().next();
+                for (BasicBlock f : cur.domFrontier) {
+                    if (!added.contains(f)) {
+                        added.add(f);
+                        workTable.add(f);
+                    }
+                    if (!f.phiMap.containsKey(alloc.result)) {
+                        phiInstr phi = new phiInstr();
+                        phi.ori = alloc.result;
+                        phi.result = null;
+                        phi.type = alloc.type;
+                        f.phiMap.put(alloc.result, phi);
+                    }
+                }
+                workTable.remove(cur);
+            }
+        }
+    }
+
+    private HashSet<BasicBlock> getWorkTable(Reg reg) {
+        // blocks including "store reg"
+        HashSet<BasicBlock> work = new HashSet<>();
+        for (BasicBlock bb : BasicBlocks.values()) {
+            for (Instr instr : bb.Instrs) {
+                if (instr instanceof storeInstr store) {
+                    if (store.ptr.equals(reg)) {
+                        work.add(bb);
+                        break;
+                    }
+                }
+            }
+        }
+        return work;
+    }
+
+    private void reNameVar(BasicBlock curBlock, HashMap<Reg, Stack<Expr>> curName, HashMap<Reg, Expr> lastDef) {
+        HashMap<Reg, Integer> newNum = new HashMap<>();
+        for (allocaInstr alloc : AllocInstr) {
+            newNum.put(alloc.result, 0);
+        }
+
+        // phi
+        for (Reg ori : curName.keySet()) {
+            phiInstr phi = curBlock.phiMap.get(ori);
+            phi.result = new varReg(ori.getString().substring(1) + ".phi." + rpo.indexOf(curBlock), -1, 0);
+            curName.get(ori).push(phi.result);
+            newNum.put(ori, newNum.get(ori) + 1);
+        }
+
+        reNameVarInBlock(curBlock, curName, lastDef, newNum);
+
+        for (String sucStr : curBlock.nextBlocks) {
+            BasicBlock suc = BasicBlocks.get(sucStr);
+            setPhi(suc, curBlock, curName);
+        }
+
+        for (BasicBlock domChild : curBlock.domChildren) {
+            reNameVar(domChild, curName, lastDef);
+        }
+
+        for (Reg var : newNum.keySet()) {
+            for (int i = 0; i < newNum.get(var); i++)
+                curName.get(var).pop();
+        }
+    }
+
+    private Expr getReg(HashMap<Reg, Expr> lastDef, Expr val) {
+        if (val instanceof Reg) {
+            if (!lastDef.containsKey(val)) return val;
+            return lastDef.get(val);
+        }
+        return val;
+    }
+
+    private void setPhi(BasicBlock curBlock, BasicBlock preBlock, HashMap<Reg, Stack<Expr>> curName) {
+        for (Reg var : curBlock.phiMap.keySet()) {
+            phiInstr phi = curBlock.phiMap.get(var);
+            if (curName.containsKey(var)) {
+                phi.addVal(curName.get(var).peek(), preBlock.Label.getLabel());
+            }
+            else {
+                phi.addEmpty(preBlock.Label.getLabel());
+            }
+        }
+    }
+
+    private void reNameVarInBlock(BasicBlock curBlock, HashMap<Reg, Stack<Expr>> curName, HashMap<Reg, Expr> lastDef, HashMap<Reg, Integer> newNum) {
+        ArrayList<Instr> newInstrs = new ArrayList<>();
+        for (Instr instr : curBlock.Instrs) {
+            if (instr instanceof storeInstr store) {
+                if (!curName.containsKey(store.ptr)) {
+                    storeInstr newStore = new storeInstr();
+                    newStore.type = store.type;
+                    newStore.value = getReg(lastDef, store.value);
+                    newStore.ptr = store.ptr;
+                    newInstrs.add(newStore);
+                }
+                else {
+                    curName.get(store.ptr).push(getReg(lastDef, store.value));
+                    newNum.put(store.ptr, newNum.get(store.ptr) + 1);
+                }
+            }
+            else if (instr instanceof loadInstr load) {
+                if (!curName.containsKey(load.pointer)) {
+                    newInstrs.add(load);
+                }
+                else {
+                    lastDef.put(load.result, curName.get(load.pointer).peek());
+                }
+            }
+            else if (instr instanceof binInstr bin) {
+                binInstr newBin = new binInstr();
+                newBin.result = bin.result;
+                newBin.type = bin.type;
+                newBin.op = bin.op;
+                newBin.operand1 = getReg(lastDef, bin.operand1);
+                newBin.operand2 = getReg(lastDef, bin.operand2);
+                newInstrs.add(newBin);
+            }
+            else if (instr instanceof callInstr call) {
+                callInstr newCall = new callInstr();
+                newCall.result = call.result;
+                newCall.returnType = call.returnType;
+                newCall.className = call.className;
+                newCall.methodName = call.methodName;
+                for (int i = 0; i < call.paramExpr.size(); i++) {
+                    newCall.paramTypes.add(call.paramTypes.get(i));
+                    newCall.paramExpr.add(getReg(lastDef, call.paramExpr.get(i)));
+                }
+                newInstrs.add(newCall);
+            }
+            else if (instr instanceof getInstr get) {
+                getInstr newGet = new getInstr();
+                newGet.result = get.result;
+                newGet.type = get.type;
+                newGet.ptr = getReg(lastDef, get.ptr);
+                newGet.idx = get.idx;
+                newInstrs.add(newGet);
+            }
+            else if (instr instanceof icmpInstr icmp) {
+                icmpInstr newIcmp = new icmpInstr();
+                newIcmp.result = icmp.result;
+                newIcmp.type = icmp.type;
+                newIcmp.cond = icmp.cond;
+                newIcmp.op1 = getReg(lastDef, icmp.op1);
+                newIcmp.op2 = getReg(lastDef, icmp.op2);
+                newInstrs.add(newIcmp);
+            }
+            else if (instr instanceof selectInstr select) {
+                selectInstr newSelect = new selectInstr();
+                newSelect.result = select.result;
+                newSelect.cond = getReg(lastDef, select.cond);
+                newSelect.ty1 = select.ty1;
+                newSelect.ty2 = select.ty2;
+                newSelect.val1 = getReg(lastDef, select.val1);
+                newSelect.val2 = getReg(lastDef, select.val2);
+                newInstrs.add(newSelect);
+            }
+            else {
+                throw new RuntimeException("[rename] wrong instr type in instrs");
+            }
+        }
+        curBlock.Instrs = newInstrs;
+
+        if (curBlock.Ctrl instanceof brInstr br) {
+            brInstr newBr = new brInstr();
+            if (br.cond != null) newBr.cond = getReg(lastDef, br.cond);
+            newBr.destLabel = br.destLabel;
+            newBr.trueLabel = br.trueLabel;
+            newBr.falseLabel = br.falseLabel;
+            curBlock.Ctrl = newBr;
+        }
+        else if (curBlock.Ctrl instanceof retInstr ret) {
+            retInstr newRet = new retInstr();
+            newRet.type = ret.type;
+            newRet.value = getReg(lastDef, ret.value);
+            curBlock.Ctrl = newRet;
+        }
     }
 }

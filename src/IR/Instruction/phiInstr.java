@@ -1,8 +1,14 @@
 package IR.Instruction;
 
+import IR.Expression.Constant.boolCons;
+import IR.Expression.Constant.intCons;
+import IR.Expression.Constant.ptrCons;
 import IR.Expression.Expr;
 import IR.Expression.Register.Reg;
 import IR.IRType.IRType;
+import IR.IRType.IntType;
+import IR.IRType.classType;
+import IR.IRType.ptrType;
 
 import java.util.ArrayList;
 
@@ -11,6 +17,22 @@ public class phiInstr extends Instr{
     public IRType type;
     public ArrayList<Expr> vals;
     public ArrayList<String> blocks;
+
+    public Reg ori;
+
+    public void addVal(Expr expr, String label) {
+        vals.add(expr);
+        blocks.add(label);
+    }
+
+    public void addEmpty(String label) {
+        blocks.add(label);
+        if (type instanceof IntType i) {
+            if (i.N == 32) vals.add(new intCons(0));
+            else if (i.N == 1) vals.add(new boolCons(false));
+        }
+        else vals.add(new ptrCons());
+    }
 
     @Override
     public String getString() {
