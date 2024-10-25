@@ -16,6 +16,8 @@ public class CFG {
 
     public ArrayList<BasicBlock> rpo;
 
+    public HashMap<Reg, ActivePeriod> activePeriods;
+
     public CFG(funcDef func) {
         BasicBlocks = new HashMap<>();
         Entry = new BasicBlock();
@@ -458,9 +460,16 @@ public class CFG {
                 }
                 use = curInstr.use;
                 def = curInstr.def;
+
+                curInstr.out.clear();
+                curInstr.out.addAll(out);
+
                 out.removeAll(def);
                 in_.addAll(use);
                 in_.addAll(out);
+
+                curInstr.in_.clear();
+                curInstr.in_.addAll(in_);
 
                 if (t > 0) curInstr = curBlock.Instrs.get(t - 1);
                 t--;
@@ -472,6 +481,42 @@ public class CFG {
                 if (!last.out.containsAll(in_)) {
                     last.out.addAll(in_);
                     task.add(last);
+                }
+            }
+        }
+
+        // collect active periods
+        for (int blockID = 0; blockID < rpo.size(); blockID++) {
+            BasicBlock curBlock = rpo.get(blockID);
+            for (int instrID = 0; instrID < curBlock.Instrs.size(); instrID++) {
+                Instr instr = curBlock.Instrs.get(instrID);
+                for (Reg reg : instr.out) {
+                    if (!activePeriods.containsKey(reg)) {
+                        ActivePeriod ap = new ActivePeriod();
+                        ap.startBlock = blockID;
+                        ap.startInstr = instrID;
+                        activePeriods.put(reg, ap);
+                    }
+                }
+            }
+        }
+        for (int blockID = rpo.size() - 1; blockID >= 0; blockID--) {
+            BasicBlock curBlock = rpo.get(blockID);
+            for (Reg reg : curBlock.out) {
+                if (activePeriods.containsKey(reg)) {
+                    ActivePeriod ap = activePeriods.get(reg);
+                    ap.endBlock = blockID;
+                    ap.endInstr = curBlock.Instrs.size();
+                }
+            }
+            for (int instrID = curBlock.Instrs.size() - 1; instrID >= 0; instrID--) {
+                Instr instr = curBlock.Instrs.get(instrID);
+                for (Reg reg : instr.in_) {
+                    if (activePeriods.containsKey(reg)) {
+                        ActivePeriod ap = activePeriods.get(reg);
+                        ap.endBlock = blockID;
+                        ap.endInstr = instrID;
+                    }
                 }
             }
         }
