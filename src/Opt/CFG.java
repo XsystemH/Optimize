@@ -428,4 +428,104 @@ public class CFG {
             curBlock.Ctrl = newRet;
         }
     }
+
+    public void rmPhi() {
+
+    }
+
+    public void activeAnalysis() {
+        AAInstr();
+
+        ArrayList<BasicBlock> task = new ArrayList<>();
+        for (int i = rpo.size() - 1; i >= 0; i--) {
+            BasicBlock cur = rpo.get(i);
+            if (cur.nextBlocks.isEmpty()) task.add(cur);
+        }
+        while (!task.isEmpty()) {
+            BasicBlock curBlock = task.remove(0);
+
+            HashSet<Reg> use = new HashSet<>();
+            HashSet<Reg> def = new HashSet<>();
+            HashSet<Reg> in_ = new HashSet<>();
+            HashSet<Reg> out = new HashSet<>();
+            // AA in Block
+            int t = curBlock.Instrs.size();
+            Instr curInstr = curBlock.Ctrl;
+            out = curBlock.out;
+            while (t >= 0) {
+                if (t < curBlock.Instrs.size()) {
+                    out = in_;
+                }
+                use = curInstr.use;
+                def = curInstr.def;
+                out.removeAll(def);
+                in_.addAll(use);
+                in_.addAll(out);
+
+                if (t > 0) curInstr = curBlock.Instrs.get(t - 1);
+                t--;
+            }
+
+            // AA to lastBlock
+            for (String lastStr : curBlock.lastBlocks) {
+                BasicBlock last = BasicBlocks.get(lastStr);
+                if (!last.out.containsAll(in_)) {
+                    last.out.addAll(in_);
+                    task.add(last);
+                }
+            }
+        }
+    }
+
+    public void AAInstr() {
+        for (BasicBlock cur : rpo) {
+            for (Instr instr : cur.Instrs) {
+                if (instr instanceof binInstr bin) {
+                    bin.def.add(bin.result);
+                    if (bin.operand1 instanceof Reg reg) bin.use.add(reg);
+                    if (bin.operand2 instanceof Reg reg) bin.use.add(reg);
+                }
+                else if (instr instanceof callInstr call) {
+                    call.def.add(call.result);
+                    for (Expr expr : call.paramExpr) {
+                        if (expr instanceof Reg reg) call.use.add(reg);
+                    }
+                }
+                else if (instr instanceof getInstr get) {
+                    get.def.add(get.result);
+                    if (get.ptr instanceof Reg reg) get.use.add(reg);
+                    for (Expr expr : get.idx) {
+                        if (expr instanceof Reg reg) get.use.add(reg);
+                    }
+                }
+                else if (instr instanceof icmpInstr icmp) {
+                    icmp.def.add(icmp.result);
+                    if (icmp.op1 instanceof Reg reg) icmp.use.add(reg);
+                    if (icmp.op2 instanceof Reg reg) icmp.use.add(reg);
+                }
+                else if (instr instanceof selectInstr select) {
+                    select.def.add(select.result);
+                    if (select.val1 instanceof Reg reg) select.use.add(reg);
+                    if (select.val2 instanceof Reg reg) select.use.add(reg);
+                }
+                else if (instr instanceof loadInstr load) {
+                    load.def.add(load.result);
+                    load.use.add(load.pointer);
+                }
+                else if (instr instanceof storeInstr store) {
+                    store.use.add(store.ptr);
+                    if (store.value instanceof Reg reg) store.use.add(reg);
+                }
+                else {
+                    throw new RuntimeException("[AA] wrong instr type in instrs");
+                }
+            }
+            if (cur.Ctrl instanceof brInstr br) {
+                if (br.cond instanceof Reg reg) br.use.add(reg);
+            }
+            else if (cur.Ctrl instanceof retInstr ret) {
+                if (ret.value instanceof Reg reg) ret.use.add(reg);
+            }
+        }
+    }
 }

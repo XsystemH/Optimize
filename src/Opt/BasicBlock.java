@@ -25,4 +25,9 @@ public class BasicBlock {
     public HashSet<BasicBlock> domChildren = new HashSet<>();
 
     public HashMap<Reg, phiInstr> phiMap = new HashMap<>();
+
+    public HashSet<Reg> use = new HashSet<>();
+    public HashSet<Reg> def = new HashSet<>();
+    public HashSet<Reg> in_ = new HashSet<>();
+    public HashSet<Reg> out = new HashSet<>();
 }
