@@ -1,5 +1,6 @@
 package Opt;
 
+import IR.Expression.Constant.intCons;
 import IR.Expression.Expr;
 import IR.Expression.Register.Reg;
 import IR.Expression.Register.varReg;
@@ -10,24 +11,36 @@ import java.util.*;
 
 public class CFG {
     public HashMap<String, BasicBlock> BasicBlocks;
+    public HashMap<String, Reg> Regs;
     public BasicBlock Entry;
     public ArrayList<BasicBlock> Exit;
     public ArrayList<allocaInstr> AllocInstr;
 
     public ArrayList<BasicBlock> rpo;
 
-    public HashMap<Reg, ActivePeriod> activePeriods;
+    public HashMap<String, ActivePeriod> activePeriods;
 
     public CFG(funcDef func) {
         BasicBlocks = new HashMap<>();
         Entry = new BasicBlock();
         BasicBlock currentBlock = Entry;
         Entry.Label = new label("entry", -1);
-        Entry.Instrs.addAll(func.alloc);
         Exit = new ArrayList<>();
+        AllocInstr = new ArrayList<>();
+        activePeriods = new HashMap<>();
+
+        for (Instr alloc : func.alloc) {
+            if (alloc instanceof allocaInstr alloca) {
+                AllocInstr.add(alloca);
+            }
+        }
+
         for (Instr irInstr : func.instrs) {
             if (irInstr instanceof label) {
                 currentBlock.Label = (label) irInstr;
+            }
+            else if (currentBlock.Label == null) {
+                continue; // skip multi ctrl instr
             }
             else if (irInstr instanceof brInstr br) {
                 currentBlock.Ctrl = br;
@@ -55,11 +68,11 @@ public class CFG {
                 if (irInstr instanceof loadInstr load) {
                     for (Instr alloca : func.alloc) {
                         boolean flag = false;
-                        if (load.result.equals(((allocaInstr)alloca).result)) {
+                        if (load.result.getString().equals(((allocaInstr)alloca).result.getString())) {
                             ((allocaInstr) alloca).defs.add(load);
                             flag = true;
                         }
-                        if (load.pointer.equals(((allocaInstr)alloca).result)) {
+                        if (load.pointer.getString().equals(((allocaInstr)alloca).result.getString())) {
                             ((allocaInstr) alloca).uses.add(load);
                             flag = true;
                         }
@@ -73,11 +86,11 @@ public class CFG {
                 if (irInstr instanceof storeInstr store) {
                     for (Instr alloca : func.alloc) {
                         boolean flag = false;
-                        if (store.ptr.equals(((allocaInstr)alloca).result)) {
+                        if (store.ptr.getString().equals(((allocaInstr)alloca).result.getString())) {
                             ((allocaInstr) alloca).defs.add(store);
                             flag = true;
                         }
-                        if (store.value.equals(((allocaInstr)alloca).result)) {
+                        if (store.value.getString().equals(((allocaInstr)alloca).result.getString())) {
                             ((allocaInstr) alloca).uses.add(store);
                             flag = true;
                         }
@@ -102,17 +115,16 @@ public class CFG {
         Dominate();
         getPhiPos();
 
-        HashMap<Reg, Expr> last_def = new HashMap<>();
-        HashMap<Reg, Stack<Expr>> cur_name = new HashMap<>();
+        HashMap<String, Expr> last_def = new HashMap<>();
+        HashMap<String, Stack<Expr>> cur_name = new HashMap<>();
         for (allocaInstr alloc : AllocInstr) {
-            cur_name.put(alloc.result, new Stack<>());
+            cur_name.put(alloc.result.getString(), new Stack<>());
         }
 
         reNameVar(rpo.get(0), cur_name, last_def);
     }
 
     private void rmUnused() {
-        // Mem2Reg
         for (allocaInstr alloc : AllocInstr) {
             // case 1: no use
             if (alloc.uses.isEmpty()) {
@@ -132,7 +144,6 @@ public class CFG {
 //                }
 //                continue;
 //            }
-            // to SSA
         }
     }
 
@@ -179,9 +190,9 @@ public class CFG {
         }
 
         // get Immediate Dominator
-        for (int i = 0; i < BasicBlocks.size(); i++) {
+        for (int i = 1; i < rpo.size(); i++) {
             BasicBlock cur = rpo.get(i);
-            for (int j = 0; j < BasicBlocks.size(); j++) {
+            for (int j = 0; j < rpo.size(); j++) {
                 if (cur.dom.get(j)) {
                     // tmp = (dom[j] & dom[i]) ^ dom[i]
                     BitSet tmp = (BitSet) rpo.get(j).dom.clone();
@@ -203,7 +214,7 @@ public class CFG {
             if (bb.lastBlocks.size() > 1) {
                 for (String la : bb.lastBlocks) {
                     BasicBlock runner = BasicBlocks.get(la);
-                    while (runner != null && runner != BasicBlocks.get(la).iDomBlock) {
+                    while (runner != null && runner != bb.iDomBlock) {
                         runner.domFrontier.add(bb);
                         runner = runner.iDomBlock;
                     }
@@ -257,12 +268,12 @@ public class CFG {
                         added.add(f);
                         workTable.add(f);
                     }
-                    if (!f.phiMap.containsKey(alloc.result)) {
+                    if (!f.phiMap.containsKey(alloc.result.getString())) {
                         phiInstr phi = new phiInstr();
                         phi.ori = alloc.result;
                         phi.result = null;
                         phi.type = alloc.type;
-                        f.phiMap.put(alloc.result, phi);
+                        f.phiMap.put(alloc.result.getString(), phi);
                     }
                 }
                 workTable.remove(cur);
@@ -276,7 +287,7 @@ public class CFG {
         for (BasicBlock bb : BasicBlocks.values()) {
             for (Instr instr : bb.Instrs) {
                 if (instr instanceof storeInstr store) {
-                    if (store.ptr.equals(reg)) {
+                    if (store.ptr.getString().equals(reg.getString())) {
                         work.add(bb);
                         break;
                     }
@@ -286,16 +297,16 @@ public class CFG {
         return work;
     }
 
-    private void reNameVar(BasicBlock curBlock, HashMap<Reg, Stack<Expr>> curName, HashMap<Reg, Expr> lastDef) {
-        HashMap<Reg, Integer> newNum = new HashMap<>();
+    private void reNameVar(BasicBlock curBlock, HashMap<String, Stack<Expr>> curName, HashMap<String, Expr> lastDef) {
+        HashMap<String, Integer> newNum = new HashMap<>();
         for (allocaInstr alloc : AllocInstr) {
-            newNum.put(alloc.result, 0);
+            newNum.put(alloc.result.getString(), 0);
         }
 
         // phi
-        for (Reg ori : curName.keySet()) {
+        for (String ori : curBlock.phiMap.keySet()) {
             phiInstr phi = curBlock.phiMap.get(ori);
-            phi.result = new varReg(ori.getString().substring(1) + ".phi." + rpo.indexOf(curBlock), -1, 0);
+            phi.result = new varReg(ori.substring(1) + ".phi." + rpo.indexOf(curBlock), -1, 0);
             curName.get(ori).push(phi.result);
             newNum.put(ori, newNum.get(ori) + 1);
         }
@@ -311,25 +322,25 @@ public class CFG {
             reNameVar(domChild, curName, lastDef);
         }
 
-        for (Reg var : newNum.keySet()) {
+        for (String var : newNum.keySet()) {
             for (int i = 0; i < newNum.get(var); i++)
                 curName.get(var).pop();
         }
     }
 
-    private Expr getReg(HashMap<Reg, Expr> lastDef, Expr val) {
+    private Expr getReg(HashMap<String, Expr> lastDef, Expr val) {
         if (val instanceof Reg) {
-            if (!lastDef.containsKey(val)) return val;
-            return lastDef.get(val);
+            if (!lastDef.containsKey(val.getString())) return val;
+            return lastDef.get(val.getString());
         }
         return val;
     }
 
-    private void setPhi(BasicBlock curBlock, BasicBlock preBlock, HashMap<Reg, Stack<Expr>> curName) {
-        for (Reg var : curBlock.phiMap.keySet()) {
-            phiInstr phi = curBlock.phiMap.get(var);
-            if (curName.containsKey(var)) {
-                phi.addVal(curName.get(var).peek(), preBlock.Label.getLabel());
+    private void setPhi(BasicBlock curBlock, BasicBlock preBlock, HashMap<String, Stack<Expr>> curName) {
+        for (String varStr : curBlock.phiMap.keySet()) {
+            phiInstr phi = curBlock.phiMap.get(varStr);
+            if (!curName.get(varStr).isEmpty()) {
+                phi.addVal(curName.get(varStr).peek(), preBlock.Label.getLabel());
             }
             else {
                 phi.addEmpty(preBlock.Label.getLabel());
@@ -337,11 +348,11 @@ public class CFG {
         }
     }
 
-    private void reNameVarInBlock(BasicBlock curBlock, HashMap<Reg, Stack<Expr>> curName, HashMap<Reg, Expr> lastDef, HashMap<Reg, Integer> newNum) {
+    private void reNameVarInBlock(BasicBlock curBlock, HashMap<String, Stack<Expr>> curName, HashMap<String, Expr> lastDef, HashMap<String, Integer> newNum) {
         ArrayList<Instr> newInstrs = new ArrayList<>();
         for (Instr instr : curBlock.Instrs) {
             if (instr instanceof storeInstr store) {
-                if (!curName.containsKey(store.ptr)) {
+                if (!curName.containsKey(store.ptr.getString())) {
                     storeInstr newStore = new storeInstr();
                     newStore.type = store.type;
                     newStore.value = getReg(lastDef, store.value);
@@ -349,16 +360,18 @@ public class CFG {
                     newInstrs.add(newStore);
                 }
                 else {
-                    curName.get(store.ptr).push(getReg(lastDef, store.value));
-                    newNum.put(store.ptr, newNum.get(store.ptr) + 1);
+                    curName.get(store.ptr.getString()).push(getReg(lastDef, store.value));
+                    newNum.put(store.ptr.getString(), newNum.get(store.ptr.getString()) + 1);
                 }
             }
             else if (instr instanceof loadInstr load) {
-                if (!curName.containsKey(load.pointer)) {
+                if (!curName.containsKey(load.pointer.getString())) {
                     newInstrs.add(load);
                 }
                 else {
-                    lastDef.put(load.result, curName.get(load.pointer).peek());
+                    if (curName.get(load.pointer.getString()).isEmpty())
+                        curName.get(load.pointer.getString()).add(new intCons(0));
+                    lastDef.put(load.result.getString(), curName.get(load.pointer.getString()).peek());
                 }
             }
             else if (instr instanceof binInstr bin) {
@@ -387,7 +400,10 @@ public class CFG {
                 newGet.result = get.result;
                 newGet.type = get.type;
                 newGet.ptr = getReg(lastDef, get.ptr);
-                newGet.idx = get.idx;
+                newGet.idx = new ArrayList<>();
+                for (Expr idx : get.idx) {
+                    newGet.idx.add(getReg(lastDef, idx));
+                }
                 newInstrs.add(newGet);
             }
             else if (instr instanceof icmpInstr icmp) {
@@ -446,10 +462,10 @@ public class CFG {
         while (!task.isEmpty()) {
             BasicBlock curBlock = task.remove(0);
 
-            HashSet<Reg> use = new HashSet<>();
-            HashSet<Reg> def = new HashSet<>();
-            HashSet<Reg> in_ = new HashSet<>();
-            HashSet<Reg> out = new HashSet<>();
+            HashSet<String> use = new HashSet<>();
+            HashSet<String> def = new HashSet<>();
+            HashSet<String> in_ = new HashSet<>();
+            HashSet<String> out = new HashSet<>();
             // AA in Block
             int t = curBlock.Instrs.size();
             Instr curInstr = curBlock.Ctrl;
@@ -490,7 +506,7 @@ public class CFG {
             BasicBlock curBlock = rpo.get(blockID);
             for (int instrID = 0; instrID < curBlock.Instrs.size(); instrID++) {
                 Instr instr = curBlock.Instrs.get(instrID);
-                for (Reg reg : instr.out) {
+                for (String reg : instr.out) {
                     if (!activePeriods.containsKey(reg)) {
                         ActivePeriod ap = new ActivePeriod();
                         ap.startBlock = blockID;
@@ -502,7 +518,7 @@ public class CFG {
         }
         for (int blockID = rpo.size() - 1; blockID >= 0; blockID--) {
             BasicBlock curBlock = rpo.get(blockID);
-            for (Reg reg : curBlock.out) {
+            for (String reg : curBlock.out) {
                 if (activePeriods.containsKey(reg)) {
                     ActivePeriod ap = activePeriods.get(reg);
                     ap.endBlock = blockID;
@@ -511,7 +527,7 @@ public class CFG {
             }
             for (int instrID = curBlock.Instrs.size() - 1; instrID >= 0; instrID--) {
                 Instr instr = curBlock.Instrs.get(instrID);
-                for (Reg reg : instr.in_) {
+                for (String reg : instr.in_) {
                     if (activePeriods.containsKey(reg)) {
                         ActivePeriod ap = activePeriods.get(reg);
                         ap.endBlock = blockID;
@@ -526,50 +542,50 @@ public class CFG {
         for (BasicBlock cur : rpo) {
             for (Instr instr : cur.Instrs) {
                 if (instr instanceof binInstr bin) {
-                    bin.def.add(bin.result);
-                    if (bin.operand1 instanceof Reg reg) bin.use.add(reg);
-                    if (bin.operand2 instanceof Reg reg) bin.use.add(reg);
+                    bin.def.add(bin.result.getString());
+                    if (bin.operand1 instanceof Reg reg) bin.use.add(reg.getString());
+                    if (bin.operand2 instanceof Reg reg) bin.use.add(reg.getString());
                 }
                 else if (instr instanceof callInstr call) {
-                    call.def.add(call.result);
+                    call.def.add(call.result.getString());
                     for (Expr expr : call.paramExpr) {
-                        if (expr instanceof Reg reg) call.use.add(reg);
+                        if (expr instanceof Reg reg) call.use.add(reg.getString());
                     }
                 }
                 else if (instr instanceof getInstr get) {
-                    get.def.add(get.result);
-                    if (get.ptr instanceof Reg reg) get.use.add(reg);
+                    get.def.add(get.result.getString());
+                    if (get.ptr instanceof Reg reg) get.use.add(reg.getString());
                     for (Expr expr : get.idx) {
-                        if (expr instanceof Reg reg) get.use.add(reg);
+                        if (expr instanceof Reg reg) get.use.add(reg.getString());
                     }
                 }
                 else if (instr instanceof icmpInstr icmp) {
-                    icmp.def.add(icmp.result);
-                    if (icmp.op1 instanceof Reg reg) icmp.use.add(reg);
-                    if (icmp.op2 instanceof Reg reg) icmp.use.add(reg);
+                    icmp.def.add(icmp.result.getString());
+                    if (icmp.op1 instanceof Reg reg) icmp.use.add(reg.getString());
+                    if (icmp.op2 instanceof Reg reg) icmp.use.add(reg.getString());
                 }
                 else if (instr instanceof selectInstr select) {
-                    select.def.add(select.result);
-                    if (select.val1 instanceof Reg reg) select.use.add(reg);
-                    if (select.val2 instanceof Reg reg) select.use.add(reg);
+                    select.def.add(select.result.getString());
+                    if (select.val1 instanceof Reg reg) select.use.add(reg.getString());
+                    if (select.val2 instanceof Reg reg) select.use.add(reg.getString());
                 }
                 else if (instr instanceof loadInstr load) {
-                    load.def.add(load.result);
-                    load.use.add(load.pointer);
+                    load.def.add(load.result.getString());
+                    load.use.add(load.pointer.getString());
                 }
                 else if (instr instanceof storeInstr store) {
-                    store.use.add(store.ptr);
-                    if (store.value instanceof Reg reg) store.use.add(reg);
+                    store.use.add(store.ptr.getString());
+                    if (store.value instanceof Reg reg) store.use.add(reg.getString());
                 }
                 else {
                     throw new RuntimeException("[AA] wrong instr type in instrs");
                 }
             }
             if (cur.Ctrl instanceof brInstr br) {
-                if (br.cond instanceof Reg reg) br.use.add(reg);
+                if (br.cond instanceof Reg reg) br.use.add(reg.getString());
             }
             else if (cur.Ctrl instanceof retInstr ret) {
-                if (ret.value instanceof Reg reg) ret.use.add(reg);
+                if (ret.value instanceof Reg reg) ret.use.add(reg.getString());
             }
         }
     }

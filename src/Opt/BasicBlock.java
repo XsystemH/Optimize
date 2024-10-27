@@ -18,16 +18,16 @@ public class BasicBlock {
     public ArrayList<String> lastBlocks = new ArrayList<>();
     public ArrayList<String> nextBlocks = new ArrayList<>();
 
-    public BitSet dom;
+    public BitSet dom = new BitSet();
     public HashSet<BasicBlock> domFrontier = new HashSet<>();
     public int iDom;
     public BasicBlock iDomBlock;
     public HashSet<BasicBlock> domChildren = new HashSet<>();
 
-    public HashMap<Reg, phiInstr> phiMap = new HashMap<>();
+    public HashMap<String, phiInstr> phiMap = new HashMap<>();
 
-    public HashSet<Reg> use = new HashSet<>();
-    public HashSet<Reg> def = new HashSet<>();
-    public HashSet<Reg> in_ = new HashSet<>();
-    public HashSet<Reg> out = new HashSet<>();
+    public HashSet<String> use = new HashSet<>();
+    public HashSet<String> def = new HashSet<>();
+    public HashSet<String> in_ = new HashSet<>();
+    public HashSet<String> out = new HashSet<>();
 }

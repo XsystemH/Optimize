@@ -15,8 +15,8 @@ import java.util.ArrayList;
 public class phiInstr extends Instr{
     public Reg result;
     public IRType type;
-    public ArrayList<Expr> vals;
-    public ArrayList<String> blocks;
+    public ArrayList<Expr> vals = new ArrayList<>();
+    public ArrayList<String> blocks = new ArrayList<>();
 
     public Reg ori;
 

@@ -6,6 +6,7 @@ import Frontend.SemanticChecker;
 import Frontend.SymbolCollector;
 import IR.Instruction.Instr;
 import IR.funcDef;
+import IR.mainFn;
 import Opt.CFG;
 import Parser.*;
 import org.antlr.v4.runtime.CharStreams;
@@ -20,11 +21,9 @@ import java.nio.charset.StandardCharsets;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-//        System.out.println("Hello Compiler!");
-
-//        String filename = "testcases/sema/array-package/array-1.mx";
+//        String filename = "testcases/codegen/t15.mx";
 //        InputStream input = new FileInputStream(filename);
-//        OutputStream output = new FileOutputStream("output.s");
+//        OutputStream output = new FileOutputStream("output.ll");
         InputStream input = System.in;
         OutputStream output = System.out;
         //input 设置为标准输入
@@ -43,23 +42,28 @@ public class Main {
             new SemanticChecker(gScope).visit(ast);
             IRBuilder irBuilder = new IRBuilder(gScope);
             irBuilder.visit(ast);
-//            output.write(irBuilder.strPreDef.getString().getBytes(StandardCharsets.UTF_8));
-//            output.write(irBuilder.program.getString().getBytes(StandardCharsets.UTF_8));
-            irBuilder.strPreDef.getString();
-            irBuilder.program.getString();
+            for (Instr instr : irBuilder.program.instrs) {
+                if (instr instanceof funcDef func) func.autoFill();
+            }
 
             for (Instr instr : irBuilder.program.instrs) {
                 if (instr instanceof funcDef func) {
                     func.cfg = new CFG(func);
                     func.cfg.Mem2Reg();
+                    func.cfg.rmPhi();
+                }
+                if (instr instanceof mainFn main) {
+                    main.init.cfg = new CFG(main.init);
+                    main.init.cfg.Mem2Reg();
+                    main.init.cfg.rmPhi();
                 }
             }
+            output.write(irBuilder.strPreDef.getString().getBytes(StandardCharsets.UTF_8));
+            output.write(irBuilder.program.getString().getBytes(StandardCharsets.UTF_8));
 
-
-
-            ASMBuilder asmBuilder = new ASMBuilder(irBuilder);
-            asmBuilder.visitProgram();
-            output.write(asmBuilder.getString().getBytes(StandardCharsets.UTF_8));
+//            ASMBuilder asmBuilder = new ASMBuilder(irBuilder);
+//            asmBuilder.visitProgram();
+//            output.write(asmBuilder.getString().getBytes(StandardCharsets.UTF_8));
         }
         catch (error e) {
             System.out.println(e.message);
