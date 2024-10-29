@@ -132,9 +132,9 @@ public class CFG {
         for (allocaInstr alloc : AllocInstr) {
             // case 1: no use
             if (alloc.uses.isEmpty()) {
-                alloc.toReg = true;
+                alloc.isRmoved = true;
                 for (Instr def : alloc.defs) {
-                    def.toReg = true;
+                    def.isRmoved = true;
                 }
                 continue;
             }
@@ -260,7 +260,7 @@ public class CFG {
 
     private void getPhiPos() {
         for (allocaInstr alloc : AllocInstr) {
-            if (alloc.toReg) continue;
+            if (alloc.isRmoved) continue;
 
             HashSet<BasicBlock> workTable = getWorkTable(alloc.result);
             HashSet<BasicBlock> added = new HashSet<>();
@@ -472,7 +472,62 @@ public class CFG {
     }
 
     public void DCE() {
+        HashSet<String> Regs = new HashSet<>();
+        HashMap<String, HashSet<Instr>> useMap = new HashMap<>();
+        HashMap<String, Instr> defMap = new HashMap<>();
+        HashSet<String> args = new HashSet<>(IRFunc.params);
 
+        ArrayList<Instr> instrs = AAInstr();
+
+        for (Instr instr : instrs) {
+            Regs.addAll(instr.use);
+            Regs.addAll(instr.def);
+
+            for (String reg : instr.use) {
+                if (!useMap.containsKey(reg)) {
+                    HashSet<Instr> instrSet = new HashSet<>();
+                    instrSet.add(instr);
+                    useMap.put(reg, instrSet);
+                }
+                else {
+                    HashSet<Instr> instrSet = useMap.get(reg);
+                    instrSet.add(instr);
+                }
+            }
+            for (String reg : instr.def) {
+                if (!defMap.containsKey(reg)) {
+                    defMap.put(reg, instr);
+                }
+            }
+        }
+
+        Regs.removeAll(args);
+
+        while (!Regs.isEmpty()) {
+            String reg = Regs.iterator().next();
+            Regs.remove(reg);
+            if (useMap.containsKey(reg) && useMap.get(reg).isEmpty()) {
+                Instr S = defMap.get(reg);
+                if (S.def.size() == 1) {
+                    S.isRmoved = true;
+                    for (String useReg : S.use) {
+                        if (useMap.containsKey(useReg)) {
+                            useMap.get(useReg).remove(S);
+                            Regs.add(useReg);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void ADCE() {
+        HashSet<Instr> liveInstrs = new HashSet<>();
+        HashSet<BasicBlock> liveBlocks = new HashSet<>();
+        HashSet<Reg> liveUses = new HashSet<>();
+        HashSet<Instr> workList = new HashSet<>();
+        HashMap<String, Instr> defMap = new HashMap<>();
+        // todo
     }
 
     private HashMap<String, Integer> BlockID;
@@ -578,7 +633,7 @@ public class CFG {
         for (BasicBlock cur : rpo) {
             BlockID.put(cur.Label.getLabel(), instrs.size());
             for (Instr instr : cur.Instrs) {
-                if (instr.toReg) continue;
+                if (instr.isRmoved) continue;
                 instr.ID = instrs.size();
                 instrs.add(instr);
                 if (instr instanceof binInstr bin) {

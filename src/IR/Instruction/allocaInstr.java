@@ -1,6 +1,5 @@
 package IR.Instruction;
 
-import IR.Expression.Expr;
 import IR.Expression.Register.Reg;
 import IR.IRType.IRType;
 
@@ -17,7 +16,7 @@ public class allocaInstr extends Instr{
 
     @Override
     public String getString() {
-        if (toReg)
+        if (isRmoved)
             return "//" + result.getString() + " = alloca " + type.getString();
         return result.getString() + " = alloca " + type.getString();
     }

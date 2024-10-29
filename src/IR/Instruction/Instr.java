@@ -1,11 +1,9 @@
 package IR.Instruction;
 
-import IR.Expression.Register.Reg;
-
 import java.util.HashSet;
 
 public abstract class Instr {
-    public boolean toReg = false;
+    public boolean isRmoved = false;
     public int ID;
 
     public HashSet<String> use = new HashSet<>();
