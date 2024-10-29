@@ -1,6 +1,7 @@
 package ASM.section;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -17,6 +18,8 @@ public class ASMFunction {
 
     public HashSet<String> allReg = new HashSet<>();
     public HashMap<String, Integer> virtualReg = new HashMap<>();
+
+    public BitSet freeReg = new BitSet(20);
 
     public int alloc(int size) {
         assert size % 4 != 0;

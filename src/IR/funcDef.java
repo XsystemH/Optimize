@@ -61,9 +61,9 @@ public class funcDef extends block {
         str.append(") {\n");
         for (BasicBlock block : cfg.rpo) {
             str.append(block.Label.getString()).append("\n");
-            for (phiInstr phi : block.phiMap.values()) {
-                str.append(phi.getString()).append("\n");
-            }
+//            for (phiInstr phi : block.phiMap.values()) {
+//                str.append(phi.getString()).append("\n");
+//            }
             for (Instr instr : block.Instrs) {
                 str.append("  ").append(instr.getString()).append("\n");
             }

@@ -370,10 +370,12 @@ public class NASMBuilder {
 
     private void visitCall(callInstr call, ASMFunction func, HashMap<String, Integer> regMap) {
         for (int i = 0; i < 8; i++) {
-            func.curBlock.instrs.addAll(Sw("a" + i, func.spOffset - 36 + (7 - i) * 4, "sp"));
+            if (call.occupied.get(i))
+                func.curBlock.instrs.addAll(Sw("a" + i, func.spOffset - 36 + (7 - i) * 4, "sp"));
         }
         for (int i = 0; i < 12; i++) {
-            func.curBlock.instrs.addAll(Sw("s" + i, func.spOffset - 84 + (11 - i) * 4, "sp"));
+            if (call.occupied.get(i + 8))
+                func.curBlock.instrs.addAll(Sw("s" + i, func.spOffset - 84 + (11 - i) * 4, "sp"));
         }
 
         int extra = 0;
@@ -385,29 +387,43 @@ public class NASMBuilder {
                 func.curBlock.instrs.addAll(Imm("add", "sp", "sp", -extra));
             }
             if (i < 8) {
-//                getReg(call.paramExpr.get(i), "a" + i, func);
                 if (regMap.containsKey(call.paramExpr.get(i).getString())) {
                     int id = regMap.get(call.paramExpr.get(i).getString());
-                    int off = 0;
-                    if (id < 8) off = func.spOffset - 36 + (7 - id) * 4;
-                    else if (id < 20) off = func.spOffset - 84 + (11 - id + 8) * 4;
-                    func.curBlock.instrs.addAll(Lw("t0", off, "sp"));
-                    MvInstr mv = new MvInstr();
-                    mv.rd = "a" + i;
-                    mv.rs = "t0";
-                    func.curBlock.instrs.add(mv);
+                    if (call.occupied.get(id) || id < i) {
+                        int off = 0;
+                        if (id < 8) off = func.spOffset - 36 + (7 - id) * 4;
+                        else if (id < 20) off = func.spOffset - 84 + (11 - id + 8) * 4;
+                        func.curBlock.instrs.addAll(Lw("t0", off, "sp"));
+                        MvInstr mv = new MvInstr();
+                        mv.rd = "a" + i;
+                        mv.rs = "t0";
+                        func.curBlock.instrs.add(mv);
+                    }
+                    else {
+                        MvInstr mv = new MvInstr();
+                        mv.rd = "a" + i;
+                        mv.rs = physicName(id);
+                        func.curBlock.instrs.add(mv);
+                    }
                 } else {
                     getReg(call.paramExpr.get(i), "a" + i, func, regMap);
                 }
             }
             else {
-//                getReg(call.paramExpr.get(i), "t0", func);
                 if (regMap.containsKey(call.paramExpr.get(i).getString())) {
                     int id = regMap.get(call.paramExpr.get(i).getString());
-                    int off = 0;
-                    if (id < 8) off = func.spOffset - 36 + (7 - i) * 4;
-                    else if (id < 20) off = func.spOffset - 84 + (11 - i) * 4;
-                    func.curBlock.instrs.addAll(Lw("t0", off, "sp"));
+                    if (call.occupied.get(id) || id < i) {
+                        int off = 0;
+                        if (id < 8) off = func.spOffset - 36 + (7 - id) * 4;
+                        else if (id < 20) off = func.spOffset - 84 + (11 - id + 8) * 4;
+                        func.curBlock.instrs.addAll(Lw("t0", off, "sp"));
+                    }
+                    else {
+                        MvInstr mv = new MvInstr();
+                        mv.rd = "t0";
+                        mv.rs = physicName(id);
+                        func.curBlock.instrs.add(mv);
+                    }
                 } else {
                     getReg(call.paramExpr.get(i), "t0", func, regMap);
                 }
@@ -432,10 +448,12 @@ public class NASMBuilder {
         }
 
         for (int i = 0; i < 8; i++) {
-            func.curBlock.instrs.addAll(Lw("a" + i, func.spOffset - 36 + (7 - i) * 4, "sp"));
+            if (call.occupied.get(i))
+                func.curBlock.instrs.addAll(Lw("a" + i, func.spOffset - 36 + (7 - i) * 4, "sp"));
         }
         for (int i = 0; i < 12; i++) {
-            func.curBlock.instrs.addAll(Lw("s" + i, func.spOffset - 84 + (11 - i) * 4, "sp"));
+            if (call.occupied.get(i + 8))
+                func.curBlock.instrs.addAll(Lw("s" + i, func.spOffset - 84 + (11 - i) * 4, "sp"));
         }
 
         if (call.returnType != null)

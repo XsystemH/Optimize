@@ -4,7 +4,7 @@ public class ActivePeriod {
     public int l;
     public int r;
 
-    public boolean isAfter(ActivePeriod p) {
+    public boolean endAfter(ActivePeriod p) {
         if (r != p.r) return p.r < r;
         return l < p.l;
     }

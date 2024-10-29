@@ -17,6 +17,7 @@ public class CFG {
     public ArrayList<allocaInstr> AllocInstr;
 
     public ArrayList<BasicBlock> rpo;
+    public ArrayList<Instr> rpoInstr;
 
     public HashMap<String, ActivePeriod> activePeriods;
     public ArrayList<String> sortedAP;
@@ -470,10 +471,14 @@ public class CFG {
         }
     }
 
+    public void DCE() {
+
+    }
+
     private HashMap<String, Integer> BlockID;
 
     public void activeAnalysis() {
-        ArrayList<Instr> rpoInstr = AAInstr();
+        rpoInstr = AAInstr();
 
         boolean changeFlag = true;
         while (changeFlag) {
@@ -529,6 +534,7 @@ public class CFG {
                     if (isArg) continue;
                     ActivePeriod ap = new ActivePeriod();
                     ap.l = i;
+                    ap.r = i + 1;
                     activePeriods.put(reg, ap);
                 }
                 else {
@@ -572,6 +578,8 @@ public class CFG {
         for (BasicBlock cur : rpo) {
             BlockID.put(cur.Label.getLabel(), instrs.size());
             for (Instr instr : cur.Instrs) {
+                if (instr.toReg) continue;
+                instr.ID = instrs.size();
                 instrs.add(instr);
                 if (instr instanceof binInstr bin) {
                     bin.def.add(bin.result.getString());
@@ -628,7 +636,7 @@ public class CFG {
         return instrs;
     }
 
-    private BitSet free_regs = new BitSet(36);
+    private BitSet free_regs = new BitSet(20);
     private HashSet<String> occupied = new HashSet<>();
 
     private void eviction(int l) {
@@ -649,7 +657,7 @@ public class CFG {
         ActivePeriod curAP = activePeriods.get(cur);
         for (String str : occupied) {
             ActivePeriod ap = activePeriods.get(str);
-            if (ap.isAfter(curAP)) {
+            if (ap.endAfter(curAP)) {
                 curAP = ap;
                 cur = str;
             }
@@ -687,6 +695,19 @@ public class CFG {
                 free_regs.clear(reg);
                 occupied.add(apStr);
                 reg_map.put(apStr, reg);
+            }
+        }
+
+        for (String apStr : sortedAP) {
+            ActivePeriod ap = activePeriods.get(apStr);
+            if (reg_map.containsKey(apStr)) {
+                for (int i = ap.l; i <= ap.r; i++) {
+                    if (i == rpoInstr.size()) continue;
+                    Instr instr = rpoInstr.get(i);
+                    if (instr instanceof callInstr call) {
+                        call.occupied.set(reg_map.get(apStr));
+                    }
+                }
             }
         }
     }

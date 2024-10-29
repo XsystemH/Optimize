@@ -6,6 +6,7 @@ import java.util.HashSet;
 
 public abstract class Instr {
     public boolean toReg = false;
+    public int ID;
 
     public HashSet<String> use = new HashSet<>();
     public HashSet<String> def = new HashSet<>();

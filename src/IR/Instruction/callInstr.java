@@ -5,6 +5,7 @@ import IR.Expression.Register.Reg;
 import IR.IRType.IRType;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 
 public class callInstr extends Instr{
     public Reg result = null;
@@ -13,6 +14,8 @@ public class callInstr extends Instr{
     public String methodName = null;
     public ArrayList<IRType> paramTypes = new ArrayList<>();
     public ArrayList<Expr> paramExpr = new ArrayList<>();
+
+    public BitSet occupied = new BitSet(20);
 
     @Override
     public String getString() {
