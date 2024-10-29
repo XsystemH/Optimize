@@ -701,7 +701,7 @@ public class CFG {
         for (String apStr : sortedAP) {
             ActivePeriod ap = activePeriods.get(apStr);
             if (reg_map.containsKey(apStr)) {
-                for (int i = ap.l; i <= ap.r; i++) {
+                for (int i = ap.l + 1; i <= ap.r; i++) {
                     if (i == rpoInstr.size()) continue;
                     Instr instr = rpoInstr.get(i);
                     if (instr instanceof callInstr call) {

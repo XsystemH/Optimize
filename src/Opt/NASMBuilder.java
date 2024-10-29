@@ -369,6 +369,17 @@ public class NASMBuilder {
     }
 
     private void visitCall(callInstr call, ASMFunction func, HashMap<String, Integer> regMap) {
+        HashMap<Integer, Integer> reg2Reg = new HashMap<>();
+        for (int i = 0; i < Math.min(8, call.paramExpr.size()); i++) {
+            Expr arg = call.paramExpr.get(i);
+            if (arg instanceof Reg reg) {
+                if (regMap.containsKey(reg.getString())) {
+                    reg2Reg.put(regMap.get(reg.getString()), i);
+                }
+            }
+        }
+        DA da = new DA(reg2Reg);
+
         for (int i = 0; i < 8; i++) {
             if (call.occupied.get(i))
                 func.curBlock.instrs.addAll(Sw("a" + i, func.spOffset - 36 + (7 - i) * 4, "sp"));
@@ -377,6 +388,7 @@ public class NASMBuilder {
             if (call.occupied.get(i + 8))
                 func.curBlock.instrs.addAll(Sw("s" + i, func.spOffset - 84 + (11 - i) * 4, "sp"));
         }
+        func.curBlock.instrs.addAll(da.getInstr());
 
         int extra = 0;
         int curOffset = 0;
@@ -387,6 +399,7 @@ public class NASMBuilder {
                 func.curBlock.instrs.addAll(Imm("add", "sp", "sp", -extra));
             }
             if (i < 8) {
+                if (reg2Reg.containsValue(i)) continue;
                 if (regMap.containsKey(call.paramExpr.get(i).getString())) {
                     int id = regMap.get(call.paramExpr.get(i).getString());
                     if (call.occupied.get(id) || id < i) {

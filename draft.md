@@ -151,3 +151,26 @@ for (Instr alloca : func.alloc) {
                     }
                 }
 ```
+
+```java
+private String physicName(int id) {
+        if (id < 0) {
+            return "t" + (-id);
+        }
+        if (id < 8) {
+            return "a" + id;
+        }
+        return "s" + (id - 8);
+    }
+
+    public ArrayList<ASMInstr> getInstr() {
+        ArrayList<ASMInstr> instrs = new ArrayList<>();
+        for (Pair p : result) {
+            MvInstr mv = new MvInstr();
+            mv.rs = physicName(p.rs);
+            mv.rd = physicName(p.rd);
+            instrs.add(mv);
+        }
+        return instrs;
+    }
+```

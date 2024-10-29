@@ -24,7 +24,7 @@ import java.util.HashSet;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-//        String filename = "testcases/codegen/t14.mx";
+//        String filename = "testcases/codegen/e5.mx";
 //        InputStream input = new FileInputStream(filename);
 //        OutputStream IROut = new FileOutputStream("output.ll");
 //        OutputStream output = new FileOutputStream("output.s");
@@ -64,12 +64,10 @@ public class Main {
             for (Instr instr : irBuilder.program.instrs) {
                 if (instr instanceof funcDef func) {
                     func.cfg.rmPhi();
-//                    func.cfg.DCE();
                     func.cfg.linear_scan();
                 }
                 if (instr instanceof mainFn main) {
                     main.init.cfg.rmPhi();
-//                    main.init.cfg.DCE();
                     main.init.cfg.linear_scan();
                 }
             }
@@ -78,12 +76,12 @@ public class Main {
 
             NASMBuilder nasmBuilder = new NASMBuilder(irBuilder);
 
-            String builtin = "src/Backend/builtin/builtin.s";
-            BufferedReader reader = new BufferedReader(new FileReader(builtin));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
+//            String builtin = "src/Backend/builtin/builtin.s";
+//            BufferedReader reader = new BufferedReader(new FileReader(builtin));
+//            String line;
+//            while ((line = reader.readLine()) != null) {
+//                System.out.println(line);
+//            }
 
             output.write(nasmBuilder.getString().getBytes(StandardCharsets.UTF_8));
         }
