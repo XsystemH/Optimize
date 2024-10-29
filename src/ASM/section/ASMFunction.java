@@ -2,6 +2,7 @@ package ASM.section;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class ASMFunction {
     public String name;
@@ -14,6 +15,7 @@ public class ASMFunction {
     public int idxNum = 0;
     public String head;
 
+    public HashSet<String> allReg = new HashSet<>();
     public HashMap<String, Integer> virtualReg = new HashMap<>();
 
     public int alloc(int size) {
@@ -29,6 +31,8 @@ public class ASMFunction {
 
     public int getVirtualReg(String reg) {
         if (!virtualReg.containsKey(reg)) {
+            if (!allReg.contains(reg))
+                throw new RuntimeException("Virtual reg '" + reg + "' is useless");
             int offset = alloc(4);
             virtualReg.put(reg, offset);
         }

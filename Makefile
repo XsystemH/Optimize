@@ -20,7 +20,11 @@ testIRAll:
 
 .PHONY: testASM
 testASM:
-	testcases/codegen/scripts/test_asm.bash 'java -cp /ulib/antlr-4.13.2-complete.jar:bin Main' testcases/codegen/t64.mx
+	testcases/codegen/scripts/test_asm.bash 'java -cp /ulib/antlr-4.13.2-complete.jar:bin Main' testcases/codegen//t77.mx
+
+.PHONY: test
+test:
+	testcases/codegen/scripts/test_asm.bash 'java -cp /ulib/antlr-4.13.2-complete.jar:bin Main' test.mx
 
 .PHONY: testASMAll
 testASMAll:

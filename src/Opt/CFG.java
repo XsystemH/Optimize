@@ -10,8 +10,8 @@ import IR.funcDef;
 import java.util.*;
 
 public class CFG {
+    private funcDef IRFunc;
     public HashMap<String, BasicBlock> BasicBlocks;
-    public HashMap<String, Reg> Regs;
     public BasicBlock Entry;
     public ArrayList<BasicBlock> Exit;
     public ArrayList<allocaInstr> AllocInstr;
@@ -19,8 +19,11 @@ public class CFG {
     public ArrayList<BasicBlock> rpo;
 
     public HashMap<String, ActivePeriod> activePeriods;
+    public ArrayList<String> sortedAP;
+    public HashMap<String, Integer> reg_map = new HashMap<>();
 
     public CFG(funcDef func) {
+        IRFunc = func;
         BasicBlocks = new HashMap<>();
         Entry = new BasicBlock();
         BasicBlock currentBlock = Entry;
@@ -448,106 +451,135 @@ public class CFG {
     }
 
     public void rmPhi() {
-
+        // new rpo&blockMap needed if did any opt on blocks
+        for (BasicBlock curBlock : rpo) {
+            for (phiInstr phi : curBlock.phiMap.values()) {
+                for (int i = 0; i < phi.blocks.size(); i++) {
+                    String la = phi.blocks.get(i);
+                    BasicBlock laBlock = BasicBlocks.get(la);
+                    moveInstr move = new moveInstr();
+                    move.dest = new varReg(phi.result.getString().substring(1) + ".tmp", -1, 0);
+                    move.val = phi.vals.get(i);
+                    laBlock.Instrs.add(move);
+                }
+                moveInstr move = new moveInstr();
+                move.dest = phi.result;
+                move.val = new varReg(phi.result.getString().substring(1) + ".tmp", -1, 0);
+                curBlock.Instrs.add(0, move);
+            }
+        }
     }
 
+    private HashMap<String, Integer> BlockID;
+
     public void activeAnalysis() {
-        AAInstr();
+        ArrayList<Instr> rpoInstr = AAInstr();
 
-        ArrayList<BasicBlock> task = new ArrayList<>();
-        for (int i = rpo.size() - 1; i >= 0; i--) {
-            BasicBlock cur = rpo.get(i);
-            if (cur.nextBlocks.isEmpty()) task.add(cur);
-        }
-        while (!task.isEmpty()) {
-            BasicBlock curBlock = task.remove(0);
-
-            HashSet<String> use = new HashSet<>();
-            HashSet<String> def = new HashSet<>();
-            HashSet<String> in_ = new HashSet<>();
-            HashSet<String> out = new HashSet<>();
-            // AA in Block
-            int t = curBlock.Instrs.size();
-            Instr curInstr = curBlock.Ctrl;
-            out = curBlock.out;
-            while (t >= 0) {
-                if (t < curBlock.Instrs.size()) {
-                    out = in_;
+        boolean changeFlag = true;
+        while (changeFlag) {
+            changeFlag = false;
+            for (int i = rpoInstr.size() - 1; i >= 0; i--) {
+                Instr instr = rpoInstr.get(i);
+                HashSet<String> newIn_ = new HashSet<>();
+                HashSet<String> newOut = new HashSet<>();
+                if (instr instanceof brInstr br) {
+                    if (br.cond != null) {
+                        int suc1 = BlockID.get(br.trueLabel.getLabel());
+                        int suc2 = BlockID.get(br.falseLabel.getLabel());
+                        newOut.addAll(rpoInstr.get(suc1).in_);
+                        newOut.addAll(rpoInstr.get(suc2).in_);
+                    }
+                    else {
+                        int suc = BlockID.get(br.destLabel.getLabel());
+                        newOut.addAll(rpoInstr.get(suc).in_);
+                    }
                 }
-                use = curInstr.use;
-                def = curInstr.def;
+                else if (instr instanceof retInstr ret) {
 
-                curInstr.out.clear();
-                curInstr.out.addAll(out);
+                }
+                else if (i + 1 < rpoInstr.size()) {
+                    newOut.addAll(rpoInstr.get(i + 1).in_);
+                }
+                newIn_.addAll(newOut);
+                newIn_.removeAll(instr.def);
+                newIn_.addAll(instr.use);
 
-                out.removeAll(def);
-                in_.addAll(use);
-                in_.addAll(out);
-
-                curInstr.in_.clear();
-                curInstr.in_.addAll(in_);
-
-                if (t > 0) curInstr = curBlock.Instrs.get(t - 1);
-                t--;
-            }
-
-            // AA to lastBlock
-            for (String lastStr : curBlock.lastBlocks) {
-                BasicBlock last = BasicBlocks.get(lastStr);
-                if (!last.out.containsAll(in_)) {
-                    last.out.addAll(in_);
-                    task.add(last);
+                if (!newIn_.equals(instr.in_) || !newOut.equals(instr.out)) {
+                    changeFlag = true;
+                    instr.in_ = newIn_;
+                    instr.out = newOut;
                 }
             }
         }
 
         // collect active periods
-        for (int blockID = 0; blockID < rpo.size(); blockID++) {
-            BasicBlock curBlock = rpo.get(blockID);
-            for (int instrID = 0; instrID < curBlock.Instrs.size(); instrID++) {
-                Instr instr = curBlock.Instrs.get(instrID);
-                for (String reg : instr.out) {
-                    if (!activePeriods.containsKey(reg)) {
-                        ActivePeriod ap = new ActivePeriod();
-                        ap.startBlock = blockID;
-                        ap.startInstr = instrID;
-                        activePeriods.put(reg, ap);
+        activePeriods = new HashMap<>();
+        for (int i = 0; i < rpoInstr.size(); i++) {
+            Instr instr = rpoInstr.get(i);
+            for (String reg : instr.out) {
+                if (!activePeriods.containsKey(reg)) {
+                    if (reg.startsWith("@")) continue;
+                    boolean isArg = false;
+                    for (String arg : IRFunc.params) {
+                        if (arg.equals(reg.substring(1))) {
+                            isArg = true;
+                            break;
+                        }
                     }
+                    if (isArg) continue;
+                    ActivePeriod ap = new ActivePeriod();
+                    ap.l = i;
+                    activePeriods.put(reg, ap);
+                }
+                else {
+                    ActivePeriod ap = activePeriods.get(reg);
+                    ap.r = i;
                 }
             }
         }
-        for (int blockID = rpo.size() - 1; blockID >= 0; blockID--) {
-            BasicBlock curBlock = rpo.get(blockID);
-            for (String reg : curBlock.out) {
-                if (activePeriods.containsKey(reg)) {
-                    ActivePeriod ap = activePeriods.get(reg);
-                    ap.endBlock = blockID;
-                    ap.endInstr = curBlock.Instrs.size();
-                }
-            }
-            for (int instrID = curBlock.Instrs.size() - 1; instrID >= 0; instrID--) {
-                Instr instr = curBlock.Instrs.get(instrID);
-                for (String reg : instr.in_) {
-                    if (activePeriods.containsKey(reg)) {
-                        ActivePeriod ap = activePeriods.get(reg);
-                        ap.endBlock = blockID;
-                        ap.endInstr = instrID;
+
+        HashMap<String, ActivePeriod> tasks = new HashMap<>();
+        // sort
+        for (String reg : activePeriods.keySet()) {
+            ActivePeriod ap = activePeriods.get(reg);
+            tasks.put(reg, ap);
+        }
+        sortedAP = new ArrayList<>();
+        while (!tasks.isEmpty()) {
+            String curStr = tasks.keySet().iterator().next();
+            ActivePeriod curAP = tasks.get(curStr);
+            for (String apStr : tasks.keySet()) {
+                ActivePeriod ap = tasks.get(apStr);
+                if (curAP.l != ap.l) {
+                    if (ap.l < curAP.l) {
+                        curAP = ap;
+                        curStr = apStr;
                     }
                 }
+                else if (ap.r < curAP.r) {
+                    curAP = ap;
+                    curStr = apStr;
+                }
             }
+            sortedAP.add(curStr);
+            tasks.remove(curStr);
         }
     }
 
-    public void AAInstr() {
+    public ArrayList<Instr> AAInstr() {
+        BlockID = new HashMap<>();
+        ArrayList<Instr> instrs = new ArrayList<>();
         for (BasicBlock cur : rpo) {
+            BlockID.put(cur.Label.getLabel(), instrs.size());
             for (Instr instr : cur.Instrs) {
+                instrs.add(instr);
                 if (instr instanceof binInstr bin) {
                     bin.def.add(bin.result.getString());
                     if (bin.operand1 instanceof Reg reg) bin.use.add(reg.getString());
                     if (bin.operand2 instanceof Reg reg) bin.use.add(reg.getString());
                 }
                 else if (instr instanceof callInstr call) {
-                    call.def.add(call.result.getString());
+                    if (call.result != null) call.def.add(call.result.getString());
                     for (Expr expr : call.paramExpr) {
                         if (expr instanceof Reg reg) call.use.add(reg.getString());
                     }
@@ -577,6 +609,10 @@ public class CFG {
                     store.use.add(store.ptr.getString());
                     if (store.value instanceof Reg reg) store.use.add(reg.getString());
                 }
+                else if (instr instanceof moveInstr move) {
+                    move.def.add(move.dest.getString());
+                    if (move.val instanceof Reg reg) move.use.add(reg.getString());
+                }
                 else {
                     throw new RuntimeException("[AA] wrong instr type in instrs");
                 }
@@ -586,6 +622,71 @@ public class CFG {
             }
             else if (cur.Ctrl instanceof retInstr ret) {
                 if (ret.value instanceof Reg reg) ret.use.add(reg.getString());
+            }
+            instrs.add(cur.Ctrl);
+        }
+        return instrs;
+    }
+
+    private BitSet free_regs = new BitSet(36);
+    private HashSet<String> occupied = new HashSet<>();
+
+    private void eviction(int l) {
+        HashSet<String> rmList = new HashSet<>();
+        for (String intervalStr : occupied) {
+            ActivePeriod ap = activePeriods.get(intervalStr);
+            if (ap.endBefore(l)) {
+                int regID = reg_map.get(intervalStr);
+                free_regs.set(regID);
+                rmList.add(intervalStr);
+            }
+        }
+        occupied.removeAll(rmList);
+    }
+
+    private String get_furthest() {
+        String cur = reg_map.keySet().iterator().next();
+        ActivePeriod curAP = activePeriods.get(cur);
+        for (String str : occupied) {
+            ActivePeriod ap = activePeriods.get(str);
+            if (ap.isAfter(curAP)) {
+                curAP = ap;
+                cur = str;
+            }
+        }
+        return cur;
+    }
+
+    private void try_spill(String apStr) {
+        String furthestStr = get_furthest();
+        ActivePeriod furAP = activePeriods.get(furthestStr);
+        ActivePeriod curAP = activePeriods.get(apStr);
+        if (furAP.r > curAP.r) {
+            int regID = reg_map.get(furthestStr);
+            // spill furthest
+            occupied.remove(furthestStr);
+            occupied.add(apStr);
+            reg_map.remove(furthestStr);
+            reg_map.put(apStr, regID);
+        }
+    }
+
+    public void linear_scan() {
+        activeAnalysis();
+        free_regs.set(0, 20);
+
+        for (String apStr : sortedAP) {
+            ActivePeriod ap = activePeriods.get(apStr);
+            int l = ap.l;
+            eviction(l);
+            if (free_regs.isEmpty()) {
+                try_spill(apStr);
+            }
+            else {
+                int reg = free_regs.nextSetBit(0);
+                free_regs.clear(reg);
+                occupied.add(apStr);
+                reg_map.put(apStr, reg);
             }
         }
     }
