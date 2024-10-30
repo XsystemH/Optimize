@@ -530,6 +530,40 @@ public class CFG {
         // todo
     }
 
+    private void getShortCut(Instr instr, label farWay, label shortCut) {
+        if (instr instanceof brInstr br) {
+            if (br.cond == null) br.destLabel = shortCut;
+            else {
+                if (Objects.equals(br.trueLabel.getLabel(), farWay.getLabel()))
+                    br.trueLabel = shortCut;
+                if (Objects.equals(br.falseLabel.getLabel(), farWay.getLabel()))
+                    br.falseLabel = shortCut;
+            }
+        }
+        else throw new RuntimeException("wrong Ctrl instr");
+    }
+
+    public void rmEmpty() {
+        for (BasicBlock curBlock : rpo) {
+            int i = 0;
+            for (Instr instr : curBlock.Instrs) if (!instr.isRmoved) i++;
+            if (i == 0 && curBlock.Ctrl instanceof brInstr br) {
+                if (br.cond == null) {
+                    BasicBlock nextBlock = BasicBlocks.get(br.destLabel.getLabel());
+                    nextBlock.lastBlocks.remove(curBlock.Label.getLabel());
+                    for (String last : curBlock.lastBlocks) {
+                        BasicBlock lastBlock = BasicBlocks.get(last);
+                        getShortCut(lastBlock.Ctrl, curBlock.Label, br.destLabel);
+                        lastBlock.nextBlocks.remove(curBlock.Label.getLabel());
+                        nextBlock.lastBlocks.add(last);
+                    }
+                    BasicBlocks.remove(curBlock.Label.getLabel());
+                }
+            }
+        }
+        rpo = getRPO(Entry);
+    }
+
     private HashMap<String, Integer> BlockID;
 
     public void activeAnalysis() {
@@ -594,7 +628,7 @@ public class CFG {
                 }
                 else {
                     ActivePeriod ap = activePeriods.get(reg);
-                    ap.r = i;
+                    ap.r = i + 1;
                 }
             }
         }

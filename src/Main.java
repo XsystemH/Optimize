@@ -24,7 +24,7 @@ import java.util.HashSet;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-//        String filename = "testcases/codegen/e5.mx";
+//        String filename = "testcases/codegen/t57.mx";
 //        InputStream input = new FileInputStream(filename);
 //        OutputStream IROut = new FileOutputStream("output.ll");
 //        OutputStream output = new FileOutputStream("output.s");
@@ -65,11 +65,13 @@ public class Main {
                 if (instr instanceof funcDef func) {
                     func.cfg.rmPhi();
                     func.cfg.DCE();
+//                    func.cfg.rmEmpty();
                     func.cfg.linear_scan();
                 }
                 if (instr instanceof mainFn main) {
                     main.init.cfg.rmPhi();
                     main.init.cfg.DCE();
+//                    main.init.cfg.rmEmpty();
                     main.init.cfg.linear_scan();
                 }
             }

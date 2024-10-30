@@ -2,7 +2,6 @@ package Opt;
 
 import ASM.ASMInstr.*;
 import ASM.section.*;
-import Backend.ASMBuilder;
 import Backend.IRBuilder;
 import IR.Expression.Constant.Cons;
 import IR.Expression.Expr;
@@ -369,8 +368,37 @@ public class NASMBuilder {
         func.curBlock.instrs.add(j);
     }
 
+    private boolean isBuiltin(callInstr call) {
+        if (call.className == null) {
+            if (Objects.equals(call.methodName, "print")) return true;
+            if (Objects.equals(call.methodName, "println")) return true;
+            if (Objects.equals(call.methodName, "printInt")) return true;
+            if (Objects.equals(call.methodName, "printlnInt")) return true;
+            if (Objects.equals(call.methodName, ".malloc_array")) return true;
+            if (Objects.equals(call.methodName, ".arr.size")) return true;
+            if (Objects.equals(call.methodName, ".malloc")) return true;
+            if (Objects.equals(call.methodName, "getString")) return true;
+            if (Objects.equals(call.methodName, "getInt")) return true;
+            if (Objects.equals(call.methodName, "toString")) return true;
+            if (Objects.equals(call.methodName, ".str.length")) return true;
+            if (Objects.equals(call.methodName, ".str.add")) return true;
+            if (Objects.equals(call.methodName, ".str.eq")) return true;
+            if (Objects.equals(call.methodName, ".str.ne")) return true;
+            if (Objects.equals(call.methodName, ".str.lt")) return true;
+            if (Objects.equals(call.methodName, ".str.le")) return true;
+            if (Objects.equals(call.methodName, ".str.gt")) return true;
+            if (Objects.equals(call.methodName, ".str.ge")) return true;
+            if (Objects.equals(call.methodName, ".str.substr")) return true;
+            if (Objects.equals(call.methodName, ".str.parseInt")) return true;
+            return Objects.equals(call.methodName, ".str.ord");
+        }
+        return false;
+    }
+
     private void visitCall(callInstr call, ASMFunction func, HashMap<String, Integer> regMap) {
         HashMap<Integer, Integer> reg2Reg = new HashMap<>();
+        HashSet<Integer> freeRegs = new HashSet<>();
+        HashMap<Integer, Integer> toFreeReg = new HashMap<>();
         for (int i = 0; i < Math.min(8, call.paramExpr.size()); i++) {
             Expr arg = call.paramExpr.get(i);
             if (arg instanceof Reg reg) {
@@ -381,11 +409,28 @@ public class NASMBuilder {
         }
         DA da = new DA(reg2Reg);
 
-        for (int i = 0; i < 8; i++) {
-            if (call.occupied.get(i))
-                func.curBlock.instrs.addAll(Sw("a" + i, func.spOffset - 36 + (7 - i) * 4, "sp"));
+        boolean isBuiltin = isBuiltin(call);
+
+        if (isBuiltin) for (int i = 0; i < 12; i++) {
+            if (!call.occupied.get(i + 8)) freeRegs.add(i);
         }
-        for (int i = 0; i < 12; i++) {
+
+        for (int i = 0; i < 8; i++) {
+            if (call.occupied.get(i)) {
+                if (!freeRegs.isEmpty()) {
+                    int freeID = freeRegs.iterator().next();
+                    MvInstr mv = new MvInstr();
+                    mv.rd = "s" + freeID;
+                    mv.rs = "a" + i;
+                    func.curBlock.instrs.add(mv);
+                    freeRegs.remove(freeID);
+                    toFreeReg.put(i, freeID);
+                }
+                else
+                    func.curBlock.instrs.addAll(Sw("a" + i, func.spOffset - 36 + (7 - i) * 4, "sp"));
+            }
+        }
+        if (!isBuiltin) for (int i = 0; i < 12; i++) {
             if (call.occupied.get(i + 8))
                 func.curBlock.instrs.addAll(Sw("s" + i, func.spOffset - 84 + (11 - i) * 4, "sp"));
         }
@@ -404,14 +449,23 @@ public class NASMBuilder {
                 if (regMap.containsKey(call.paramExpr.get(i).getString())) {
                     int id = regMap.get(call.paramExpr.get(i).getString());
                     if (call.occupied.get(id) || id < i) {
-                        int off = 0;
-                        if (id < 8) off = func.spOffset - 36 + (7 - id) * 4;
-                        else if (id < 20) off = func.spOffset - 84 + (11 - id + 8) * 4;
-                        func.curBlock.instrs.addAll(Lw("t0", off, "sp"));
-                        MvInstr mv = new MvInstr();
-                        mv.rd = "a" + i;
-                        mv.rs = "t0";
-                        func.curBlock.instrs.add(mv);
+                        if (toFreeReg.containsKey(id)) {
+                            int freeID = toFreeReg.get(id);
+                            MvInstr mv = new MvInstr();
+                            mv.rd = "a" + i;
+                            mv.rs = "s" + freeID;
+                            func.curBlock.instrs.add(mv);
+                        }
+                        else {
+                            int off = 0;
+                            if (id < 8) off = func.spOffset - 36 + (7 - id) * 4;
+                            else if (id < 20) off = func.spOffset - 84 + (11 - id + 8) * 4;
+                            func.curBlock.instrs.addAll(Lw("t0", off, "sp"));
+                            MvInstr mv = new MvInstr();
+                            mv.rd = "a" + i;
+                            mv.rs = "t0";
+                            func.curBlock.instrs.add(mv);
+                        }
                     }
                     else {
                         MvInstr mv = new MvInstr();
@@ -462,10 +516,19 @@ public class NASMBuilder {
         }
 
         for (int i = 0; i < 8; i++) {
-            if (call.occupied.get(i))
-                func.curBlock.instrs.addAll(Lw("a" + i, func.spOffset - 36 + (7 - i) * 4, "sp"));
+            if (call.occupied.get(i)) {
+                if (toFreeReg.containsKey(i)) {
+                    int freeID = toFreeReg.get(i);
+                    MvInstr mv = new MvInstr();
+                    mv.rd = "a" + i;
+                    mv.rs = "s" + freeID;
+                    func.curBlock.instrs.add(mv);
+                }
+                else
+                    func.curBlock.instrs.addAll(Lw("a" + i, func.spOffset - 36 + (7 - i) * 4, "sp"));
+            }
         }
-        for (int i = 0; i < 12; i++) {
+        if (!isBuiltin) for (int i = 0; i < 12; i++) {
             if (call.occupied.get(i + 8))
                 func.curBlock.instrs.addAll(Lw("s" + i, func.spOffset - 84 + (11 - i) * 4, "sp"));
         }
