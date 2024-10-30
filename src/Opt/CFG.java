@@ -555,6 +555,7 @@ public class CFG {
                         BasicBlock lastBlock = BasicBlocks.get(last);
                         getShortCut(lastBlock.Ctrl, curBlock.Label, br.destLabel);
                         lastBlock.nextBlocks.remove(curBlock.Label.getLabel());
+                        lastBlock.nextBlocks.add(br.destLabel.getLabel());
                         nextBlock.lastBlocks.add(last);
                     }
                     BasicBlocks.remove(curBlock.Label.getLabel());

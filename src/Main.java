@@ -65,13 +65,13 @@ public class Main {
                 if (instr instanceof funcDef func) {
                     func.cfg.rmPhi();
                     func.cfg.DCE();
-//                    func.cfg.rmEmpty();
+                    func.cfg.rmEmpty();
                     func.cfg.linear_scan();
                 }
                 if (instr instanceof mainFn main) {
                     main.init.cfg.rmPhi();
                     main.init.cfg.DCE();
-//                    main.init.cfg.rmEmpty();
+                    main.init.cfg.rmEmpty();
                     main.init.cfg.linear_scan();
                 }
             }
