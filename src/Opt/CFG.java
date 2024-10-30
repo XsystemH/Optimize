@@ -454,21 +454,34 @@ public class CFG {
     public void rmPhi() {
         // new rpo&blockMap needed if did any opt on blocks
         for (BasicBlock curBlock : rpo) {
-            for (phiInstr phi : curBlock.phiMap.values()) {
-                for (int i = 0; i < phi.blocks.size(); i++) {
-                    String la = phi.blocks.get(i);
-                    BasicBlock laBlock = BasicBlocks.get(la);
-                    moveInstr move = new moveInstr();
-                    move.dest = new varReg(phi.result.getString().substring(1) + ".tmp", -1, 0);
-                    move.val = phi.vals.get(i);
-                    laBlock.Instrs.add(move);
+            if (!curBlock.phiMap.isEmpty()) {
+                for (int i = 0; i < curBlock.lastBlocks.size(); i++) {
+                    HashMap<Reg, Expr> moveMap = new HashMap<>();
+                    for (phiInstr phi : curBlock.phiMap.values()) {
+                        moveMap.put(phi.result, phi.vals.get(i));
+                    }
+                    DAPHI daphi = new DAPHI(moveMap);
+                    BasicBlock lastBlock = BasicBlocks.get(curBlock.phiMap.values().iterator().next().blocks.get(i));
+                    lastBlock.Instrs.addAll(daphi.getInstrs());
                 }
-                moveInstr move = new moveInstr();
-                move.dest = phi.result;
-                move.val = new varReg(phi.result.getString().substring(1) + ".tmp", -1, 0);
-                curBlock.Instrs.add(0, move);
             }
         }
+//        for (BasicBlock curBlock : rpo) {
+//            for (phiInstr phi : curBlock.phiMap.values()) {
+//                for (int i = 0; i < phi.blocks.size(); i++) {
+//                    String la = phi.blocks.get(i);
+//                    BasicBlock laBlock = BasicBlocks.get(la);
+//                    moveInstr move = new moveInstr();
+//                    move.dest = new varReg(phi.result.getString().substring(1) + ".tmp", -1, 0);
+//                    move.val = phi.vals.get(i);
+//                    laBlock.Instrs.add(move);
+//                }
+//                moveInstr move = new moveInstr();
+//                move.dest = phi.result;
+//                move.val = new varReg(phi.result.getString().substring(1) + ".tmp", -1, 0);
+//                curBlock.Instrs.add(0, move);
+//            }
+//        }
     }
 
     public void DCE() {
