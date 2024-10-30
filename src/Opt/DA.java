@@ -28,7 +28,11 @@ public class DA {
         if (id < 8) {
             return "a" + id;
         }
-        return "s" + (id - 8);
+        if (id < 20) {
+            return "s" + (id - 8);
+        }
+        if (id == 20) return "tp";
+        return "gp";
     }
 
     public ArrayList<ASMInstr> getInstr() {

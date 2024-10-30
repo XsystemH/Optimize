@@ -454,6 +454,12 @@ public class CFG {
     public void rmPhi() {
         // new rpo&blockMap needed if did any opt on blocks
         for (BasicBlock curBlock : rpo) {
+            HashMap<String, String> moveMap = new HashMap<>();
+            for (phiInstr phi : curBlock.phiMap.values()) {
+
+            }
+        }
+        for (BasicBlock curBlock : rpo) {
             for (phiInstr phi : curBlock.phiMap.values()) {
                 for (int i = 0; i < phi.blocks.size(); i++) {
                     String la = phi.blocks.get(i);
@@ -726,7 +732,7 @@ public class CFG {
         return instrs;
     }
 
-    private BitSet free_regs = new BitSet(20);
+    private BitSet free_regs = new BitSet(22);
     private HashSet<String> occupied = new HashSet<>();
 
     private void eviction(int l) {
@@ -771,7 +777,7 @@ public class CFG {
 
     public void linear_scan() {
         activeAnalysis();
-        free_regs.set(0, 20);
+        free_regs.set(0, 22);
 
         for (String apStr : sortedAP) {
             ActivePeriod ap = activePeriods.get(apStr);

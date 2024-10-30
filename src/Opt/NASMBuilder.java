@@ -44,6 +44,8 @@ public class NASMBuilder {
         if (id < 20) {
             return "s" + (id - 8);
         }
+        if (id == 20) return "tp";
+        if (id == 21) return "gp";
         throw new RuntimeException("reg ID out of bound");
     }
 
@@ -51,7 +53,7 @@ public class NASMBuilder {
         ArrayList<ASMInstr> instrs = new ArrayList<>();
         if (outOfBound(imm)) {
             LiInstr li = new LiInstr();
-            li.rd = "t6";
+            li.rd = "t3";
             li.val = imm;
             instrs.add(li);
 
@@ -59,7 +61,7 @@ public class NASMBuilder {
             ar.opType = op;
             ar.rd = rd;
             ar.rs1 = rs;
-            ar.rs2 = "t6";
+            ar.rs2 = "t3";
             instrs.add(ar);
 
             return instrs;
@@ -80,21 +82,21 @@ public class NASMBuilder {
         ArrayList<ASMInstr> instrs = new ArrayList<>();
         if (outOfBound(offset)) {
             LiInstr li = new LiInstr();
-            li.rd = "t6";
+            li.rd = "t3";
             li.val = offset;
             instrs.add(li);
 
             ArithInstr ar = new ArithInstr();
             ar.opType = "add";
-            ar.rd = "t6";
+            ar.rd = "t3";
             ar.rs1 = rd;
-            ar.rs2 = "t6";
+            ar.rs2 = "t3";
             instrs.add(ar);
 
             SwInstr sw = new SwInstr();
             sw.src = src;
             sw.offset = 0;
-            sw.dest = "t6"; // not sp
+            sw.dest = "t3"; // not sp
             instrs.add(sw);
             return instrs;
         }
@@ -110,21 +112,21 @@ public class NASMBuilder {
         ArrayList<ASMInstr> instrs = new ArrayList<>();
         if (outOfBound(offset)) {
             LiInstr li = new LiInstr();
-            li.rd = "t6";
+            li.rd = "t3";
             li.val = offset;
             instrs.add(li);
 
             ArithInstr ar = new ArithInstr();
             ar.opType = "add";
-            ar.rd = "t6";
+            ar.rd = "t3";
             ar.rs1 = rs;
-            ar.rs2 = "t6";
+            ar.rs2 = "t3";
             instrs.add(ar);
 
             LwInstr lw = new LwInstr();
             lw.dest = rd;
             lw.offset = 0;
-            lw.base = "t6";
+            lw.base = "t3";
             instrs.add(lw);
             return instrs;
         }
@@ -411,8 +413,8 @@ public class NASMBuilder {
 
         boolean isBuiltin = isBuiltin(call);
 
-        if (isBuiltin) for (int i = 0; i < 12; i++) {
-            if (!call.occupied.get(i + 8)) freeRegs.add(i);
+        if (isBuiltin) for (int i = 0; i < 14; i++) {
+            if (!call.occupied.get(i + 8)) freeRegs.add(i + 8);
         }
 
         for (int i = 0; i < 8; i++) {
@@ -420,7 +422,7 @@ public class NASMBuilder {
                 if (!freeRegs.isEmpty()) {
                     int freeID = freeRegs.iterator().next();
                     MvInstr mv = new MvInstr();
-                    mv.rd = "s" + freeID;
+                    mv.rd = physicName(freeID);
                     mv.rs = "a" + i;
                     func.curBlock.instrs.add(mv);
                     freeRegs.remove(freeID);
@@ -430,9 +432,9 @@ public class NASMBuilder {
                     func.curBlock.instrs.addAll(Sw("a" + i, func.spOffset - 36 + (7 - i) * 4, "sp"));
             }
         }
-        if (!isBuiltin) for (int i = 0; i < 12; i++) {
+        if (!isBuiltin) for (int i = 0; i < 14; i++) {
             if (call.occupied.get(i + 8))
-                func.curBlock.instrs.addAll(Sw("s" + i, func.spOffset - 84 + (11 - i) * 4, "sp"));
+                func.curBlock.instrs.addAll(Sw(physicName(i + 8), func.spOffset - 84 + (11 - i) * 4, "sp"));
         }
         func.curBlock.instrs.addAll(da.getInstr());
 
@@ -453,7 +455,7 @@ public class NASMBuilder {
                             int freeID = toFreeReg.get(id);
                             MvInstr mv = new MvInstr();
                             mv.rd = "a" + i;
-                            mv.rs = "s" + freeID;
+                            mv.rs = physicName(freeID);
                             func.curBlock.instrs.add(mv);
                         }
                         else {
@@ -521,16 +523,16 @@ public class NASMBuilder {
                     int freeID = toFreeReg.get(i);
                     MvInstr mv = new MvInstr();
                     mv.rd = "a" + i;
-                    mv.rs = "s" + freeID;
+                    mv.rs = physicName(freeID);
                     func.curBlock.instrs.add(mv);
                 }
                 else
                     func.curBlock.instrs.addAll(Lw("a" + i, func.spOffset - 36 + (7 - i) * 4, "sp"));
             }
         }
-        if (!isBuiltin) for (int i = 0; i < 12; i++) {
+        if (!isBuiltin) for (int i = 0; i < 14; i++) {
             if (call.occupied.get(i + 8))
-                func.curBlock.instrs.addAll(Lw("s" + i, func.spOffset - 84 + (11 - i) * 4, "sp"));
+                func.curBlock.instrs.addAll(Lw(physicName(i + 8), func.spOffset - 84 + (11 - i) * 4, "sp"));
         }
 
         if (call.returnType != null)
@@ -643,40 +645,41 @@ public class NASMBuilder {
         getReg(select.val1, "t1", func, regMap);
         getReg(select.val2, "t2", func, regMap);
 
-        // from gpt
+        // 使用 t0 直接比较并设置 t3
         ArithInstr ar1 = new ArithInstr();
         ar1.opType = "sltu";
-        ar1.rd = "t3";
+        ar1.rd = "t3"; // 直接使用 t3 存储比较结果
         ar1.rs1 = "x0";
-        ar1.rs2 = "t0"; // t0 = 1 then > x0
+        ar1.rs2 = "t0";
         func.curBlock.instrs.add(ar1);
+
+        // neg t3 并直接用于 AND 操作
         UnaryInstr un1 = new UnaryInstr();
         un1.op = "neg";
-        un1.rd = "t3";
+        un1.rd = "t3"; // 结果仍在 t3 中
         un1.rs = "t3";
-        func.curBlock.instrs.add(un1); // all 0 or all 1
+        func.curBlock.instrs.add(un1);
+
+        // 直接进行 AND 和 OR 操作
         ArithInstr ar2 = new ArithInstr();
         ar2.opType = "and";
-        ar2.rd = "t4";
+        ar2.rd = "t4"; // 使用 t4
         ar2.rs1 = "t1";
-        ar2.rs2 = "t3";
+        ar2.rs2 = "t3"; // 使用 negated t3
         func.curBlock.instrs.add(ar2);
-        UnaryInstr un2 = new UnaryInstr();
-        un2.op = "not";
-        un2.rd = "t3";
-        un2.rs = "t3";
-        func.curBlock.instrs.add(un2);
+
         ArithInstr ar3 = new ArithInstr();
         ar3.opType = "and";
-        ar3.rd = "t5";
+        ar3.rd = "t3"; // 重新利用 t3
         ar3.rs1 = "t2";
-        ar3.rs2 = "t3";
+        ar3.rs2 = "t3"; // 使用 negated t3
         func.curBlock.instrs.add(ar3);
+
         ArithInstr ar4 = new ArithInstr();
         ar4.opType = "or";
-        ar4.rd = "t3";
+        ar4.rd = "t3"; // 结果存回 t3
         ar4.rs1 = "t4";
-        ar4.rs2 = "t5";
+        ar4.rs2 = "t3"; // 再次使用 t3
         func.curBlock.instrs.add(ar4);
 
         storeReg("t3", select.result.getString(), func, regMap);
