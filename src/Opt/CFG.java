@@ -132,9 +132,9 @@ public class CFG {
         for (allocaInstr alloc : AllocInstr) {
             // case 1: no use
             if (alloc.uses.isEmpty()) {
-                alloc.isRmoved = true;
+                alloc.isRemoved = true;
                 for (Instr def : alloc.defs) {
-                    def.isRmoved = true;
+                    def.isRemoved = true;
                 }
                 continue;
             }
@@ -260,7 +260,7 @@ public class CFG {
 
     private void getPhiPos() {
         for (allocaInstr alloc : AllocInstr) {
-            if (alloc.isRmoved) continue;
+            if (alloc.isRemoved) continue;
 
             HashSet<BasicBlock> workTable = getWorkTable(alloc.result);
             HashSet<BasicBlock> added = new HashSet<>();
@@ -458,6 +458,7 @@ public class CFG {
                 for (int i = 0; i < curBlock.lastBlocks.size(); i++) {
                     HashMap<Reg, Expr> moveMap = new HashMap<>();
                     for (phiInstr phi : curBlock.phiMap.values()) {
+                        if (phi.isRemoved) continue;
                         moveMap.put(phi.result, phi.vals.get(i));
                     }
                     DAPHI daphi = new DAPHI(moveMap);
@@ -522,7 +523,7 @@ public class CFG {
             if (useMap.containsKey(reg) && useMap.get(reg).isEmpty()) {
                 Instr S = defMap.get(reg);
                 if (S.def.size() == 1) {
-                    S.isRmoved = true;
+                    S.isRemoved = true;
                     for (String useReg : S.use) {
                         if (useMap.containsKey(useReg)) {
                             useMap.get(useReg).remove(S);
@@ -535,12 +536,76 @@ public class CFG {
     }
 
     public void ADCE() {
-        HashSet<Instr> liveInstrs = new HashSet<>();
-        HashSet<BasicBlock> liveBlocks = new HashSet<>();
-        HashSet<Reg> liveUses = new HashSet<>();
+        HashSet<String> liveUses = new HashSet<>();
         HashSet<Instr> workList = new HashSet<>();
         HashMap<String, Instr> defMap = new HashMap<>();
-        // todo
+        HashSet<String> liveBlocks = new HashSet<>();
+        HashSet<Instr> liveInstrs = new HashSet<>();
+
+        AAInstr();
+
+        for (BasicBlock curBlock : rpo) {
+            for (phiInstr phi : curBlock.phiMap.values()) {
+                phi.parent = curBlock.Label.getLabel();
+                defMap.put(phi.result.getString(), phi);
+                for (Expr val : phi.vals) {
+                    if (val instanceof Reg)
+                        phi.use.add(val.getString());
+                }
+            }
+            for (Instr instr : curBlock.Instrs) {
+                instr.parent = curBlock.Label.getLabel();
+                if (instr.def.size() == 1) {
+                    defMap.put(instr.def.iterator().next(), instr);
+                }
+                if (instr instanceof storeInstr) workList.add(instr);
+                if (instr instanceof callInstr) workList.add(instr);
+            }
+            curBlock.Ctrl.parent = curBlock.Label.getLabel();
+            if (curBlock.Ctrl instanceof retInstr ret) workList.add(ret);
+        }
+
+        while (!workList.isEmpty()) {
+            Instr instr = workList.iterator().next();
+            workList.remove(instr);
+            liveInstrs.add(instr);
+            liveBlocks.add(instr.parent);
+            liveUses.addAll(instr.use);
+
+            if (instr instanceof phiInstr phi) {
+                for (String last : phi.blocks) {
+                    BasicBlock lastBlock = BasicBlocks.get(last);
+                    if (lastBlock.Ctrl != null && !liveInstrs.contains(lastBlock.Ctrl)) {
+                        workList.add(lastBlock.Ctrl);
+                        liveBlocks.add(last);
+                    }
+                }
+            }
+            BasicBlock curBlock = BasicBlocks.get(instr.parent);
+            for (String last : curBlock.lastBlocks) {
+                BasicBlock lastBlock = BasicBlocks.get(last);
+                if (lastBlock.Ctrl != null && !liveInstrs.contains(lastBlock.Ctrl)) {
+                    workList.add(lastBlock.Ctrl);
+                }
+            }
+            for (String use : instr.use) {
+                if (use.startsWith("@")) continue;
+                if (IRFunc.params.contains(use)) continue;
+                Instr def = defMap.get(use);
+                if (def != null && !liveInstrs.contains(def)) {
+                    workList.add(def);
+                }
+            }
+        }
+
+        for (BasicBlock curBlock : rpo) {
+            for (phiInstr phi : curBlock.phiMap.values()) {
+                if (!liveInstrs.contains(phi)) phi.isRemoved = true;
+            }
+            for (Instr instr : curBlock.Instrs) {
+                if (!liveInstrs.contains(instr)) instr.isRemoved = true;
+            }
+        }
     }
 
     private void getShortCut(Instr instr, label farWay, label shortCut) {
@@ -559,7 +624,7 @@ public class CFG {
     public void rmEmpty() {
         for (BasicBlock curBlock : rpo) {
             int i = 0;
-            for (Instr instr : curBlock.Instrs) if (!instr.isRmoved) i++;
+            for (Instr instr : curBlock.Instrs) if (!instr.isRemoved) i++;
             if (i == 0 && curBlock.Ctrl instanceof brInstr br) {
                 if (br.cond == null) {
                     BasicBlock nextBlock = BasicBlocks.get(br.destLabel.getLabel());
@@ -681,7 +746,7 @@ public class CFG {
         for (BasicBlock cur : rpo) {
             BlockID.put(cur.Label.getLabel(), instrs.size());
             for (Instr instr : cur.Instrs) {
-                if (instr.isRmoved) continue;
+                if (instr.isRemoved) continue;
                 instr.ID = instrs.size();
                 instrs.add(instr);
                 if (instr instanceof binInstr bin) {

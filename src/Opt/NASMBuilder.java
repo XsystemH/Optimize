@@ -214,7 +214,7 @@ public class NASMBuilder {
                 func.newBlock(func.head + irBlock.Label.getLabel().substring(1));
             }
             for (Instr instr : irBlock.Instrs) {
-                if (instr.isRmoved) continue;
+                if (instr.isRemoved) continue;
                 try {
                     visitIRInstr(instr, func, irFunc.cfg.reg_map);
                 }

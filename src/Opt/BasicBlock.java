@@ -14,6 +14,7 @@ public class BasicBlock {
     public label Label;
     public ArrayList<Instr> Instrs = new ArrayList<>();
     public Instr Ctrl;
+    public boolean isRemoved;
 
     public ArrayList<String> lastBlocks = new ArrayList<>();
     public ArrayList<String> nextBlocks = new ArrayList<>();

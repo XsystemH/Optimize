@@ -16,7 +16,7 @@ public class allocaInstr extends Instr{
 
     @Override
     public String getString() {
-        if (isRmoved)
+        if (isRemoved)
             return "//" + result.getString() + " = alloca " + type.getString();
         return result.getString() + " = alloca " + type.getString();
     }

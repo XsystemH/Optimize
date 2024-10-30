@@ -3,8 +3,9 @@ package IR.Instruction;
 import java.util.HashSet;
 
 public abstract class Instr {
-    public boolean isRmoved = false;
+    public boolean isRemoved = false;
     public int ID;
+    public String parent;
 
     public HashSet<String> use = new HashSet<>();
     public HashSet<String> def = new HashSet<>();
