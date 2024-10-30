@@ -622,6 +622,7 @@ public class CFG {
     }
 
     public void rmEmpty() {
+        rpo = getRPO(Entry);
         for (BasicBlock curBlock : rpo) {
             int i = 0;
             for (Instr instr : curBlock.Instrs) if (!instr.isRemoved) i++;

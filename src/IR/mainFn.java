@@ -21,9 +21,9 @@ public class mainFn extends funcDef {
         StringBuilder s = new StringBuilder("define i32 @main() {\n");
         for (BasicBlock block : cfg.rpo) {
             s.append(block.Label.getString()).append("\n");
-            for (phiInstr phi : block.phiMap.values()) {
-                s.append("  ").append(phi.getString()).append("\n");
-            }
+//            for (phiInstr phi : block.phiMap.values()) {
+//                s.append("  ").append(phi.getString()).append("\n");
+//            }
             for (Instr instr : block.Instrs) {
                 s.append("  ").append(instr.getString()).append("\n");
             }
