@@ -22,6 +22,8 @@ public class CFG {
     public HashMap<String, ActivePeriod> activePeriods;
     public ArrayList<String> sortedAP;
     public HashMap<String, Integer> reg_map = new HashMap<>();
+    public int varNum = 0;
+    public int succeedNum = 0;
 
     public CFG(funcDef func) {
         IRFunc = func;
@@ -700,9 +702,11 @@ public class CFG {
                             break;
                         }
                     }
-                    if (isArg) continue;
+                    if (!isArg) varNum++;
+//                    else continue;
                     ActivePeriod ap = new ActivePeriod();
                     ap.l = i;
+                    if (isArg) ap.l = -1;
                     ap.r = i + 1;
                     activePeriods.put(reg, ap);
                 }
@@ -864,6 +868,8 @@ public class CFG {
                 free_regs.clear(reg);
                 occupied.add(apStr);
                 reg_map.put(apStr, reg);
+                if (!IRFunc.params.contains(apStr.substring(1)))
+                    succeedNum++;
             }
         }
 

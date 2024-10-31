@@ -19,6 +19,8 @@ public class NASMBuilder {
     public DataSection dataSection = new DataSection();
     public RodataSection roDataSection = new RodataSection();
 
+    public HashMap<String, Integer> usedReg = new HashMap<>();
+
     public int funcNum = 0;
 
     public NASMBuilder(IRBuilder ir) {
@@ -141,6 +143,28 @@ public class NASMBuilder {
     public void visitProgram() {
         buildStringCons();
         buildGlobalVars();
+
+        for (Instr irInstr : irBuilder.program.instrs) {
+            if (irInstr instanceof funcDef func) {
+                int max = -1;
+                for (int i : func.cfg.reg_map.values()) {
+                    if (i > max) max = i;
+                }
+                String funcName;
+                if (func.className != null)
+                    funcName = func.className + ".." + func.name;
+                else funcName = func.name;
+                usedReg.put(funcName, max);
+            }
+            if (irInstr instanceof mainFn main) {
+                int max = -1;
+                for (int i : main.init.cfg.reg_map.values()) {
+                    if (i > max) max = i;
+                }
+                usedReg.put(main.init.name, max);
+            }
+        }
+
         for (Instr irInstr : irBuilder.program.instrs) {
             if (irInstr instanceof funcDef func) {
                 funcNum++;
@@ -173,7 +197,7 @@ public class NASMBuilder {
         if (irFunc.className != null)
             func.name = irFunc.className + ".." + irFunc.name;
         else func.name = irFunc.name;
-        int size = 92 + (irFunc.params.size() + irFunc.cfg.activePeriods.size() - irFunc.cfg.reg_map.size()) * 4;
+        int size = 92 + (irFunc.params.size() + irFunc.cfg.varNum - irFunc.cfg.succeedNum) * 4;
         int maxSpiltArgs = 0;
         for (BasicBlock block : irFunc.cfg.rpo)
             for (Instr instr : block.Instrs)
@@ -201,12 +225,12 @@ public class NASMBuilder {
         HashMap<Integer, Integer> moveMap = new HashMap<>();
         HashMap<String, Integer> loadList = new HashMap<>();
         for (int i = 0; i < irFunc.params.size(); i++) {
-            if (irFunc.cfg.reg_map.containsKey(irFunc.params.get(i))) {
+            if (irFunc.cfg.reg_map.containsKey("%" + irFunc.params.get(i))) {
                 if (i < 8) {
-                    moveMap.put(i, irFunc.cfg.reg_map.get(irFunc.params.get(i)));
+                    moveMap.put(i, irFunc.cfg.reg_map.get("%" + irFunc.params.get(i)));
                 }
                 else {
-                    loadList.put(irFunc.params.get(i), func.spOffset + (i - 8) * 4);
+                    loadList.put("%" + irFunc.params.get(i), func.spOffset + (i - 8) * 4);
                 }
             }
             else if (i < 8) {
@@ -429,10 +453,22 @@ public class NASMBuilder {
         DA da = new DA(reg2Reg);
 
         boolean isBuiltin = isBuiltin(call);
+        String funcName;
+        if (call.className != null) funcName = call.className + ".." + call.methodName;
+        else funcName = call.methodName;
 
         if (isBuiltin) for (int i = 0; i < 14; i++) {
-            if (!call.occupied.get(i + 8)) freeRegs.add(i + 8);
+            if (!call.occupied.get(i + 8)) {
+                freeRegs.add(i + 8);
+                call.occupied.set(i + 8);
+            }
         }
+//        else for (int i = 0; i < 14; i++) {
+//            if (!call.occupied.get(i + 8) && i + 8 > usedReg.get(funcName)) {
+//                freeRegs.add(i + 8);
+//                call.occupied.set(i + 8);
+//            }
+//        }
 
         for (int i = 0; i < 8; i++) {
             if (call.occupied.get(i)) {
@@ -450,7 +486,7 @@ public class NASMBuilder {
             }
         }
         if (!isBuiltin) for (int i = 0; i < 14; i++) {
-            if (call.occupied.get(i + 8))
+            if (call.occupied.get(i + 8) && i + 8 <= usedReg.get(funcName))
                 func.curBlock.instrs.addAll(Sw(physicName(i + 8), func.spOffset - 84 + (11 - i) * 4, "sp"));
         }
         func.curBlock.instrs.addAll(da.getInstr());
@@ -548,7 +584,7 @@ public class NASMBuilder {
             }
         }
         if (!isBuiltin) for (int i = 0; i < 14; i++) {
-            if (call.occupied.get(i + 8))
+            if (call.occupied.get(i + 8) && i + 8 <= usedReg.get(funcName))
                 func.curBlock.instrs.addAll(Lw(physicName(i + 8), func.spOffset - 84 + (11 - i) * 4, "sp"));
         }
 
