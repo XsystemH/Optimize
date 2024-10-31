@@ -129,20 +129,20 @@ public class IRBuilder implements ASTVisitor{
             c.members.add(type2IR(var.type));
         }
         currentBlock.instrs.add(c);
-        block temp = currentBlock;
-        currentBlock = new funcDef();
-        ((funcDef)currentBlock).name = it.name;
-        ((funcDef)currentBlock).className = it.name;
-        ((funcDef)currentBlock).paramTypes.add(new ptrType());
-        ((funcDef)currentBlock).params.add("this");
         if (it.constructor != null) {
+            block temp = currentBlock;
+            currentBlock = new funcDef();
+            ((funcDef)currentBlock).name = it.name;
+            ((funcDef)currentBlock).className = it.name;
+            ((funcDef)currentBlock).paramTypes.add(new ptrType());
+            ((funcDef)currentBlock).params.add("this");
             currentScope = new classScope(gScope);
             currentScope.className = it.name;
             it.constructor.accept(this);
             currentScope = currentScope.parent;
+            temp.instrs.add(currentBlock);
+            currentBlock = temp;
         }
-        temp.instrs.add(currentBlock);
-        currentBlock = temp;
         for (FuncNode f : it.functions) {
             currentScope = new classScope(gScope);
             currentScope.className = it.name;
@@ -692,12 +692,14 @@ public class IRBuilder implements ASTVisitor{
             call.result = new resReg(store++);
             lastExpr = call.result;
             currentBlock.instrs.add(call);
-            callInstr call2 = new callInstr();
-            call2.className = c.name;
-            call2.methodName = c.name;
-            call2.paramTypes.add(new ptrType());
-            call2.paramExpr.add(call.result);
-            currentBlock.instrs.add(call2);
+            if (c.hasConstructor) {
+                callInstr call2 = new callInstr();
+                call2.className = c.name;
+                call2.methodName = c.name;
+                call2.paramTypes.add(new ptrType());
+                call2.paramExpr.add(call.result);
+                currentBlock.instrs.add(call2);
+            }
             return;
         }
         callInstr call = new callInstr();

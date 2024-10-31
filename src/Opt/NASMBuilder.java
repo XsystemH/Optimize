@@ -225,6 +225,7 @@ public class NASMBuilder {
         HashMap<Integer, Integer> moveMap = new HashMap<>();
         HashMap<String, Integer> loadList = new HashMap<>();
         for (int i = 0; i < irFunc.params.size(); i++) {
+            if (!irFunc.cfg.activePeriods.containsKey("%" + irFunc.params.get(i))) continue;
             if (irFunc.cfg.reg_map.containsKey("%" + irFunc.params.get(i))) {
                 if (i < 8) {
                     moveMap.put(i, irFunc.cfg.reg_map.get("%" + irFunc.params.get(i)));

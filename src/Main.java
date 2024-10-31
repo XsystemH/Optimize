@@ -24,7 +24,7 @@ import java.util.HashSet;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-//        String filename = "testcases/codegen/t12.mx";
+//        String filename = "testcases/codegen/shortest_path/dijkstra.mx";
 //        InputStream input = new FileInputStream(filename);
 //        OutputStream IROut = new FileOutputStream("output.ll");
 //        OutputStream output = new FileOutputStream("output.s");

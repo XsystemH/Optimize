@@ -692,6 +692,27 @@ public class CFG {
         activePeriods = new HashMap<>();
         for (int i = 0; i < rpoInstr.size(); i++) {
             Instr instr = rpoInstr.get(i);
+            if (i == 0) for (String reg : instr.in_) {
+                if (!activePeriods.containsKey(reg)) {
+                    if (reg.startsWith("@")) continue;
+                    boolean isArg = false;
+                    for (String arg : IRFunc.params) {
+                        if (arg.equals(reg.substring(1))) {
+                            isArg = true;
+                            break;
+                        }
+                    }
+                    if (!isArg) varNum++;
+                    ActivePeriod ap = new ActivePeriod();
+                    ap.l = -1;
+                    ap.r = 0;
+                    activePeriods.put(reg, ap);
+                }
+                else {
+                    ActivePeriod ap = activePeriods.get(reg);
+                    ap.r = i;
+                }
+            }
             for (String reg : instr.out) {
                 if (!activePeriods.containsKey(reg)) {
                     if (reg.startsWith("@")) continue;
@@ -703,7 +724,6 @@ public class CFG {
                         }
                     }
                     if (!isArg) varNum++;
-//                    else continue;
                     ActivePeriod ap = new ActivePeriod();
                     ap.l = i;
                     if (isArg) ap.l = -1;
