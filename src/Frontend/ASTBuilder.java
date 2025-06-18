@@ -19,6 +19,134 @@ import java.util.Objects;
 public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     public ASTBuilder() {}
 
+    private boolean isConstant(ExprNode expr) {
+        return expr instanceof constantExprNode;
+    }
+
+    private int getIntValue(ExprNode expr) {
+        if (expr instanceof constantExprNode) {
+            constantExprNode constExpr = (constantExprNode) expr;
+            if (constExpr.constant instanceof intConsNode) {
+                return ((intConsNode) constExpr.constant).value;
+            }
+        }
+        return 0;
+    }
+
+    private boolean getBoolValue(ExprNode expr) {
+        if (expr instanceof constantExprNode) {
+            constantExprNode constExpr = (constantExprNode) expr;
+            if (constExpr.constant instanceof boolConsNode) {
+                return ((boolConsNode) constExpr.constant).value;
+            }
+        }
+        return false;
+    }
+
+    private boolean isIntConstant(ExprNode expr) {
+        return expr instanceof constantExprNode && 
+               ((constantExprNode) expr).constant instanceof intConsNode;
+    }
+
+    private boolean isBoolConstant(ExprNode expr) {
+        return expr instanceof constantExprNode && 
+               ((constantExprNode) expr).constant instanceof boolConsNode;
+    }
+
+    private ExprNode createIntConstant(int value, position pos) {
+        constantExprNode constExpr = new constantExprNode(pos);
+        intConsNode intConst = new intConsNode(pos);
+        intConst.value = value;
+        constExpr.constant = intConst;
+        return constExpr;
+    }
+
+    private ExprNode createBoolConstant(boolean value, position pos) {
+        constantExprNode constExpr = new constantExprNode(pos);
+        boolConsNode boolConst = new boolConsNode(pos);
+        boolConst.value = value;
+        constExpr.constant = boolConst;
+        return constExpr;
+    }
+
+    private ExprNode foldIntBinaryOp(binaryExprNode.binaryOpType op, int left, int right, position pos) {
+        int result;
+        switch (op) {
+            case add -> result = left + right;
+            case sub -> result = left - right;
+            case mul -> result = left * right;
+            case div -> {
+                if (right == 0) return null;
+                result = left / right;
+            }
+            case mod -> {
+                if (right == 0) return null;
+                result = left % right;
+            }
+            case and -> result = left & right;
+            case or_ -> result = left | right;
+            case xor -> result = left ^ right;
+            case leftShift -> result = left << right;
+            case rightShift -> result = left >> right;
+            default -> { return null; }
+        }
+        return createIntConstant(result, pos);
+    }
+
+    private ExprNode foldBoolComparison(boolExprNode.boolOpType op, int left, int right, position pos) {
+        boolean result;
+        switch (op) {
+            case equal -> result = (left == right);
+            case notEqual -> result = (left != right);
+            case less -> result = (left < right);
+            case greater -> result = (left > right);
+            case lessOrEqual -> result = (left <= right);
+            case greaterOrEqual -> result = (left >= right);
+            default -> { return null; }
+        }
+        return createBoolConstant(result, pos);
+    }
+
+    private ExprNode foldBoolComparison(boolExprNode.boolOpType op, boolean left, boolean right, position pos) {
+        boolean result;
+        switch (op) {
+            case equal -> result = (left == right);
+            case notEqual -> result = (left != right);
+            default -> { return null; }
+        }
+        return createBoolConstant(result, pos);
+    }
+
+    private ExprNode foldLogicalOp(logicExprNode.logicOpType op, boolean left, boolean right, position pos) {
+        boolean result;
+        switch (op) {
+            case land -> result = left && right;
+            case lor -> result = left || right;
+            default -> { return null; }
+        }
+        return createBoolConstant(result, pos);
+    }
+
+    private ExprNode foldUnaryOp(leftExprNode.leftOpType op, ExprNode operand, position pos) {
+        if (op == leftExprNode.leftOpType.negative && isIntConstant(operand)) {
+            int value = getIntValue(operand);
+            return createIntConstant(-value, pos);
+        }
+        if (op == leftExprNode.leftOpType.negation && isIntConstant(operand)) {
+            int value = getIntValue(operand);
+            return createIntConstant(~value, pos);
+        }
+        return null;
+    }
+
+    private ExprNode foldNotOp(ExprNode operand, position pos) {
+        if (isBoolConstant(operand)) {
+            boolean value = getBoolValue(operand);
+            return createBoolConstant(!value, pos);
+        }
+        return null;
+    }
+
     @Override
     public ASTNode visitProgram(MxParser.ProgramContext ctx) {
         ProgramNode p = new ProgramNode(new position(ctx));
@@ -276,81 +404,147 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitBinaryExpr1(MxParser.BinaryExpr1Context ctx) {
-        binaryExprNode b = new binaryExprNode(new position(ctx));
-        b.lhs = (ExprNode) visit(ctx.expression(0));
-        b.rhs = (ExprNode) visit(ctx.expression(1));
+        ExprNode lhs = (ExprNode) visit(ctx.expression(0));
+        ExprNode rhs = (ExprNode) visit(ctx.expression(1));
+        
+        binaryExprNode.binaryOpType opType;
         switch (ctx.op.getText()) {
-            case "+" -> b.opCode = binaryExprNode.binaryOpType.add;
-            case "-" -> b.opCode = binaryExprNode.binaryOpType.sub;
-            case "*" -> b.opCode = binaryExprNode.binaryOpType.mul;
-            case "/" -> b.opCode = binaryExprNode.binaryOpType.div;
-            case "%" -> b.opCode = binaryExprNode.binaryOpType.mod;
-            case "&" -> b.opCode = binaryExprNode.binaryOpType.and;
-            case "|" -> b.opCode = binaryExprNode.binaryOpType.or_;
-            case "^" -> b.opCode = binaryExprNode.binaryOpType.xor;
-            case "<<" -> b.opCode = binaryExprNode.binaryOpType.leftShift;
-            case ">>" -> b.opCode = binaryExprNode.binaryOpType.rightShift;
+            case "+" -> opType = binaryExprNode.binaryOpType.add;
+            case "-" -> opType = binaryExprNode.binaryOpType.sub;
+            case "*" -> opType = binaryExprNode.binaryOpType.mul;
+            case "/" -> opType = binaryExprNode.binaryOpType.div;
+            case "%" -> opType = binaryExprNode.binaryOpType.mod;
+            case "&" -> opType = binaryExprNode.binaryOpType.and;
+            case "|" -> opType = binaryExprNode.binaryOpType.or_;
+            case "^" -> opType = binaryExprNode.binaryOpType.xor;
+            case "<<" -> opType = binaryExprNode.binaryOpType.leftShift;
+            case ">>" -> opType = binaryExprNode.binaryOpType.rightShift;
+            default -> opType = binaryExprNode.binaryOpType.add; // 默认值
         }
+        
+        // 尝试常量折叠
+        if (isIntConstant(lhs) && isIntConstant(rhs)) {
+            int leftVal = getIntValue(lhs);
+            int rightVal = getIntValue(rhs);
+            ExprNode folded = foldIntBinaryOp(opType, leftVal, rightVal, new position(ctx));
+            if (folded != null) {
+                return folded;
+            }
+        }
+
+        binaryExprNode b = new binaryExprNode(new position(ctx));
+        b.lhs = lhs;
+        b.rhs = rhs;
+        b.opCode = opType;
         return b;
     }
 
     @Override
     public ASTNode visitBinaryExpr2(MxParser.BinaryExpr2Context ctx) {
-        binaryExprNode b = new binaryExprNode(new position(ctx));
-        b.lhs = (ExprNode) visit(ctx.expression(0));
-        b.rhs = (ExprNode) visit(ctx.expression(1));
+        ExprNode lhs = (ExprNode) visit(ctx.expression(0));
+        ExprNode rhs = (ExprNode) visit(ctx.expression(1));
+        
+        binaryExprNode.binaryOpType opType;
         switch (ctx.op.getText()) {
-            case "+" -> b.opCode = binaryExprNode.binaryOpType.add;
-            case "-" -> b.opCode = binaryExprNode.binaryOpType.sub;
-            case "*" -> b.opCode = binaryExprNode.binaryOpType.mul;
-            case "/" -> b.opCode = binaryExprNode.binaryOpType.div;
-            case "%" -> b.opCode = binaryExprNode.binaryOpType.mod;
-            case "&" -> b.opCode = binaryExprNode.binaryOpType.and;
-            case "|" -> b.opCode = binaryExprNode.binaryOpType.or_;
-            case "^" -> b.opCode = binaryExprNode.binaryOpType.xor;
-            case "<<" -> b.opCode = binaryExprNode.binaryOpType.leftShift;
-            case ">>" -> b.opCode = binaryExprNode.binaryOpType.rightShift;
+            case "+" -> opType = binaryExprNode.binaryOpType.add;
+            case "-" -> opType = binaryExprNode.binaryOpType.sub;
+            case "*" -> opType = binaryExprNode.binaryOpType.mul;
+            case "/" -> opType = binaryExprNode.binaryOpType.div;
+            case "%" -> opType = binaryExprNode.binaryOpType.mod;
+            case "&" -> opType = binaryExprNode.binaryOpType.and;
+            case "|" -> opType = binaryExprNode.binaryOpType.or_;
+            case "^" -> opType = binaryExprNode.binaryOpType.xor;
+            case "<<" -> opType = binaryExprNode.binaryOpType.leftShift;
+            case ">>" -> opType = binaryExprNode.binaryOpType.rightShift;
+            default -> opType = binaryExprNode.binaryOpType.add; // 默认值
         }
+
+        if (isIntConstant(lhs) && isIntConstant(rhs)) {
+            int leftVal = getIntValue(lhs);
+            int rightVal = getIntValue(rhs);
+            ExprNode folded = foldIntBinaryOp(opType, leftVal, rightVal, new position(ctx));
+            if (folded != null) {
+                return folded;
+            }
+        }
+
+        binaryExprNode b = new binaryExprNode(new position(ctx));
+        b.lhs = lhs;
+        b.rhs = rhs;
+        b.opCode = opType;
         return b;
     }
 
     @Override
     public ASTNode visitBinaryExpr3(MxParser.BinaryExpr3Context ctx) {
-        binaryExprNode b = new binaryExprNode(new position(ctx));
-        b.lhs = (ExprNode) visit(ctx.expression(0));
-        b.rhs = (ExprNode) visit(ctx.expression(1));
+        ExprNode lhs = (ExprNode) visit(ctx.expression(0));
+        ExprNode rhs = (ExprNode) visit(ctx.expression(1));
+        
+        binaryExprNode.binaryOpType opType;
         switch (ctx.op.getText()) {
-            case "+" -> b.opCode = binaryExprNode.binaryOpType.add;
-            case "-" -> b.opCode = binaryExprNode.binaryOpType.sub;
-            case "*" -> b.opCode = binaryExprNode.binaryOpType.mul;
-            case "/" -> b.opCode = binaryExprNode.binaryOpType.div;
-            case "%" -> b.opCode = binaryExprNode.binaryOpType.mod;
-            case "&" -> b.opCode = binaryExprNode.binaryOpType.and;
-            case "|" -> b.opCode = binaryExprNode.binaryOpType.or_;
-            case "^" -> b.opCode = binaryExprNode.binaryOpType.xor;
-            case "<<" -> b.opCode = binaryExprNode.binaryOpType.leftShift;
-            case ">>" -> b.opCode = binaryExprNode.binaryOpType.rightShift;
+            case "+" -> opType = binaryExprNode.binaryOpType.add;
+            case "-" -> opType = binaryExprNode.binaryOpType.sub;
+            case "*" -> opType = binaryExprNode.binaryOpType.mul;
+            case "/" -> opType = binaryExprNode.binaryOpType.div;
+            case "%" -> opType = binaryExprNode.binaryOpType.mod;
+            case "&" -> opType = binaryExprNode.binaryOpType.and;
+            case "|" -> opType = binaryExprNode.binaryOpType.or_;
+            case "^" -> opType = binaryExprNode.binaryOpType.xor;
+            case "<<" -> opType = binaryExprNode.binaryOpType.leftShift;
+            case ">>" -> opType = binaryExprNode.binaryOpType.rightShift;
+            default -> opType = binaryExprNode.binaryOpType.add; // 默认值
         }
+        
+        // 尝试常量折叠
+        if (isIntConstant(lhs) && isIntConstant(rhs)) {
+            int leftVal = getIntValue(lhs);
+            int rightVal = getIntValue(rhs);
+            ExprNode folded = foldIntBinaryOp(opType, leftVal, rightVal, new position(ctx));
+            if (folded != null) {
+                return folded;
+            }
+        }
+
+        binaryExprNode b = new binaryExprNode(new position(ctx));
+        b.lhs = lhs;
+        b.rhs = rhs;
+        b.opCode = opType;
         return b;
     }
 
     @Override
     public ASTNode visitBinaryExpr4(MxParser.BinaryExpr4Context ctx) {
-        binaryExprNode b = new binaryExprNode(new position(ctx));
-        b.lhs = (ExprNode) visit(ctx.expression(0));
-        b.rhs = (ExprNode) visit(ctx.expression(1));
+        ExprNode lhs = (ExprNode) visit(ctx.expression(0));
+        ExprNode rhs = (ExprNode) visit(ctx.expression(1));
+        
+        binaryExprNode.binaryOpType opType;
         switch (ctx.op.getText()) {
-            case "+" -> b.opCode = binaryExprNode.binaryOpType.add;
-            case "-" -> b.opCode = binaryExprNode.binaryOpType.sub;
-            case "*" -> b.opCode = binaryExprNode.binaryOpType.mul;
-            case "/" -> b.opCode = binaryExprNode.binaryOpType.div;
-            case "%" -> b.opCode = binaryExprNode.binaryOpType.mod;
-            case "&" -> b.opCode = binaryExprNode.binaryOpType.and;
-            case "|" -> b.opCode = binaryExprNode.binaryOpType.or_;
-            case "^" -> b.opCode = binaryExprNode.binaryOpType.xor;
-            case "<<" -> b.opCode = binaryExprNode.binaryOpType.leftShift;
-            case ">>" -> b.opCode = binaryExprNode.binaryOpType.rightShift;
+            case "+" -> opType = binaryExprNode.binaryOpType.add;
+            case "-" -> opType = binaryExprNode.binaryOpType.sub;
+            case "*" -> opType = binaryExprNode.binaryOpType.mul;
+            case "/" -> opType = binaryExprNode.binaryOpType.div;
+            case "%" -> opType = binaryExprNode.binaryOpType.mod;
+            case "&" -> opType = binaryExprNode.binaryOpType.and;
+            case "|" -> opType = binaryExprNode.binaryOpType.or_;
+            case "^" -> opType = binaryExprNode.binaryOpType.xor;
+            case "<<" -> opType = binaryExprNode.binaryOpType.leftShift;
+            case ">>" -> opType = binaryExprNode.binaryOpType.rightShift;
+            default -> opType = binaryExprNode.binaryOpType.add; // 默认值
         }
+
+        if (isIntConstant(lhs) && isIntConstant(rhs)) {
+            int leftVal = getIntValue(lhs);
+            int rightVal = getIntValue(rhs);
+            ExprNode folded = foldIntBinaryOp(opType, leftVal, rightVal, new position(ctx));
+            if (folded != null) {
+                return folded;
+            }
+        }
+
+        binaryExprNode b = new binaryExprNode(new position(ctx));
+        b.lhs = lhs;
+        b.rhs = rhs;
+        b.opCode = opType;
         return b;
     }
 
@@ -373,8 +567,15 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitNotExpr(MxParser.NotExprContext ctx) {
+        ExprNode operand = (ExprNode) visit(ctx.expression());
+
+        ExprNode folded = foldNotOp(operand, new position(ctx));
+        if (folded != null) {
+            return folded;
+        }
+
         notExprNode n = new notExprNode(new position(ctx));
-        n.expr = (ExprNode) visit(ctx.expression());
+        n.expr = operand;
         return n;
     }
 
@@ -415,42 +616,98 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitLogicExpr(MxParser.LogicExprContext ctx) {
-        logicExprNode l = new logicExprNode(new position(ctx));
-        l.lhs = (ExprNode) visit(ctx.expression(0));
-        l.rhs = (ExprNode) visit(ctx.expression(1));
+        ExprNode lhs = (ExprNode) visit(ctx.expression(0));
+        ExprNode rhs = (ExprNode) visit(ctx.expression(1));
+        
+        logicExprNode.logicOpType opType;
         switch (ctx.op.getText()) {
-            case "&&" -> l.opCode = logicExprNode.logicOpType.land;
-            case "||" -> l.opCode = logicExprNode.logicOpType.lor;
+            case "&&" -> opType = logicExprNode.logicOpType.land;
+            case "||" -> opType = logicExprNode.logicOpType.lor;
+            default -> opType = logicExprNode.logicOpType.land; // 默认值
         }
+
+        if (isBoolConstant(lhs) && isBoolConstant(rhs)) {
+            boolean leftVal = getBoolValue(lhs);
+            boolean rightVal = getBoolValue(rhs);
+            ExprNode folded = foldLogicalOp(opType, leftVal, rightVal, new position(ctx));
+            if (folded != null) {
+                return folded;
+            }
+        }
+
+        logicExprNode l = new logicExprNode(new position(ctx));
+        l.lhs = lhs;
+        l.rhs = rhs;
+        l.opCode = opType;
         return l;
     }
 
     @Override
     public ASTNode visitLeftExpr(MxParser.LeftExprContext ctx) {
-        leftExprNode l = new leftExprNode(new position(ctx));
-        l.expr = (ExprNode) visit(ctx.expression());
+        ExprNode operand = (ExprNode) visit(ctx.expression());
+        
+        leftExprNode.leftOpType opType;
         switch (ctx.op.getText()) {
-            case "++" -> l.opCode = leftExprNode.leftOpType.add;
-            case "--" -> l.opCode = leftExprNode.leftOpType.sub;
-            case "~" -> l.opCode = leftExprNode.leftOpType.negation;
-            case "-" -> l.opCode = leftExprNode.leftOpType.negative;
+            case "++" -> opType = leftExprNode.leftOpType.add;
+            case "--" -> opType = leftExprNode.leftOpType.sub;
+            case "~" -> opType = leftExprNode.leftOpType.negation;
+            case "-" -> opType = leftExprNode.leftOpType.negative;
+            default -> opType = leftExprNode.leftOpType.negative; // 默认值
         }
+        
+        // 尝试常量折叠 (只对负号和按位取反进行折叠)
+        if (opType == leftExprNode.leftOpType.negative || opType == leftExprNode.leftOpType.negation) {
+            ExprNode folded = foldUnaryOp(opType, operand, new position(ctx));
+            if (folded != null) {
+                return folded;
+            }
+        }
+        
+        // 如果无法折叠，创建普通的左一元表达式节点
+        leftExprNode l = new leftExprNode(new position(ctx));
+        l.expr = operand;
+        l.opCode = opType;
         return l;
     }
 
     @Override
     public ASTNode visitBoolExpr(MxParser.BoolExprContext ctx) {
-        boolExprNode b = new boolExprNode(new position(ctx));
-        b.lhs = (ExprNode) visit(ctx.expression(0));
-        b.rhs = (ExprNode) visit(ctx.expression(1));
+        ExprNode lhs = (ExprNode) visit(ctx.expression(0));
+        ExprNode rhs = (ExprNode) visit(ctx.expression(1));
+        
+        boolExprNode.boolOpType opType;
         switch (ctx.op.getText()) {
-            case "==" -> b.opCode = boolExprNode.boolOpType.equal;
-            case "!=" -> b.opCode = boolExprNode.boolOpType.notEqual;
-            case "<" -> b.opCode = boolExprNode.boolOpType.less;
-            case ">" -> b.opCode = boolExprNode.boolOpType.greater;
-            case "<=" -> b.opCode = boolExprNode.boolOpType.lessOrEqual;
-            case ">=" -> b.opCode = boolExprNode.boolOpType.greaterOrEqual;
+            case "==" -> opType = boolExprNode.boolOpType.equal;
+            case "!=" -> opType = boolExprNode.boolOpType.notEqual;
+            case "<" -> opType = boolExprNode.boolOpType.less;
+            case ">" -> opType = boolExprNode.boolOpType.greater;
+            case "<=" -> opType = boolExprNode.boolOpType.lessOrEqual;
+            case ">=" -> opType = boolExprNode.boolOpType.greaterOrEqual;
+            default -> opType = boolExprNode.boolOpType.equal; // 默认值
         }
+        
+        // 尝试常量折叠
+        if (isIntConstant(lhs) && isIntConstant(rhs)) {
+            int leftVal = getIntValue(lhs);
+            int rightVal = getIntValue(rhs);
+            ExprNode folded = foldBoolComparison(opType, leftVal, rightVal, new position(ctx));
+            if (folded != null) {
+                return folded;
+            }
+        } else if (isBoolConstant(lhs) && isBoolConstant(rhs) && 
+                   (opType == boolExprNode.boolOpType.equal || opType == boolExprNode.boolOpType.notEqual)) {
+            boolean leftVal = getBoolValue(lhs);
+            boolean rightVal = getBoolValue(rhs);
+            ExprNode folded = foldBoolComparison(opType, leftVal, rightVal, new position(ctx));
+            if (folded != null) {
+                return folded;
+            }
+        }
+
+        boolExprNode b = new boolExprNode(new position(ctx));
+        b.lhs = lhs;
+        b.rhs = rhs;
+        b.opCode = opType;
         return b;
     }
 
