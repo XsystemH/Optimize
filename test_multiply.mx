@@ -1,0 +1,22 @@
+int main() {
+    int a = 10;
+    int b = a * 0;      // 乘以0，应该优化为0
+    int c = a * 1;      // 乘以1，应该优化为a
+    int d = a * 2;      // 乘以2，应该优化为左移1位
+    int e = a * 4;      // 乘以4，应该优化为左移2位
+    int f = a * 8;      // 乘以8，应该优化为左移3位
+    int g = a * 16;     // 乘以16，应该优化为左移4位
+    int h = a * (-1);   // 乘以-1，应该优化为0-a
+    int i = 5 * 3;      // 常量乘法，应该进行常量折叠为15
+    
+    print(toString(b) + " ");
+    print(toString(c) + " ");
+    print(toString(d) + " ");
+    print(toString(e) + " ");
+    print(toString(f) + " ");
+    print(toString(g) + " ");
+    print(toString(h) + " ");
+    print(toString(i));
+    println("");
+    return 0;
+} 

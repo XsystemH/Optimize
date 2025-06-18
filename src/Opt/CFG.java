@@ -906,4 +906,9 @@ public class CFG {
             }
         }
     }
+
+    // 乘法优化
+    public void multiplyOptimization() {
+        Multiply.multiplyOptimization(BasicBlocks);
+    }
 }

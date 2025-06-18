@@ -63,6 +63,16 @@ public class Main {
                         main.init.cfg.Mem2Reg();
                     }
                 }
+                // 乘法优化
+                for (Instr instr : irBuilder.program.instrs) {
+                    if (instr instanceof funcDef func) {
+                        func.cfg.multiplyOptimization();
+                    }
+                    if (instr instanceof mainFn main) {
+                        main.init.cfg.multiplyOptimization();
+                    }
+                }
+                
                 // rm phi
                 for (Instr instr : irBuilder.program.instrs) {
                     if (instr instanceof funcDef func) {
